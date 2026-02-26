@@ -1,0 +1,98 @@
+# =========================
+# Laravel
+# =========================
+
+/vendor/
+/node_modules/
+/public/build/
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/app/*
+!/storage/app/.gitignore
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+
+# =========================
+# Environment files
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# Logs
+# =========================
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# PHP / Composer
+# =========================
+
+composer.lock
+.phpunit.result.cache
+.phpunit.cache
+.phpactor.json
+
+# =========================
+# Testing
+# =========================
+
+/coverage/
+/tests/Browser/screenshots/
+/tests/Browser/console/
+
+# =========================
+# IDE / Editors
+# =========================
+
+.idea/
+.vscode/
+.fleet/
+.zed/
+*.swp
+*.swo
+
+# =========================
+# OS Files
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+# Laravel Sail
+# =========================
+
+.docker/
+docker-compose.override.yml
+
+# =========================
+# Homestead (legacy)
+# =========================
+
+Homestead.json
+Homestead.yaml
+
+# =========================
+# Auth / Private
+# =========================
+
+auth.json
+
+# =========================
+# Build tools
+# =========================
+
+dist/
+.cache/
