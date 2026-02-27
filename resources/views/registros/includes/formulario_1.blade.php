@@ -3,6 +3,7 @@
 
 @php
     $inst = $instancia ?? null;
+    $reg  = $registro ?? null;
 @endphp
 
 <form method="POST"
@@ -18,7 +19,6 @@
          SECCIÓN 1 — Identificación
     ══════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {{-- Header sección --}}
         <div class="flex items-center gap-3 px-5 py-4 border-b border-blue-dark/8 bg-blue-dark/3">
             <div class="w-7 h-7 rounded-lg bg-blue-dark flex items-center justify-center flex-shrink-0">
                 <span class="text-white text-xs font-bold">1</span>
@@ -38,7 +38,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Título del Informe</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="titulo_informe"
-                           value="{{ old('titulo_informe', $inst->titulo_informe ?? '') }}"
+                           value="{{ old('titulo_informe', $reg->titulo_informe ?? '') }}"
                            placeholder="Ej: Informe RIL Puntual Enero 2025"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -49,7 +49,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Código Informe</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="codigo"
-                           value="{{ old('codigo', $inst->codigo_informe ?? '') }}"
+                           value="{{ old('codigo', $reg->codigo_informe ?? '') }}"
                            placeholder="QEN_V4_..."
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -60,7 +60,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Fecha Emisión</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="date" name="fecha_emision"
-                           value="{{ old('fecha_emision', $inst ? $inst->fecha_emision?->format('Y-m-d') : '') }}"
+                           value="{{ old('fecha_emision', $reg?->fecha_emision ?? '') }}"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
                 </div>
             </div>
@@ -70,7 +70,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Cliente / Razón Social</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="cliente_nombre"
-                           value="{{ old('cliente_nombre', $inst->empresa_nombre ?? '') }}"
+                           value="{{ old('cliente_nombre', $reg->empresa_nombre ?? '') }}"
                            placeholder="Razón social del cliente"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -81,7 +81,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Región</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="region"
-                           value="{{ old('region', $inst->region ?? '') }}"
+                           value="{{ old('region', $reg->region ?? '') }}"
                            placeholder="Ej: Región Metropolitana"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -92,32 +92,24 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Comuna / Ciudad</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="comuna"
-                           value="{{ old('comuna', $inst->comuna ?? '') }}"
+                           value="{{ old('comuna', $reg->comuna ?? '') }}"
                            placeholder="Ej: Santiago"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
-            {{-- Mes y Año (span 4) --}}
-            <div class="lg:col-span-4 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Mes y Año del Informe</label>
+            {{-- Dirección Cliente (span 8) --}}
+            <div class="lg:col-span-8 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Dirección Cliente</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
-                    <input type="month" name="mes_año"
-                           value="{{ old('mes_año', $inst->mes_anio_informe ?? '') }}"
-                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
-                </div>
-            </div>
-            <div class="lg:col-span-4 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección de Muestreo</label>
-                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50">
                     <input type="text" name="cliente_direccion"
-                        value="{{ old('cliente_direccion', $inst->cliente_direccion ?? '') }}"
-                        placeholder="Dirección completa del cliente"
-                        class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none">
+                           value="{{ old('cliente_direccion', $reg->cliente_direccion ?? '') }}"
+                           placeholder="Dirección completa del cliente"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
-            {{-- Logo Cliente (span 4) --}}
 
+            {{-- Logo Cliente (span 4) --}}
             <div class="lg:col-span-4">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Logo Empresa Cliente</label>
                 <div class="flex items-center gap-2">
@@ -128,12 +120,12 @@
                                    onchange="document.getElementById('logo_nombre_f1').textContent = this.files[0]?.name ?? 'Sin archivo'">
                         </label>
                         <span id="logo_nombre_f1" class="px-3 text-xs text-gray-400 truncate">
-                            {{ $inst?->logo_cliente ? basename($inst->logo_cliente) : 'Sin archivo seleccionado' }}
+                            {{ $reg?->logo_cliente ? basename($reg->logo_cliente) : 'Sin archivo seleccionado' }}
                         </span>
                     </div>
-                    @if($inst?->logo_cliente)
+                    @if($reg?->logo_cliente)
                         <button type="button"
-                                onclick="viewImage('{{ asset('storage/' . $inst->logo_cliente) }}', 'Logo Cliente: {{ $inst->empresa_nombre }}')"
+                                onclick="viewImage('{{ asset('storage/' . $reg->logo_cliente) }}', 'Logo Cliente: {{ $reg->empresa_nombre }}')"
                                 class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue/10 text-blue hover:bg-blue/20 text-xs font-medium transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -143,7 +135,7 @@
                         </button>
                     @endif
                 </div>
-                @if($inst?->logo_cliente)
+                @if($reg?->logo_cliente)
                     <p class="mt-1 text-xs text-green flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -152,6 +144,7 @@
                     </p>
                 @endif
             </div>
+
         </div>
     </div>
 
@@ -200,22 +193,23 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Nº RCA</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="n_rca"
-                           value="{{ old('n_rca', $inst->n_rca ?? '') }}"
+                           value="{{ old('n_rca', $reg->n_rca ?? '') }}"
                            placeholder="Nº"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
-            {{-- Nombre Proyecto (span 9 o full) --}}
+            {{-- Nombre Proyecto (span 9) --}}
             <div class="lg:col-span-9 group">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Nombre del Proyecto Aprobado</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="nombre_proyecto"
-                           value="{{ old('nombre_proyecto', $inst->nombre_proyecto ?? '') }}"
+                           value="{{ old('nombre_proyecto', $reg->nombre_proyecto ?? '') }}"
                            placeholder="Nombre completo del proyecto aprobado"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -240,9 +234,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
                 @foreach([
-                    ['label'=>'Lugar de Muestreo',                  'name'=>'lugar_muestreo',    'value'=>$inst->lugar_muestreo ?? '',  'placeholder'=>'Nombre del lugar'],
-                    ['label'=>'Dirección de Muestreo',              'name'=>'direccion_muestreo','value'=>$inst->direccion ?? '',       'placeholder'=>'Dirección completa'],
-                    ['label'=>'Identificación Punto de Muestreo',   'name'=>'punto_muestreo',    'value'=>$inst->punto_muestreo ?? '',  'placeholder'=>'Ej: Punto A, Aducción...'],
+                    ['label'=>'Lugar de Muestreo',                'name'=>'lugar_muestreo',    'value'=>$inst->lugar_muestreo ?? '',    'placeholder'=>'Nombre del lugar'],
+                    ['label'=>'Dirección de Muestreo',            'name'=>'direccion_muestreo','value'=>$inst->direccion_muestreo ?? '','placeholder'=>'Dirección completa'],
+                    ['label'=>'Identificación Punto de Muestreo', 'name'=>'punto_muestreo',    'value'=>$inst->punto_muestreo ?? '',    'placeholder'=>'Ej: Punto A, Aducción...'],
                 ] as $field)
                     <div class="group">
                         <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">{{ $field['label'] }}</label>
@@ -285,12 +279,12 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @foreach([
-                            ['label'=>'Toma de Muestra: NCh411/10.Of2005.',        'name_eq'=>'eq_muestreo',   'name_chk'=>'chk_muestreo',   'eq_val'=>$inst->eq_muestreo_cod ?? '',  'chk_val'=>$inst->eq_muestreo_chk ?? true],
-                            ['label'=>'pH: (NCh2313/1.Of95.)',                      'name_eq'=>'eq_ph',         'name_chk'=>'chk_ph',          'eq_val'=>$inst->eq_ph_cod ?? '',         'chk_val'=>$inst->eq_ph_chk ?? true],
-                            ['label'=>'Temperatura: (NCh2313/2.Of95.)',             'name_eq'=>'eq_temperatura','name_chk'=>'chk_temperatura', 'eq_val'=>$inst->eq_temp_cod ?? '',       'chk_val'=>$inst->eq_temp_chk ?? true],
-                            ['label'=>'Cloro libre residual: IMCLB v.03',           'name_eq'=>'eq_cloro',      'name_chk'=>'chk_cloro',       'eq_val'=>$inst->eq_cloro_cod ?? '',      'chk_val'=>$inst->eq_cloro_chk ?? true],
-                        ] as $row)
+                            @foreach([
+                                ['label'=>'Toma de Muestra: NCh411/10.Of2005.',  'name_eq'=>'eq_muestreo_cod',   'name_chk'=>'eq_muestreo_chk',   'eq_val'=>$inst->eq_muestreo_cod ?? '',  'chk_val'=>$inst->eq_muestreo_chk ?? true],
+                                ['label'=>'pH: (NCh2313/1.Of95.)',                'name_eq'=>'eq_ph_cod',         'name_chk'=>'eq_ph_chk',         'eq_val'=>$inst->eq_ph_cod ?? '',         'chk_val'=>$inst->eq_ph_chk ?? true],
+                                ['label'=>'Temperatura: (NCh2313/2.Of95.)',       'name_eq'=>'eq_temp_cod',       'name_chk'=>'eq_temp_chk',       'eq_val'=>$inst->eq_temp_cod ?? '',       'chk_val'=>$inst->eq_temp_chk ?? true],
+                                ['label'=>'Cloro libre residual: IMCLB v.03',     'name_eq'=>'eq_cloro_cod',      'name_chk'=>'eq_cloro_chk',      'eq_val'=>$inst->eq_cloro_cod ?? '',      'chk_val'=>$inst->eq_cloro_chk ?? true],
+                            ] as $row)
                             <tr class="hover:bg-gray-50/50 transition-colors">
                                 <td class="px-4 py-2.5 text-xs text-gray-600">{{ $row['label'] }}</td>
                                 <td class="px-4 py-2.5">
@@ -302,9 +296,10 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-2.5 text-center">
-                                    <input type="checkbox" name="{{ $row['name_chk'] }}"
-                                           {{ old($row['name_chk'], $row['chk_val']) ? 'checked' : '' }}
-                                           class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
+                                    <input type="hidden" name="{{ $row['name_chk'] }}" value="0">
+                                    <input type="checkbox" name="{{ $row['name_chk'] }}" value="1"
+                                        {{ old($row['name_chk'], $row['chk_val']) ? 'checked' : '' }}
+                                        class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
                                 </td>
                             </tr>
                         @endforeach
@@ -342,10 +337,18 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @foreach([
-                        ['item'=>'Inicio', 'suffix'=>'inicio', 'date_val'=>$inst?->r_f_inicio?->format('Y-m-d'), 'time_val'=>$inst?->r_h_inicio?->format('H:i'), 'ph_val'=>$inst->r_ph_inicio ?? '', 'temp_val'=>$inst->r_t_inicio ?? ''],
-                        ['item'=>'Fin',    'suffix'=>'fin',    'date_val'=>$inst?->r_f_fin?->format('Y-m-d'),    'time_val'=>$inst?->r_h_fin?->format('H:i'),    'ph_val'=>$inst->r_ph_fin ?? '',    'temp_val'=>$inst->r_t_fin ?? ''],
-                    ] as $row)
+                        @foreach([
+                            ['item'=>'Inicio', 'suffix'=>'inicio',
+                                'date_val' => $inst?->r_f_inicio?->format('Y-m-d'),
+                                'time_val' => $inst?->r_h_inicio ?? '',   {{-- ya es string sin cast --}}
+                                'ph_val'   => $inst->r_ph_inicio ?? '',
+                                'temp_val' => $inst->r_t_inicio ?? ''],
+                            ['item'=>'Fin', 'suffix'=>'fin',
+                                'date_val' => $inst?->r_f_fin?->format('Y-m-d'),
+                                'time_val' => $inst?->r_h_fin ?? '',
+                                'ph_val'   => $inst->r_ph_fin ?? '',
+                                'temp_val' => $inst->r_t_fin ?? ''],
+                        ] as $row)
                         <tr class="hover:bg-gray-50/50">
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold
@@ -400,7 +403,7 @@
                 <div class="rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <textarea name="observaciones" rows="3"
                               class="w-full bg-transparent border-none px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 resize-none rounded-xl"
-                              placeholder="Observaciones del muestreo...">{{ old('obs', $inst->observaciones ?? 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...') }}</textarea>
+                              placeholder="Observaciones del muestreo...">{{ old('observaciones', $inst->observaciones ?? 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...') }}</textarea>
                 </div>
             </div>
 
@@ -414,7 +417,6 @@
                 ] as $anexo)
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 hover:border-blue-light/40 transition-colors">
 
-                        {{-- Cabecera: número + botón ver --}}
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-blue-dark text-white text-xs font-bold">
                                 {{ $anexo['n'] }}
@@ -432,19 +434,17 @@
                             @endif
                         </div>
 
-                        {{-- Título editable --}}
                         <div class="group">
                             <label class="block text-xs text-gray-400 mb-1">Título</label>
                             <div class="flex items-center rounded-lg border border-gray-200 bg-white transition-all duration-150 focus-within:border-orange focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
                                 <input type="text"
-                                    name="{{ $anexo['title_name'] }}"
-                                    value="{{ old($anexo['title_name'], $anexo['title_val']) }}"
-                                    placeholder="Título del anexo"
-                                    class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-0">
+                                       name="{{ $anexo['title_name'] }}"
+                                       value="{{ old($anexo['title_name'], $anexo['title_val']) }}"
+                                       placeholder="Título del anexo"
+                                       class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-0">
                             </div>
                         </div>
 
-                        {{-- Selector de archivo --}}
                         <label class="block cursor-pointer">
                             <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-white hover:border-orange/50 hover:bg-orange/3 transition-all text-xs text-gray-500 hover:text-orange">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -453,23 +453,20 @@
                                 <span class="truncate">{{ $anexo['file'] ? 'Reemplazar imagen' : 'Subir imagen' }}</span>
                             </div>
                             <input type="file"
-                                name="{{ $anexo['name'] }}"
-                                accept="image/*"
-                                class="hidden"
-                                data-preview-name="anexo_nombre_{{ $anexo['n'] }}"
-                                onchange="onAnexoFileChange(this, {{ $anexo['n'] }})">
+                                   name="{{ $anexo['name'] }}"
+                                   accept="image/*"
+                                   class="hidden"
+                                   onchange="onAnexoFileChange(this, {{ $anexo['n'] }})">
                         </label>
 
-                        {{-- Nombre del archivo seleccionado (oculto hasta que se elija uno) --}}
                         <p id="anexo_nombre_{{ $anexo['n'] }}"
-                        class="hidden text-xs text-gray-500 flex items-center gap-1 truncate">
+                           class="hidden text-xs text-gray-500 flex items-center gap-1 truncate">
                             <svg class="w-3 h-3 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                             </svg>
                             <span id="anexo_nombre_texto_{{ $anexo['n'] }}"></span>
                         </p>
 
-                        {{-- Imagen ya guardada en BD --}}
                         @if($anexo['file'])
                             <p class="text-xs text-green flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -507,17 +504,15 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('Formulario');
+    const form   = document.getElementById('Formulario');
     const inputs = form.querySelectorAll('input, textarea, select');
 
-    // Agregar required automáticamente a todos excepto disabled y file
     inputs.forEach(input => {
         if (!input.disabled && input.type !== 'file') {
             input.setAttribute('required', 'required');
         }
     });
 
-    // Interceptar el submit para mostrar toast en caso de errores
     form.addEventListener('submit', function(event) {
         let invalidFields = [];
 
@@ -525,29 +520,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (input.disabled) return;
 
             if (input.type === 'file') {
-                const wrapper = input.closest('div, label')?.closest('[class*="space-y"]')
-                             ?? input.closest('.bg-gray-50');
+                const wrapper    = input.closest('div, label')?.closest('[class*="space-y"]') ?? input.closest('.bg-gray-50');
                 const yaGuardado = wrapper?.querySelector('.text-green') !== null;
-
-                if (!yaGuardado && input.files.length === 0) {
-                    invalidFields.push(input);
-                }
+                if (!yaGuardado && input.files.length === 0) invalidFields.push(input);
             } else {
-                if (!input.checkValidity()) {
-                    invalidFields.push(input);
-                }
+                if (!input.checkValidity()) invalidFields.push(input);
             }
         });
 
         if (invalidFields.length > 0) {
             event.preventDefault();
 
-            const UMBRAL = 3;
-
+            const UMBRAL     = 3;
             const fieldNames = invalidFields.map(f => {
                 if (f.type === 'file') {
                     const container = f.closest('.bg-gray-50');
-                    const num = container?.querySelector('.bg-blue-dark')?.textContent?.trim();
+                    const num       = container?.querySelector('.bg-blue-dark')?.textContent?.trim();
                     return num ? `Anexo ${num}` : (f.name || 'Archivo requerido');
                 }
                 let label = f.closest('.group')?.querySelector('label')?.textContent || f.name;
@@ -558,45 +546,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `Hay ${fieldNames.length} campos obligatorios sin completar. Por favor revisa el formulario.`
                 : `Faltan datos obligatorios: ${fieldNames.join(', ')}`;
 
-            window.dispatchEvent(new CustomEvent('notify', {
-                detail: {
-                    message: mensaje,
-                    type: 'error'
-                }
-            }));
+            window.dispatchEvent(new CustomEvent('notify', { detail: { message: mensaje, type: 'error' } }));
 
-            // Enfocar el primer campo no-file inválido, o hacer scroll al file
             const firstNonFile = invalidFields.find(f => f.type !== 'file');
             const firstInvalid = firstNonFile ?? invalidFields[0];
 
             if (firstInvalid.type === 'file') {
                 firstInvalid.closest('.bg-gray-50')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                invalidFields
-                    .filter(f => f.type === 'file')
-                    .forEach(f => {
-                        const box = f.closest('.bg-gray-50');
-                        if (box) {
-                            box.classList.add('!border-red-400', 'ring-2', 'ring-red-300');
-                            setTimeout(() => box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300'), 3000);
-                        }
-                    });
+                invalidFields.filter(f => f.type === 'file').forEach(f => {
+                    const box = f.closest('.bg-gray-50');
+                    if (box) {
+                        box.classList.add('!border-red-400', 'ring-2', 'ring-red-300');
+                        setTimeout(() => box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300'), 3000);
+                    }
+                });
             } else {
                 firstInvalid.focus();
             }
         }
     });
 
-    // Quitar resaltado rojo cuando el usuario selecciona un archivo
     form.querySelectorAll('input[type="file"]').forEach(fileInput => {
         fileInput.addEventListener('change', () => {
             const box = fileInput.closest('.bg-gray-50');
-            if (box) {
-                box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
-            }
+            if (box) box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
         });
     });
 
-    // Mostrar nombre del archivo al seleccionar un anexo
     window.onAnexoFileChange = function(input, n) {
         const nombreContenedor = document.getElementById(`anexo_nombre_${n}`);
         const nombreTexto      = document.getElementById(`anexo_nombre_texto_${n}`);
@@ -605,8 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (input.files.length > 0) {
             nombreTexto.textContent = input.files[0].name;
             nombreContenedor.classList.remove('hidden');
-
-            // Quitar resaltado de error si lo tenía
             if (box) box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
         } else {
             nombreContenedor.classList.add('hidden');

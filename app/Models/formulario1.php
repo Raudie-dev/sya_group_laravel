@@ -10,14 +10,16 @@ class formulario1 extends Model
 
     protected $fillable = [
         'registro_id',
-        'inspector_nombre',
-        'inspector_rut',
-        'lugar_muestreo',
-        'direccion_muestreo',
-        'punto_muestreo',
-        'inicio_muestreo',
-        'fin_muestreo',
+        'inspector_nombre', 'inspector_rut',
+        'lugar_muestreo', 'direccion_muestreo', 'punto_muestreo',
+        'inicio_muestreo', 'fin_muestreo',
         'observaciones',
+        'eq_muestreo_cod', 'eq_muestreo_chk',
+        'eq_ph_cod', 'eq_ph_chk',
+        'eq_temp_cod', 'eq_temp_chk',
+        'eq_cloro_cod', 'eq_cloro_chk',
+        'r_f_inicio', 'r_h_inicio', 'r_ph_inicio', 'r_t_inicio',
+        'r_f_fin', 'r_h_fin', 'r_ph_fin', 'r_t_fin',
         'anexo_1_titulo', 'anexo_1_file',
         'anexo_2_titulo', 'anexo_2_file',
         'anexo_3_titulo', 'anexo_3_file',
@@ -29,8 +31,6 @@ class formulario1 extends Model
         'fin_muestreo'    => 'datetime',
         'r_f_inicio'      => 'date',
         'r_f_fin'         => 'date',
-        'r_h_inicio'      => 'datetime:H:i',
-        'r_h_fin'         => 'datetime:H:i',
     ];
 
     public function registro()
