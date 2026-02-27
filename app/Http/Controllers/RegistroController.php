@@ -7,6 +7,7 @@ use App\Models\formulario_1;
 use App\Models\formulario_2;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RegistroController extends Controller
 {
@@ -40,36 +41,62 @@ class RegistroController extends Controller
     */
     public function store(Request $request, $tipo_form_id = null)
     {
+        // Validación mínima del tipo de formulario
         $request->validate([
             'tipo_form_id' => 'required|integer',
         ]);
 
-        DB::transaction(function () use ($request) {
+        // Validación de los campos específicos según el formulario
+        $modeloFormulario = Registro::$formularios[$request->tipo_form_id] ?? null;
+        if ($modeloFormulario) {
+            $request->validate($modeloFormulario::rules());
+        }
 
-            $registro = Registro::create(
-                $request->only([
-                    'tipo_form_id',
-                    'titulo_informe',
-                    'codigo_informe',
-                    'fecha_emision',
-                    'empresa_nombre',
-                    'cliente_direccion',
-                    'region',
-                    'comuna',
-                    'logo_cliente',
-                    'nombre_proyecto',
-                    'n_rca'
-                ])
-            );
+        DB::transaction(function () use ($request, $modeloFormulario) {
 
-            $modeloFormulario = Registro::$formularios[$request->tipo_form_id] ?? null;
+            // Guardar logo del cliente si se subió
+            $logoPath = null;
+            if ($request->hasFile('logo_cliente')) {
+                $file = $request->file('logo_cliente');
+                $logoPath = $file->store('logos_clientes', 'public'); // Carpeta storage/app/public/logos_clientes
+            }
 
+            // Crear registro principal
+            $registro = Registro::create([
+                'tipo_form_id'     => $request->tipo_form_id,
+                'titulo_informe'   => $request->titulo_informe,
+                'codigo_informe'   => $request->codigo,           // mapeo
+                'fecha_emision'    => $request->fecha_emision,
+                'empresa_nombre'   => $request->cliente_nombre,   // mapeo
+                'cliente_direccion'=> $request->cliente_direccion ?? '',
+                'region'           => $request->region,
+                'comuna'           => $request->comuna,
+                'logo_cliente'     => $logoPath,
+                'nombre_proyecto'  => $request->nombre_proyecto,
+                'n_rca'            => $request->n_rca,
+            ]);
+
+            // Guardar formulario específico si existe
             if ($modeloFormulario) {
-
                 $formulario = new $modeloFormulario();
-
                 $formulario->fill($request->all());
                 $formulario->registro_id = $registro->id;
+
+                // Guardar anexos (1 al 4)
+                foreach (range(1, 4) as $i) {
+                    $fileInput = 'an'.$i;
+                    $titleInput = 'an'.$i.'_titulo';
+
+                    if ($request->hasFile($fileInput)) {
+                        $file = $request->file($fileInput);
+                        $path = $file->store('anexos_form1', 'public'); // Carpeta storage/app/public/anexos_form1
+                        $formulario->{'anexo_'.$i.'_file'} = $path;
+                    }
+
+                    if ($request->filled($titleInput)) {
+                        $formulario->{'anexo_'.$i.'_titulo'} = $request->$titleInput;
+                    }
+                }
 
                 $formulario->save();
             }
@@ -108,7 +135,11 @@ class RegistroController extends Controller
             $instancia = $modeloFormulario::where('registro_id', $registro->id)->first();
         }
 
-        return view('registros.edit', compact('registro', 'instancia'));
+        if (!$instancia) {
+            abort(404, 'Formulario no encontrado.');
+        }
+
+        return view('registros.create', compact('registro', 'instancia'));
     }
 
 
@@ -123,29 +154,53 @@ class RegistroController extends Controller
 
         DB::transaction(function () use ($request, $registro) {
 
-            $registro->update(
-                $request->only([
-                    'titulo_informe',
-                    'codigo_informe',
-                    'fecha_emision',
-                    'empresa_nombre',
-                    'cliente_direccion',
-                    'region',
-                    'comuna',
-                    'logo_cliente',
-                    'nombre_proyecto',
-                    'n_rca'
-                ])
-            );
+            // Guardar nuevo logo si se subió
+            $logoPath = $registro->logo_cliente; // mantener el anterior por defecto
+            if ($request->hasFile('logo_cliente')) {
+                $file = $request->file('logo_cliente');
+                $logoPath = $file->store('logos_clientes', 'public'); // Carpeta storage/app/public/logos_clientes
+            }
 
+            // Actualizar campos principales del registro
+            $registro->update([
+                'titulo_informe'    => $request->titulo_informe,
+                'codigo_informe'    => $request->codigo_informe,
+                'fecha_emision'     => $request->fecha_emision,
+                'empresa_nombre'    => $request->empresa_nombre,
+                'cliente_direccion' => $request->cliente_direccion ?? '',
+                'region'            => $request->region,
+                'comuna'            => $request->comuna,
+                'logo_cliente'      => $logoPath,
+                'nombre_proyecto'   => $request->nombre_proyecto,
+                'n_rca'             => $request->n_rca,
+            ]);
+
+            // Actualizar formulario específico si existe
             $modeloFormulario = Registro::$formularios[$registro->tipo_form_id] ?? null;
 
             if ($modeloFormulario) {
-
                 $formulario = $modeloFormulario::where('registro_id', $registro->id)->first();
 
                 if ($formulario) {
-                    $formulario->update($request->all());
+                    $formulario->fill($request->all());
+
+                    // Guardar anexos (1 al 4)
+                    foreach (range(1, 4) as $i) {
+                        $fileInput = 'an'.$i;
+                        $titleInput = 'an'.$i.'_titulo';
+
+                        if ($request->hasFile($fileInput)) {
+                            $file = $request->file($fileInput);
+                            $path = $file->store('anexos_form1', 'public'); // Carpeta storage/app/public/anexos_form1
+                            $formulario->{'anexo_'.$i.'_file'} = $path;
+                        }
+
+                        if ($request->filled($titleInput)) {
+                            $formulario->{'anexo_'.$i.'_titulo'} = $request->$titleInput;
+                        }
+                    }
+
+                    $formulario->save();
                 }
             }
         });
@@ -166,5 +221,22 @@ class RegistroController extends Controller
 
         return redirect()->route('registros.index')
             ->with('success', 'Registro eliminado correctamente');
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | PDF
+    |--------------------------------------------------------------------------
+    */
+    public function pdf($id)
+    {
+        $registro = Registro::with('formulario')->findOrFail($id);
+
+        // Genera el PDF usando la vista
+        $pdf = Pdf::loadView('registros.pdf', compact('registro'))
+                ->setPaper('a4', 'portrait');
+
+        // Puedes descargarlo o mostrarlo en el navegador
+        return $pdf->show('registro_'.$registro->id.'.pdf');
+        // return $pdf->stream('registro_'.$registro->id.'.pdf'); // para verlo en el navegador
     }
 }

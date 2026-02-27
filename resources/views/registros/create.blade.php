@@ -1,6 +1,6 @@
 <x-app-layout>
 @php
-    $tipoForm = old('tipo_form_id', isset($instancia) ? $instancia->tipo_form_id : 1);
+    $tipoForm = old('tipo_form_id', $registro->tipo_form_id ?? 1);
 @endphp
 
     <x-slot name="header">

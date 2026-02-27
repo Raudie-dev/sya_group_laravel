@@ -7,9 +7,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [RegistroController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -42,5 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/usuarios', function () {
         return view('usuarios.index'); 
     })->name('usuarios.index');
+
+    Route::get('/registros/{id}/pdf', [RegistroController::class, 'pdf'])->name('registros.pdf');
 });
 require __DIR__.'/auth.php';

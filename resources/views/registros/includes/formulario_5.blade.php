@@ -18,10 +18,9 @@
     <input type="hidden" name="tipo_form_id" value="5">
 
 
-    {{-- ══════════════════════════════════════════
-         SECCIÓN 1 — Identificación del Informe y Cliente
-    ══════════════════════════════════════════ --}}
+    {{-- ══ SECCIÓN 1 — Identificación y Antecedentes ══ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {{-- Header sección --}}
         <div class="flex items-center gap-3 px-5 py-4 border-b border-blue-dark/8 bg-blue-dark/3">
             <div class="w-7 h-7 rounded-lg bg-blue-dark flex items-center justify-center flex-shrink-0">
                 <span class="text-white text-xs font-bold">1</span>
@@ -36,99 +35,99 @@
         </div>
         <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
 
+            {{-- Título Informe (span 6) --}}
             <div class="lg:col-span-6 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Título del Informe</label>
-                <div class="{{ $fw }}">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Título del Informe</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="titulo_informe"
-                           value="{{ old('titulo_informe', $inst->titulo_informe ?? 'Resultados de Análisis Muestreo RILes') }}"
-                           class="{{ $fc }}">
+                           value="{{ old('titulo_informe', $inst->titulo_informe ?? '') }}"
+                           placeholder="Ej: Informe RIL Puntual Enero 2025"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
+            {{-- Código (span 3) --}}
             <div class="lg:col-span-3 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Código Informe</label>
-                <div class="{{ $fw }}">
-                    <input type="text" name="codigo_informe"
-                           value="{{ old('codigo_informe', $inst->codigo_informe ?? '') }}"
-                           placeholder="Ej: QEN_V3_..." class="{{ $fc }}">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Código Informe</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="codigo"
+                           value="{{ old('codigo', $inst->codigo_informe ?? '') }}"
+                           placeholder="QEN_V4_..."
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
+            {{-- Fecha Emisión (span 3) --}}
             <div class="lg:col-span-3 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Fecha Emisión</label>
-                <div class="{{ $fw }}">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Fecha Emisión</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="date" name="fecha_emision"
-                           value="{{ old('fecha_emision', $inst?->fecha_emision?->format('Y-m-d') ?? '') }}"
-                           class="{{ $fc }}">
+                           value="{{ old('fecha_emision', $inst ? $inst->fecha_emision?->format('Y-m-d') : '') }}"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
-            <div class="lg:col-span-6 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Cliente / Razón Social</label>
-                <div class="{{ $fw }}">
+            {{-- Cliente (span 4) --}}
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Cliente / Razón Social</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="cliente_nombre"
-                           value="{{ old('cliente_nombre', $inst->cliente_nombre ?? 'Quintero Energía SpA.') }}"
-                           class="{{ $fc }}">
+                           value="{{ old('cliente_nombre', $inst->empresa_nombre ?? '') }}"
+                           placeholder="Razón social del cliente"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
-            <div class="lg:col-span-6 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Unidad / Lugar Principal (Portada)</label>
-                <div class="{{ $fw }}">
-                    <input type="text" name="lugar_muestreo"
-                           value="{{ old('lugar_muestreo', $inst->lugar_muestreo ?? 'UNIDAD 3') }}"
-                           class="{{ $fc }}">
-                </div>
-            </div>
-
+            {{-- Región (span 4) --}}
             <div class="lg:col-span-4 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Región</label>
-                <div class="{{ $fw }}">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Región</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="region"
-                           value="{{ old('region', $inst->region ?? 'Región de Valparaíso') }}"
-                           class="{{ $fc }}">
+                           value="{{ old('region', $inst->region ?? '') }}"
+                           placeholder="Ej: Región Metropolitana"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
+            {{-- Comuna (span 4) --}}
             <div class="lg:col-span-4 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Comuna / Ciudad</label>
-                <div class="{{ $fw }}">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Comuna / Ciudad</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="comuna"
-                           value="{{ old('comuna', $inst->comuna ?? 'Puchuncaví') }}"
-                           class="{{ $fc }}">
+                           value="{{ old('comuna', $inst->comuna ?? '') }}"
+                           placeholder="Ej: Santiago"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
+            {{-- Mes y Año (span 4) --}}
             <div class="lg:col-span-4 group">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Mes y Año (Texto Portada)</label>
-                <div class="{{ $fw }}">
-                    <input type="text" name="fecha_elaboracion"
-                           value="{{ old('fecha_elaboracion', $inst->fecha_elaboracion ?? '') }}"
-                           placeholder="Ej: Noviembre 2025" class="{{ $fc }}">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Mes y Año del Informe</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="month" name="mes_año"
+                           value="{{ old('mes_año', $inst->mes_anio_informe ?? '') }}"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
-            {{-- Logo — ocupa todo el ancho igual que el original col-md-12 --}}
-            <div class="lg:col-span-12">
+            {{-- Logo Cliente (span 8) --}}
+            <div class="lg:col-span-8">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Logo Empresa Cliente</label>
-                <div class="flex items-center gap-3">
-                    <label class="flex-1 flex items-center rounded-xl border border-gray-200 bg-gray-50
-                                  hover:border-blue-light/60 transition-all overflow-hidden cursor-pointer">
-                        <span class="flex-shrink-0 px-3 py-2 text-xs text-gray-500 bg-gray-100 border-r border-gray-200
-                                     hover:bg-gray-200 transition-colors">
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 flex items-center rounded-xl border border-gray-200 bg-gray-50 hover:border-blue-light/60 transition-all duration-200 overflow-hidden">
+                        <label class="flex-shrink-0 px-3 py-2 text-xs text-gray-500 bg-gray-100 border-r border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors">
                             Seleccionar
-                        </span>
-                        <span class="px-3 text-xs text-gray-400 truncate" id="logo_f5_nombre">
+                            <input type="file" name="logo_cliente" accept="image/*" class="hidden"
+                                   onchange="document.getElementById('logo_nombre_f1').textContent = this.files[0]?.name ?? 'Sin archivo'">
+                        </label>
+                        <span id="logo_nombre_f1" class="px-3 text-xs text-gray-400 truncate">
                             {{ $inst?->logo_cliente ? basename($inst->logo_cliente) : 'Sin archivo seleccionado' }}
                         </span>
-                        <input type="file" name="logo_cliente" accept="image/*" class="hidden"
-                               onchange="document.getElementById('logo_f5_nombre').textContent = this.files[0]?.name ?? 'Sin archivo'">
-                    </label>
+                    </div>
                     @if($inst?->logo_cliente)
                         <button type="button"
-                                onclick="viewImage('{{ asset('storage/' . $inst->logo_cliente) }}', 'Logo Cliente')"
-                                class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl
-                                       bg-blue/10 text-blue hover:bg-blue/20 text-xs font-medium transition-colors">
+                                onclick="viewImage('{{ asset('storage/' . $inst->logo_cliente) }}', 'Logo Cliente: {{ $inst->empresa_nombre }}')"
+                                class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue/10 text-blue hover:bg-blue/20 text-xs font-medium transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -137,6 +136,14 @@
                         </button>
                     @endif
                 </div>
+                @if($inst?->logo_cliente)
+                    <p class="mt-1 text-xs text-green flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Imagen cargada actualmente
+                    </p>
+                @endif
             </div>
         </div>
     </div>

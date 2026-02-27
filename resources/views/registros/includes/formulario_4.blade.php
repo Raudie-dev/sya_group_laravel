@@ -19,10 +19,9 @@
     <input type="hidden" name="tipo_form_id" value="4">
 
 
-    {{-- ══════════════════════════════════════════
-         SECCIÓN 1 — Identificación y Antecedentes
-    ══════════════════════════════════════════ --}}
+    {{-- ══ SECCIÓN 1 — Identificación y Antecedentes ══ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {{-- Header sección --}}
         <div class="flex items-center gap-3 px-5 py-4 border-b border-blue-dark/8 bg-blue-dark/3">
             <div class="w-7 h-7 rounded-lg bg-blue-dark flex items-center justify-center flex-shrink-0">
                 <span class="text-white text-xs font-bold">1</span>
@@ -30,162 +29,122 @@
             <div class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <h3 class="font-semibold text-blue-dark text-sm">1. Identificación y Antecedentes Generales</h3>
+                <h3 class="font-semibold text-blue-dark text-sm">1. Identificación del Informe y Cliente</h3>
             </div>
         </div>
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
 
-        <div class="p-5 space-y-5">
-
-            {{-- ── Portada ── --}}
-            <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Portada</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
-
-                    <div class="lg:col-span-6 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Título del Informe</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="titulo_informe"
-                                   value="{{ old('titulo_informe', $inst->titulo_informe ?? 'Resultados de Análisis Muestreo RILes') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-3 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Código Informe</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="codigo_informe"
-                                   value="{{ old('codigo_informe', $inst->codigo_informe ?? 'QEN_V3_AD_04112025HTE_SST') }}"
-                                   placeholder="QEN_V3_..." class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-3 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Fecha Elaboración (Mes - Año)</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="fecha_elaboracion"
-                                   value="{{ old('fecha_elaboracion', $inst->fecha_elaboracion ?? 'Noviembre 2025') }}"
-                                   placeholder="Ej: Noviembre 2025" class="{{ $fc }}">
-                        </div>
-                    </div>
+            {{-- Título Informe (span 6) --}}
+            <div class="lg:col-span-6 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Título del Informe</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="titulo_informe"
+                           value="{{ old('titulo_informe', $inst->titulo_informe ?? '') }}"
+                           placeholder="Ej: Informe RIL Puntual Enero 2025"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
-            {{-- ── Divisor ── --}}
-            <div class="border-t border-gray-100"></div>
-
-            {{-- ── Antecedentes ── --}}
-            <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Antecedentes</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
-
-                    <div class="lg:col-span-3 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Fecha Emisión Informe</label>
-                        <div class="{{ $fw }}">
-                            <input type="date" name="fecha_emision"
-                                   value="{{ old('fecha_emision', $inst?->fecha_emision?->format('Y-m-d') ?? '') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-3 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Nº RCA</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="n_rca"
-                                   value="{{ old('n_rca', $inst->n_rca ?? 'Resolución Exenta Nº 1124/ 2006') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-6 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Nombre del Proyecto Aprobado</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="nombre_proyecto"
-                                   value="{{ old('nombre_proyecto', $inst->nombre_proyecto ?? 'Monitoreo Autocontrol Central Termoeléctrica Nueva Ventanas') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Nombre Cliente</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="cliente_nombre"
-                                   value="{{ old('cliente_nombre', $inst->cliente_nombre ?? 'Quintero Energía SpA.') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-8 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Dirección Cliente</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="cliente_direccion"
-                                   value="{{ old('cliente_direccion', $inst->cliente_direccion ?? 'Avenida Los Militares 5953, of 1606, Las Condes, Santiago') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Comuna / Ciudad</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="comuna"
-                                   value="{{ old('comuna', $inst->comuna ?? 'Las Condes') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Región</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="region"
-                                   value="{{ old('region', $inst->region ?? 'Región metropolitana') }}"
-                                   class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 group">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Inspector Ambiental</label>
-                        <div class="{{ $fw }}">
-                            <input type="text" name="inspector_nombre"
-                                   value="{{ old('inspector_nombre', $inst->inspector_nombre ?? 'René Díaz V.') }}"
-                                   placeholder="Nombre inspector" class="{{ $fc }}">
-                        </div>
-                    </div>
-
-                    {{-- Logo Cliente --}}
-                    <div class="lg:col-span-4">
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Logo Empresa Cliente</label>
-                        <div class="flex items-center gap-2">
-                            <label class="flex-1 flex items-center rounded-xl border border-gray-200 bg-gray-50 hover:border-blue-light/60 transition-all overflow-hidden cursor-pointer">
-                                <span class="flex-shrink-0 px-3 py-2 text-xs text-gray-500 bg-gray-100 border-r border-gray-200 hover:bg-gray-200 transition-colors">
-                                    Seleccionar
-                                </span>
-                                <span class="px-3 text-xs text-gray-400 truncate" id="logo_f4_nombre">
-                                    {{ $inst?->logo_cliente ? basename($inst->logo_cliente) : 'Sin archivo seleccionado' }}
-                                </span>
-                                <input type="file" name="logo_cliente" accept="image/*" class="hidden"
-                                       onchange="document.getElementById('logo_f4_nombre').textContent = this.files[0]?.name ?? 'Sin archivo'">
-                            </label>
-                            @if($inst?->logo_cliente)
-                                <button type="button"
-                                        onclick="viewImage('{{ asset('storage/' . $inst->logo_cliente) }}', 'Logo Cliente')"
-                                        class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue/10 text-blue hover:bg-blue/20 text-xs font-medium transition-colors">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Ver
-                                </button>
-                            @endif
-                        </div>
-                        @if($inst?->logo_cliente)
-                            <p class="mt-1 text-xs text-green flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                Imagen cargada
-                            </p>
-                        @endif
-                    </div>
+            {{-- Código (span 3) --}}
+            <div class="lg:col-span-3 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Código Informe</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="codigo"
+                           value="{{ old('codigo', $inst->codigo_informe ?? '') }}"
+                           placeholder="QEN_V4_..."
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
+            </div>
+
+            {{-- Fecha Emisión (span 3) --}}
+            <div class="lg:col-span-3 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Fecha Emisión</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="date" name="fecha_emision"
+                           value="{{ old('fecha_emision', $inst ? $inst->fecha_emision?->format('Y-m-d') : '') }}"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- Cliente (span 4) --}}
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Cliente / Razón Social</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="cliente_nombre"
+                           value="{{ old('cliente_nombre', $inst->empresa_nombre ?? '') }}"
+                           placeholder="Razón social del cliente"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- Región (span 4) --}}
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Región</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="region"
+                           value="{{ old('region', $inst->region ?? '') }}"
+                           placeholder="Ej: Región Metropolitana"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- Comuna (span 4) --}}
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Comuna / Ciudad</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="comuna"
+                           value="{{ old('comuna', $inst->comuna ?? '') }}"
+                           placeholder="Ej: Santiago"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- Mes y Año (span 4) --}}
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Mes y Año del Informe</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="month" name="mes_año"
+                           value="{{ old('mes_año', $inst->mes_anio_informe ?? '') }}"
+                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- Logo Cliente (span 8) --}}
+            <div class="lg:col-span-8">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Logo Empresa Cliente</label>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 flex items-center rounded-xl border border-gray-200 bg-gray-50 hover:border-blue-light/60 transition-all duration-200 overflow-hidden">
+                        <label class="flex-shrink-0 px-3 py-2 text-xs text-gray-500 bg-gray-100 border-r border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors">
+                            Seleccionar
+                            <input type="file" name="logo_cliente" accept="image/*" class="hidden"
+                                   onchange="document.getElementById('logo_nombre_f1').textContent = this.files[0]?.name ?? 'Sin archivo'">
+                        </label>
+                        <span id="logo_nombre_f1" class="px-3 text-xs text-gray-400 truncate">
+                            {{ $inst?->logo_cliente ? basename($inst->logo_cliente) : 'Sin archivo seleccionado' }}
+                        </span>
+                    </div>
+                    @if($inst?->logo_cliente)
+                        <button type="button"
+                                onclick="viewImage('{{ asset('storage/' . $inst->logo_cliente) }}', 'Logo Cliente: {{ $inst->empresa_nombre }}')"
+                                class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue/10 text-blue hover:bg-blue/20 text-xs font-medium transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Ver
+                        </button>
+                    @endif
+                </div>
+                @if($inst?->logo_cliente)
+                    <p class="mt-1 text-xs text-green flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Imagen cargada actualmente
+                    </p>
+                @endif
             </div>
         </div>
     </div>
@@ -418,7 +377,7 @@
                                 <td class="px-3 py-3">
                                     <div class="{{ $fws }}">
                                         <input type="number" step="0.01" name="insitu_ph_{{ $row['suf'] }}"
-                                               value="{{ old('insitu_ph_'.$row['suf'], $inst->pk ? number_format($inst->{'insitu_ph_'.$row['suf']}, 2) : $row['ph_def']) }}"
+                                               value="{{ old('insitu_ph_'.$row['suf'], $inst?->pk ? number_format($inst->{'insitu_ph_'.$row['suf']}, 2) : $row['ph_def']) }}"
                                                class="{{ $fcs }}">
                                     </div>
                                 </td>
@@ -426,7 +385,7 @@
                                 <td class="px-3 py-3">
                                     <div class="{{ $fws }}">
                                         <input type="number" step="0.01" name="insitu_temp_{{ $row['suf'] }}"
-                                               value="{{ old('insitu_temp_'.$row['suf'], $inst->pk ? number_format($inst->{'insitu_temp_'.$row['suf']}, 2) : $row['temp_def']) }}"
+                                               value="{{ old('insitu_temp_'.$row['suf'], $inst?->pk ? number_format($inst->{'insitu_temp_'.$row['suf']}, 2) : $row['temp_def']) }}"
                                                class="{{ $fcs }}">
                                     </div>
                                 </td>
@@ -434,7 +393,7 @@
                                 <td class="px-3 py-3">
                                     <div class="{{ $fws }}">
                                         <input type="number" step="0.01" name="insitu_cloro_{{ $row['suf'] }}"
-                                               value="{{ old('insitu_cloro_'.$row['suf'], $inst->pk ? number_format($inst->{'insitu_cloro_'.$row['suf']}, 2) : $row['cloro_def']) }}"
+                                               value="{{ old('insitu_cloro_'.$row['suf'], $inst?->pk ? number_format($inst->{'insitu_cloro_'.$row['suf']}, 2) : $row['cloro_def']) }}"
                                                class="{{ $fcs }}">
                                     </div>
                                 </td>
@@ -452,7 +411,7 @@
                 <div class="w-full sm:w-40 group">
                     <div class="{{ $fw }}">
                         <input type="number" step="0.01" name="temp_primera_muestra"
-                               value="{{ old('temp_primera_muestra', $inst->pk ? number_format($inst->temp_primera_muestra, 2) : 10.2) }}"
+                               value="{{ old('temp_primera_muestra', $inst?->pk ? number_format($inst->temp_primera_muestra, 2) : 10.2) }}"
                                placeholder="Ej: 10.20"
                                class="{{ $fc }}">
                     </div>

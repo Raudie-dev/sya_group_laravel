@@ -6,6 +6,7 @@
 @endphp
 
 <form method="POST"
+      id="Formulario"
       action="{{ $inst ? route('registros.update', $inst->id) : route('registros.store') }}"
       enctype="multipart/form-data"
       class="space-y-5">
@@ -106,9 +107,18 @@
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
                 </div>
             </div>
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección de Muestreo</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50">
+                    <input type="text" name="cliente_direccion"
+                        value="{{ old('cliente_direccion', $inst->cliente_direccion ?? '') }}"
+                        placeholder="Dirección completa del cliente"
+                        class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none">
+                </div>
+            </div>
+            {{-- Logo Cliente (span 4) --}}
 
-            {{-- Logo Cliente (span 8) --}}
-            <div class="lg:col-span-8">
+            <div class="lg:col-span-4">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Logo Empresa Cliente</label>
                 <div class="flex items-center gap-2">
                     <div class="flex-1 flex items-center rounded-xl border border-gray-200 bg-gray-50 hover:border-blue-light/60 transition-all duration-200 overflow-hidden">
@@ -388,7 +398,7 @@
             <div class="group">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Observaciones</label>
                 <div class="rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
-                    <textarea name="obs" rows="3"
+                    <textarea name="observaciones" rows="3"
                               class="w-full bg-transparent border-none px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 resize-none rounded-xl"
                               placeholder="Observaciones del muestreo...">{{ old('obs', $inst->observaciones ?? 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...') }}</textarea>
                 </div>
@@ -403,6 +413,8 @@
                     ['n'=>4, 'name'=>'an4', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_4_file ?? null],
                 ] as $anexo)
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 hover:border-blue-light/40 transition-colors">
+
+                        {{-- Cabecera: número + botón ver --}}
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-blue-dark text-white text-xs font-bold">
                                 {{ $anexo['n'] }}
@@ -419,23 +431,45 @@
                                 </button>
                             @endif
                         </div>
+
+                        {{-- Título editable --}}
                         <div class="group">
+                            <label class="block text-xs text-gray-400 mb-1">Título</label>
                             <div class="flex items-center rounded-lg border border-gray-200 bg-white transition-all duration-150 focus-within:border-orange focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
-                                <input type="text" name="{{ $anexo['title_name'] }}"
-                                       value="{{ old($anexo['title_name'], $anexo['title_val']) }}"
-                                       readonly
-                                       class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-0">
+                                <input type="text"
+                                    name="{{ $anexo['title_name'] }}"
+                                    value="{{ old($anexo['title_name'], $anexo['title_val']) }}"
+                                    placeholder="Título del anexo"
+                                    class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-0">
                             </div>
                         </div>
-                        <label class="block">
-                            <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-white hover:border-orange/50 hover:bg-orange/3 transition-all cursor-pointer text-xs text-gray-500 hover:text-orange">
+
+                        {{-- Selector de archivo --}}
+                        <label class="block cursor-pointer">
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-white hover:border-orange/50 hover:bg-orange/3 transition-all text-xs text-gray-500 hover:text-orange">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                                 <span class="truncate">{{ $anexo['file'] ? 'Reemplazar imagen' : 'Subir imagen' }}</span>
                             </div>
-                            <input type="file" name="{{ $anexo['name'] }}" accept="image/*" class="hidden">
+                            <input type="file"
+                                name="{{ $anexo['name'] }}"
+                                accept="image/*"
+                                class="hidden"
+                                data-preview-name="anexo_nombre_{{ $anexo['n'] }}"
+                                onchange="onAnexoFileChange(this, {{ $anexo['n'] }})">
                         </label>
+
+                        {{-- Nombre del archivo seleccionado (oculto hasta que se elija uno) --}}
+                        <p id="anexo_nombre_{{ $anexo['n'] }}"
+                        class="hidden text-xs text-gray-500 flex items-center gap-1 truncate">
+                            <svg class="w-3 h-3 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                            </svg>
+                            <span id="anexo_nombre_texto_{{ $anexo['n'] }}"></span>
+                        </p>
+
+                        {{-- Imagen ya guardada en BD --}}
                         @if($anexo['file'])
                             <p class="text-xs text-green flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -444,6 +478,7 @@
                                 Imagen guardada
                             </p>
                         @endif
+
                     </div>
                 @endforeach
             </div>
@@ -469,3 +504,114 @@
     </div>
 
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('Formulario');
+    const inputs = form.querySelectorAll('input, textarea, select');
+
+    // Agregar required automáticamente a todos excepto disabled y file
+    inputs.forEach(input => {
+        if (!input.disabled && input.type !== 'file') {
+            input.setAttribute('required', 'required');
+        }
+    });
+
+    // Interceptar el submit para mostrar toast en caso de errores
+    form.addEventListener('submit', function(event) {
+        let invalidFields = [];
+
+        inputs.forEach(input => {
+            if (input.disabled) return;
+
+            if (input.type === 'file') {
+                const wrapper = input.closest('div, label')?.closest('[class*="space-y"]')
+                             ?? input.closest('.bg-gray-50');
+                const yaGuardado = wrapper?.querySelector('.text-green') !== null;
+
+                if (!yaGuardado && input.files.length === 0) {
+                    invalidFields.push(input);
+                }
+            } else {
+                if (!input.checkValidity()) {
+                    invalidFields.push(input);
+                }
+            }
+        });
+
+        if (invalidFields.length > 0) {
+            event.preventDefault();
+
+            const UMBRAL = 3;
+
+            const fieldNames = invalidFields.map(f => {
+                if (f.type === 'file') {
+                    const container = f.closest('.bg-gray-50');
+                    const num = container?.querySelector('.bg-blue-dark')?.textContent?.trim();
+                    return num ? `Anexo ${num}` : (f.name || 'Archivo requerido');
+                }
+                let label = f.closest('.group')?.querySelector('label')?.textContent || f.name;
+                return label.replace(/\s+/g, ' ').trim();
+            });
+
+            const mensaje = fieldNames.length > UMBRAL
+                ? `Hay ${fieldNames.length} campos obligatorios sin completar. Por favor revisa el formulario.`
+                : `Faltan datos obligatorios: ${fieldNames.join(', ')}`;
+
+            window.dispatchEvent(new CustomEvent('notify', {
+                detail: {
+                    message: mensaje,
+                    type: 'error'
+                }
+            }));
+
+            // Enfocar el primer campo no-file inválido, o hacer scroll al file
+            const firstNonFile = invalidFields.find(f => f.type !== 'file');
+            const firstInvalid = firstNonFile ?? invalidFields[0];
+
+            if (firstInvalid.type === 'file') {
+                firstInvalid.closest('.bg-gray-50')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                invalidFields
+                    .filter(f => f.type === 'file')
+                    .forEach(f => {
+                        const box = f.closest('.bg-gray-50');
+                        if (box) {
+                            box.classList.add('!border-red-400', 'ring-2', 'ring-red-300');
+                            setTimeout(() => box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300'), 3000);
+                        }
+                    });
+            } else {
+                firstInvalid.focus();
+            }
+        }
+    });
+
+    // Quitar resaltado rojo cuando el usuario selecciona un archivo
+    form.querySelectorAll('input[type="file"]').forEach(fileInput => {
+        fileInput.addEventListener('change', () => {
+            const box = fileInput.closest('.bg-gray-50');
+            if (box) {
+                box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
+            }
+        });
+    });
+
+    // Mostrar nombre del archivo al seleccionar un anexo
+    window.onAnexoFileChange = function(input, n) {
+        const nombreContenedor = document.getElementById(`anexo_nombre_${n}`);
+        const nombreTexto      = document.getElementById(`anexo_nombre_texto_${n}`);
+        const box              = input.closest('.bg-gray-50');
+
+        if (input.files.length > 0) {
+            nombreTexto.textContent = input.files[0].name;
+            nombreContenedor.classList.remove('hidden');
+
+            // Quitar resaltado de error si lo tenía
+            if (box) box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
+        } else {
+            nombreContenedor.classList.add('hidden');
+            nombreTexto.textContent = '';
+        }
+    };
+});
+</script>

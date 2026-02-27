@@ -58,4 +58,18 @@ class Registro extends Model
     {
         return $this->formulario;
     }
+
+    public static function rules()
+    {
+        return [
+            'inspector_nombre'    => 'required|string|max:255',
+            'inspector_rut'       => 'required|string|max:20',
+            'lugar_muestreo'      => 'required|string|max:255',
+            'direccion_muestreo'  => 'required|string|max:255',
+            'punto_muestreo'      => 'required|string|max:255',
+            'inicio_muestreo'     => 'required|date',
+            'fin_muestreo'        => 'required|date|after_or_equal:inicio_muestreo',
+            'observaciones'       => 'required|string',
+        ];
+    }
 }
