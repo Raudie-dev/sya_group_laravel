@@ -18,7 +18,7 @@ class Formulario2Service extends BaseFormularioService
     public function obtenerFormulario($registro)
     {
         return $this->modelo::where('registro_id', $registro->id)
-        ->with('lecturas')          // 👈 esto es lo que faltaba
+        ->with('lecturas')          // esto es lo que faltaba
         ->firstOrFail();
     }
 
