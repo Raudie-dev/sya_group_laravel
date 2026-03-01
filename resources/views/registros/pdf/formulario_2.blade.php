@@ -729,49 +729,118 @@
 
         {{-- SECCIÓN 4: RESULTADOS MEDICIONES IN SITU --}}
         <table>
-            <tr><td colspan="5" class="th-seccion">4.- RESULTADOS MEDICIONES <em>IN SITU</em></td></tr>
             <tr>
-                <td class="th-col" style="width:15%">ÍTEM</td>
-                <td class="th-col" style="width:22%">Fecha</td>
-                <td class="th-col" style="width:18%">Hora</td>
-                <td class="th-col" style="width:22%">pH (Unidades pH)</td>
-                <td class="th-col" style="width:23%">Temperatura (ºC)</td>
+                <td colspan="6" class="th-seccion">4.- RESULTADOS MEDICIONES <em>IN SITU</em></td>
             </tr>
-            @foreach([
-                [
-                    'item'  => 'Inicio',
-                    'fecha' => $formulario->r_f_inicio
-                                ? \Carbon\Carbon::parse($formulario->r_f_inicio)->format('d/m/Y')
-                                : ($formulario->inicio_muestreo ? \Carbon\Carbon::parse($formulario->inicio_muestreo)->format('d/m/Y') : '—'),
-                    'hora'  => $formulario->r_h_inicio
-                                ?? ($formulario->inicio_muestreo ? \Carbon\Carbon::parse($formulario->inicio_muestreo)->format('H:i') : '—'),
-                    'ph'    => $formulario->r_ph_inicio ?? '—',
-                    'temp'  => $formulario->r_t_inicio  ?? '—',
-                ],
-                [
-                    'item'  => 'Fin',
-                    'fecha' => $formulario->r_f_fin
-                                ? \Carbon\Carbon::parse($formulario->r_f_fin)->format('d/m/Y')
-                                : ($formulario->fin_muestreo ? \Carbon\Carbon::parse($formulario->fin_muestreo)->format('d/m/Y') : '—'),
-                    'hora'  => $formulario->r_h_fin
-                                ?? ($formulario->fin_muestreo ? \Carbon\Carbon::parse($formulario->fin_muestreo)->format('H:i') : '—'),
-                    'ph'    => $formulario->r_ph_fin   ?? '—',
-                    'temp'  => $formulario->r_t_fin    ?? '—',
-                ],
-            ] as $fila)
-            <tr class="tr-resultado">
-                <td>{{ $fila['item'] }}</td>
-                <td>{{ $fila['fecha'] }}</td>
-                <td>{{ $fila['hora'] }}</td>
-                <td>{{ $fila['ph'] }}</td>
-                <td>{{ $fila['temp'] }}</td>
-            </tr>
-            @endforeach
             <tr>
-                <td colspan="5" class="tr-resultado">Temperatura primera muestra al término del muestreo [ºC]: {{ $formulario->temperatura_inicial ?? 'Sin temperatura registrada.' }}</td>
+                <td class="th-col" style="width:8%">#</td>
+                <td class="th-col" style="width:18%">Fecha</td>
+                <td class="th-col" style="width:15%">Hora</td>
+                <td class="th-col" style="width:17%">N° Muestra</td>
+                <td class="th-col" style="width:21%">pH (Unidades pH)</td>
+                <td class="th-col" style="width:21%">Temperatura (°C)</td>
+            </tr>
+
+            @forelse($formulario->lecturas as $lectura)
+                <tr class="tr-resultado">
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $lectura->fecha ? \Carbon\Carbon::parse($lectura->fecha)->format('d/m/Y') : '—' }}</td>
+                    <td>{{ $lectura->hora  ? \Carbon\Carbon::parse($lectura->hora)->format('H:i')    : '—' }}</td>
+                    <td>{{ $lectura->n_muestra ?? '—' }}</td>
+                    <td>{{ $lectura->valor_ph  ?? '—' }}</td>
+                    <td>{{ $lectura->valor_temp ?? '—' }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="tr-resultado" style="text-align:center">
+                        No existen mediciones registradas.
+                    </td>
+                </tr>
+            @endforelse
+
+            <tr>
+                <td colspan="6" class="tr-resultado">
+                    Temperatura primera muestra al término del muestreo [ºC]:
+                    {{ $formulario->temp_termino ?? 'Sin temperatura registrada.' }}
+                </td>
             </tr>
         </table>
 
+        {{--
+    Agregar al inicio del blade PDF (o donde ya tengas el @php de estadísticas):
+    @use('App\Helpers\PdfChartGenerator')
+--}}
+
+@php
+    use App\Helpers\PdfChartGenerator;
+
+    $lecturas = $formulario->lecturas;
+
+    $phs   = $lecturas->pluck('valor_ph')->filter()->map(fn($v)  => (float)$v)->values()->all();
+    $temps = $lecturas->pluck('valor_temp')->filter()->map(fn($v) => (float)$v)->values()->all();
+
+    // Etiquetas eje X: n_muestra o número de iteración
+    $labels = $lecturas->map(fn($l, $i) => $l->n_muestra ?? ($i + 1))->values()->all();
+
+    $fmt = fn($v) => $v !== null ? number_format((float)$v, 2, ',', '.') : '—';
+
+    // Estadísticas
+    $phCol   = collect($phs);
+    $tempCol = collect($temps);
+
+    $stats = [
+        'ph'   => ['media' => $phCol->avg(),   'minima' => $phCol->min(),   'maxima' => $phCol->max()],
+        'temp' => ['media' => $tempCol->avg(),  'minima' => $tempCol->min(), 'maxima' => $tempCol->max()],
+    ];
+
+    // Generar gráficos como PNG base64 (solo si hay datos)
+    $graficoPh   = count($phs)   >= 2
+        ? PdfChartGenerator::lineChart($phs,   $labels, '59,130,246',  '', 600, 200)
+        : null;
+
+    $graficoTemp = count($temps) >= 2
+        ? PdfChartGenerator::lineChart($temps, $labels, '249,115,22',  '', 600, 200)
+        : null;
+@endphp
+
+{{-- ══ TABLA RESUMEN GENERAL ══ --}}
+<table style="margin-top:10px">
+    <tr>
+        <td colspan="3" class="th-seccion">RESUMEN GENERAL</td>
+    </tr>
+    <tr>
+        <td class="th-col" style="width:34%">ÍTEM</td>
+        <td class="th-col" style="width:33%">pH (Unidades pH)</td>
+        <td class="th-col" style="width:33%">Temperatura (°C)</td>
+    </tr>
+@foreach(['media' => 'Media', 'minima' => 'Mínima', 'maxima' => 'Máxima'] as $key => $label)
+<tr class="tr-resultado">
+    <td>{{ $label }}</td>
+    <td>{{ $stats['ph'][$key] !== null ? number_format((float)$stats['ph'][$key], 2, ',', '.') : '—' }}</td>
+    <td>{{ $stats['temp'][$key] !== null ? number_format((float)$stats['temp'][$key], 2, ',', '.') : '—' }}</td>
+</tr>
+@endforeach
+</table>
+
+{{-- ══ GRÁFICO 1: pH ══ --}}
+@if($graficoPh)
+<div style="margin-top:16px; page-break-inside:avoid;">
+    <p style="font-size:9pt; font-weight:bold; text-align:center; margin-bottom:6px; color:#1e40af;">
+        Variaciones de pH durante el ciclo de monitoreo
+    </p>
+    <img src="{{ $graficoPh }}" style="width:100%; display:block;" alt="Gráfico pH"/>
+</div>
+@endif
+
+{{-- ══ GRÁFICO 2: Temperatura ══ --}}
+@if($graficoTemp)
+<div style="margin-top:14px; page-break-inside:avoid;">
+    <p style="font-size:9pt; font-weight:bold; text-align:center; margin-bottom:6px; color:#c2410c;">
+        Variaciones de temperatura durante el ciclo de monitoreo
+    </p>
+    <img src="{{ $graficoTemp }}" style="width:100%; display:block;" alt="Gráfico Temperatura"/>
+</div>
+@endif
         {{-- SECCIÓN 5: OBSERVACIONES --}}
         <div class="obs-titulo">5.- OBSERVACIONES.</div>
         <div class="obs-cuerpo">{{ $formulario->observaciones ?? 'Sin observaciones registradas.' }}</div>

@@ -8,12 +8,13 @@
 
 <form method="POST"
       id="Formulario"
-      action="{{ $inst ? route('registros.update', $inst->id) : route('registros.store') }}"
+      action="{{ $inst ? route('registros.update', $inst->registro_id ?? $inst->id) : route('registros.store') }}"
       enctype="multipart/form-data"
-      class="space-y-5">
+      class="space-y-5"
+      >
     @csrf
     @if($inst) @method('PUT') @endif
-    <input type="hidden" name="tipo_form_id" value="1">
+    <input type="hidden" name="tipo_form_id" value="1" >
 
     {{-- ══════════════════════════════════════════════
          SECCIÓN 1 — Identificación
@@ -234,9 +235,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
                 @foreach([
-                    ['label'=>'Lugar de Muestreo',                'name'=>'lugar_muestreo',    'value'=>$inst->lugar_muestreo ?? '',    'placeholder'=>'Nombre del lugar'],
-                    ['label'=>'Dirección de Muestreo',            'name'=>'direccion_muestreo','value'=>$inst->direccion_muestreo ?? '','placeholder'=>'Dirección completa'],
-                    ['label'=>'Identificación Punto de Muestreo', 'name'=>'punto_muestreo',    'value'=>$inst->punto_muestreo ?? '',    'placeholder'=>'Ej: Punto A, Aducción...'],
+                    ['label'=>'Lugar de Muestreo',                  'name'=>'lugar_muestreo',       'value'=>$inst->lugar_muestreo ?? '',       'placeholder'=>'Nombre del lugar'],
+                    ['label'=>'Dirección de Muestreo',              'name'=>'direccion_muestreo',   'value'=>$inst->direccion_muestreo ?? '',   'placeholder'=>'Dirección completa'],
+                    ['label'=>'Identificación Punto de Muestreo',   'name'=>'punto_muestreo',       'value'=>$inst->punto_muestreo ?? '',       'placeholder'=>'Ej: Punto A, Aducción...'],
+                    ['label'=>'Tipo de Muestra',                    'name'=>'tipo_muestra',         'value'=>$inst->tipo_muestra ?? '',         'placeholder'=>'Muestreo automático compuesto'],
                 ] as $field)
                     <div class="group">
                         <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">{{ $field['label'] }}</label>
@@ -360,7 +362,7 @@
                                 ['type'=>'date',   'name'=>'r_f_'.$row['suffix'], 'val'=>$row['date_val'], 'step'=>null],
                                 ['type'=>'time',   'name'=>'r_h_'.$row['suffix'], 'val'=>$row['time_val'], 'step'=>null],
                                 ['type'=>'number', 'name'=>'r_ph_'.$row['suffix'],'val'=>$row['ph_val'],   'step'=>'0.01'],
-                                ['type'=>'number', 'name'=>'r_t_'.$row['suffix'], 'val'=>$row['temp_val'], 'step'=>'0.1'],
+                                ['type'=>'number', 'name'=>'r_t_'.$row['suffix'], 'val'=>$row['temp_val'], 'step'=>'0.01'],
                             ] as $cell)
                                 <td class="px-4 py-3">
                                     <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-all duration-150 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
@@ -375,6 +377,29 @@
                     @endforeach
                 </tbody>
             </table>
+            {{-- Temperatura inicial --}}
+            <div class="group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">
+                    Temperatura primera muestra al término del muestreo [ºC]:
+                </label>
+
+                <div class="rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 
+                            group-focus-within:border-orange group-focus-within:bg-white 
+                            group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] 
+                            hover:border-blue-light/60
+                            max-w-xs"> <!-- Limitas ancho máximo -->
+
+                    <input 
+                        type="number"
+                        step="0.01"
+                        name="temperatura_inicial"
+                        value="{{ old('temperatura_inicial', $inst->temperatura_inicial ?? '') }}"
+                        class="w-40 bg-transparent border-none px-3 py-2.5 text-sm text-gray-800 
+                            placeholder-gray-400 focus:outline-none focus:ring-0 rounded-xl"
+                        placeholder="Ej: 10.90"
+                    >
+                </div>
+            </div>
         </div>
     </div>
 
@@ -403,7 +428,7 @@
                 <div class="rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <textarea name="observaciones" rows="3"
                               class="w-full bg-transparent border-none px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 resize-none rounded-xl"
-                              placeholder="Observaciones del muestreo...">{{ old('observaciones', $inst->observaciones ?? 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...') }}</textarea>
+                              placeholder="Observaciones del muestreo...">{{ old('observaciones', $inst->observaciones ?? '') }}</textarea>
                 </div>
             </div>
 
@@ -411,9 +436,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach([
                     ['n'=>1, 'name'=>'an1', 'title_name'=>'an1_titulo', 'title_val'=>$inst->anexo_1_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_1_file ?? null],
-                    ['n'=>2, 'name'=>'an2', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_2_file ?? null],
-                    ['n'=>3, 'name'=>'an3', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_3_file ?? null],
-                    ['n'=>4, 'name'=>'an4', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_4_file ?? null],
+                    ['n'=>2, 'name'=>'an2', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Cadena de Custodia.', 'file'=>$inst->anexo_2_file ?? null],
+                    ['n'=>3, 'name'=>'an3', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? ' Declaraciones de Operatividad del Inspector Ambiental.', 'file'=>$inst->anexo_3_file ?? null],
+                    ['n'=>4, 'name'=>'an4', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? ' Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', 'file'=>$inst->anexo_4_file ?? null],
                 ] as $anexo)
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 hover:border-blue-light/40 transition-colors">
 
@@ -496,24 +521,34 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
             </svg>
-            {{ $inst ? 'Actualizar Informe' : 'Guardar y Finalizar' }}
+            {{ $inst ? 'Actualizar Informe' : 'Guardar Informe' }}
         </button>
     </div>
 
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+/* document.addEventListener('DOMContentLoaded', () => {
+    // Variable global: true = todos los campos obligatorios, false = no obligatorios
+    const ALL_FIELDS_REQUIRED = false;
+
     const form   = document.getElementById('Formulario');
     const inputs = form.querySelectorAll('input, textarea, select');
 
+    // Aplicar 'required' según la variable global
     inputs.forEach(input => {
-        if (!input.disabled && input.type !== 'file') {
-            input.setAttribute('required', 'required');
+        if (!input.disabled && input.type !== 'file' && input.type !== 'checkbox') {
+            if (ALL_FIELDS_REQUIRED) {
+                input.setAttribute('required', 'required');
+            } else {
+                input.removeAttribute('required');
+            }
         }
     });
 
     form.addEventListener('submit', function(event) {
+        if (!ALL_FIELDS_REQUIRED) return; // Si no es obligatorio, no validar
+
         let invalidFields = [];
 
         inputs.forEach(input => {
@@ -523,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wrapper    = input.closest('div, label')?.closest('[class*="space-y"]') ?? input.closest('.bg-gray-50');
                 const yaGuardado = wrapper?.querySelector('.text-green') !== null;
                 if (!yaGuardado && input.files.length === 0) invalidFields.push(input);
-            } else {
+            } else if (input.type !== 'checkbox') {
                 if (!input.checkValidity()) invalidFields.push(input);
             }
         });
@@ -566,6 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Reset visual de file inputs
     form.querySelectorAll('input[type="file"]').forEach(fileInput => {
         fileInput.addEventListener('change', () => {
             const box = fileInput.closest('.bg-gray-50');
@@ -573,6 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Función auxiliar para mostrar nombre de anexo
     window.onAnexoFileChange = function(input, n) {
         const nombreContenedor = document.getElementById(`anexo_nombre_${n}`);
         const nombreTexto      = document.getElementById(`anexo_nombre_texto_${n}`);
@@ -587,5 +624,31 @@ document.addEventListener('DOMContentLoaded', () => {
             nombreTexto.textContent = '';
         }
     };
+}); */
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Eliminar TODOS los required por si acaso otro script los agrega
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.removeAttribute('required');
+    });
+
+    // Solo mantener la función auxiliar de anexos
+    window.onAnexoFileChange = function(input, n) {
+        const nombreContenedor = document.getElementById(`anexo_nombre_${n}`);
+        const nombreTexto      = document.getElementById(`anexo_nombre_texto_${n}`);
+
+        if (input.files.length > 0) {
+            nombreTexto.textContent = input.files[0].name;
+            nombreContenedor.classList.remove('hidden');
+        } else {
+            nombreContenedor.classList.add('hidden');
+            nombreTexto.textContent = '';
+        }
+    };
+
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
+    });
+    observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['required'] });
 });
 </script>

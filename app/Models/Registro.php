@@ -28,9 +28,9 @@ class Registro extends Model
     public static $formularios = [
         1 => \App\Models\formulario1::class,
         2 => \App\Models\formulario2::class,
-        // 3 => \App\Models\formulario3::class,
-        // 4 => \App\Models\formulario4::class,
-        // 5 => \App\Models\formulario5::class,
+        3 => \App\Models\formulario3::class,
+        4 => \App\Models\formulario4::class,
+        5 => \App\Models\formulario5::class,
     ];
 
     /*
@@ -59,7 +59,7 @@ class Registro extends Model
         return $this->formulario;
     }
 
-    public static function rules()
+/*     public static function rules()
     {
         return [
             'inspector_nombre'    => 'required|string|max:255',
@@ -71,5 +71,5 @@ class Registro extends Model
             'fin_muestreo'        => 'required|date|after_or_equal:inicio_muestreo',
             'observaciones'       => 'required|string',
         ];
-    }
+    } */
 }

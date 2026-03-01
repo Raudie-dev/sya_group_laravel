@@ -10,6 +10,8 @@ class formulario1 extends Model
 
     protected $fillable = [
         'registro_id',
+        'tipo_muestra',
+        'temperatura_inicial',
         'inspector_nombre', 'inspector_rut',
         'lugar_muestreo', 'direccion_muestreo', 'punto_muestreo',
         'inicio_muestreo', 'fin_muestreo',
@@ -24,6 +26,7 @@ class formulario1 extends Model
         'anexo_2_titulo', 'anexo_2_file',
         'anexo_3_titulo', 'anexo_3_file',
         'anexo_4_titulo', 'anexo_4_file',
+
     ];
 
     protected $casts = [
@@ -38,7 +41,7 @@ class formulario1 extends Model
         return $this->belongsTo(Registro::class);
     }
 
-    public static function rules()
+/*     public static function rules()
     {
         return [
             'inspector_nombre'   => 'required|string|max:255',
@@ -50,5 +53,5 @@ class formulario1 extends Model
             'fin_muestreo'       => 'required|date|after_or_equal:inicio_muestreo',
             'observaciones'      => 'nullable|string|max:1000',
         ];
-    }
+    } */
 }

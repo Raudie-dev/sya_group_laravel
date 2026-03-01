@@ -728,49 +728,53 @@
     <div class="page-content">
 
         {{-- SECCIÓN 4: RESULTADOS MEDICIONES IN SITU --}}
-        <table>
-            <tr><td colspan="5" class="th-seccion">4.- RESULTADOS MEDICIONES <em>IN SITU</em></td></tr>
-            <tr>
-                <td class="th-col" style="width:15%">ÍTEM</td>
-                <td class="th-col" style="width:22%">Fecha</td>
-                <td class="th-col" style="width:18%">Hora</td>
-                <td class="th-col" style="width:22%">pH (Unidades pH)</td>
-                <td class="th-col" style="width:23%">Temperatura (ºC)</td>
-            </tr>
-            @foreach([
-                [
-                    'item'  => 'Inicio',
-                    'fecha' => $formulario->r_f_inicio
-                                ? \Carbon\Carbon::parse($formulario->r_f_inicio)->format('d/m/Y')
-                                : ($formulario->inicio_muestreo ? \Carbon\Carbon::parse($formulario->inicio_muestreo)->format('d/m/Y') : '—'),
-                    'hora'  => $formulario->r_h_inicio
-                                ?? ($formulario->inicio_muestreo ? \Carbon\Carbon::parse($formulario->inicio_muestreo)->format('H:i') : '—'),
-                    'ph'    => $formulario->r_ph_inicio ?? '—',
-                    'temp'  => $formulario->r_t_inicio  ?? '—',
-                ],
-                [
-                    'item'  => 'Fin',
-                    'fecha' => $formulario->r_f_fin
-                                ? \Carbon\Carbon::parse($formulario->r_f_fin)->format('d/m/Y')
-                                : ($formulario->fin_muestreo ? \Carbon\Carbon::parse($formulario->fin_muestreo)->format('d/m/Y') : '—'),
-                    'hora'  => $formulario->r_h_fin
-                                ?? ($formulario->fin_muestreo ? \Carbon\Carbon::parse($formulario->fin_muestreo)->format('H:i') : '—'),
-                    'ph'    => $formulario->r_ph_fin   ?? '—',
-                    'temp'  => $formulario->r_t_fin    ?? '—',
-                ],
-            ] as $fila)
-            <tr class="tr-resultado">
-                <td>{{ $fila['item'] }}</td>
-                <td>{{ $fila['fecha'] }}</td>
-                <td>{{ $fila['hora'] }}</td>
-                <td>{{ $fila['ph'] }}</td>
-                <td>{{ $fila['temp'] }}</td>
-            </tr>
-            @endforeach
-            <tr>
-                <td colspan="5" class="tr-resultado">Temperatura primera muestra al término del muestreo [ºC]: {{ $formulario->temperatura_inicial ?? 'Sin temperatura registrada.' }}</td>
-            </tr>
-        </table>
+<table>
+    <tr>
+        <td colspan="6" class="th-seccion">
+            4.- RESULTADOS MEDICIONES <em>IN SITU</em>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="th-col" style="width:15%">ÍTEM</td>
+        <td class="th-col" style="width:18%">Fecha</td>
+        <td class="th-col" style="width:15%">Hora</td>
+        <td class="th-col" style="width:17%">pH (U)</td>
+        <td class="th-col" style="width:17%">Temperatura (°C)</td>
+        <td class="th-col" style="width:18%">Cloro Libre (mg/l)</td>
+    </tr>
+
+    @foreach([1,2] as $i)
+        <tr class="tr-resultado">
+            <td>
+                {{ $formulario->{'insitu_item_'.$i} ?? '—' }}
+            </td>
+
+            <td>
+                {{ $formulario->{'insitu_fecha_'.$i}
+                    ? \Carbon\Carbon::parse($formulario->{'insitu_fecha_'.$i})->format('d/m/Y')
+                    : '—' }}
+            </td>
+
+            <td>
+                {{ $formulario->{'insitu_hora_'.$i} ?? '—' }}
+            </td>
+
+            <td>
+                {{ $formulario->{'insitu_ph_'.$i} ?? '—' }}
+            </td>
+
+            <td>
+                {{ $formulario->{'insitu_temp_'.$i} ?? '—' }}
+            </td>
+
+            <td>
+                {{ $formulario->{'insitu_cloro_'.$i} ?? '—' }}
+            </td>
+        </tr>
+    @endforeach
+
+</table>
 
         {{-- SECCIÓN 5: OBSERVACIONES --}}
         <div class="obs-titulo">5.- OBSERVACIONES.</div>

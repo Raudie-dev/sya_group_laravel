@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Registro;
-use App\Models\formulario_1;
-use App\Models\formulario_2;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use Illuminate\Container\Attributes\Log;
+use Illuminate\Support\Facades\Storage;
+use App\Services\Formularios\FormularioFactory;
 class RegistroController extends Controller
 {
 
@@ -43,24 +43,21 @@ class RegistroController extends Controller
     {
         $request->validate(['tipo_form_id' => 'required|integer']);
 
-        $modeloFormulario = Registro::$formularios[$request->tipo_form_id] ?? null;
-        if ($modeloFormulario) {
-            $request->validate($modeloFormulario::rules());
-        }
+        DB::transaction(function () use ($request) {
 
-        DB::transaction(function () use ($request, $modeloFormulario) {
-
+            // 1. Guardar Logo
             $logoPath = null;
             if ($request->hasFile('logo_cliente')) {
                 $logoPath = $request->file('logo_cliente')->store('logos_clientes', 'public');
             }
 
+            // 2. Crear Registro
             $registro = Registro::create([
                 'tipo_form_id'     => $request->tipo_form_id,
                 'titulo_informe'   => $request->titulo_informe,
-                'codigo_informe'   => $request->codigo,          // form envía "codigo"
+                'codigo_informe'   => $request->codigo,
                 'fecha_emision'    => $request->fecha_emision,
-                'empresa_nombre'   => $request->cliente_nombre,  // form envía "cliente_nombre"
+                'empresa_nombre'   => $request->cliente_nombre,
                 'cliente_direccion'=> $request->cliente_direccion ?? '',
                 'region'           => $request->region,
                 'comuna'           => $request->comuna,
@@ -69,45 +66,14 @@ class RegistroController extends Controller
                 'n_rca'            => $request->n_rca,
             ]);
 
-            if ($modeloFormulario) {
-                $formulario = new $modeloFormulario();
-                $formulario->registro_id = $registro->id;
+            // 3. Delegar al Service
+            $service = FormularioFactory::make($registro->tipo_form_id);
+            $service->guardar($registro, $request);
 
-                // Campos directos (nombre en form == columna BD)
-                $formulario->fill($request->only([
-                    'inspector_nombre', 'inspector_rut',
-                    'lugar_muestreo', 'direccion_muestreo', 'punto_muestreo',
-                    'inicio_muestreo', 'fin_muestreo',
-                    'observaciones',
-                    'r_f_inicio', 'r_h_inicio', 'r_ph_inicio', 'r_t_inicio',
-                    'r_f_fin',    'r_h_fin',    'r_ph_fin',    'r_t_fin',
-                ]));
-
-                // Equipos — mapeo manual porque los name del form difieren de la BD
-                $formulario->eq_muestreo_cod = $request->eq_muestreo_cod;
-                $formulario->eq_muestreo_chk = $request->boolean('eq_muestreo_chk');
-                $formulario->eq_ph_cod       = $request->eq_ph_cod;
-                $formulario->eq_ph_chk       = $request->boolean('eq_ph_chk');
-                $formulario->eq_temp_cod     = $request->eq_temp_cod;
-                $formulario->eq_temp_chk     = $request->boolean('eq_temp_chk');
-                $formulario->eq_cloro_cod    = $request->eq_cloro_cod;
-                $formulario->eq_cloro_chk    = $request->boolean('eq_cloro_chk');
-
-                // Anexos
-                foreach (range(1, 4) as $i) {
-                    if ($request->hasFile('an'.$i)) {
-                        $formulario->{'anexo_'.$i.'_file'} = $request->file('an'.$i)->store('anexos_form1', 'public');
-                    }
-                    if ($request->filled('an'.$i.'_titulo')) {
-                        $formulario->{'anexo_'.$i.'_titulo'} = $request->input('an'.$i.'_titulo');
-                    }
-                }
-
-                $formulario->save();
-            }
         });
 
-        return redirect()->route('registros.index')->with('success', 'Registro creado correctamente');
+        return redirect()->route('registros.index')
+            ->with('success', 'Registro creado correctamente');
     }
 
     /*
@@ -154,68 +120,49 @@ class RegistroController extends Controller
     */
     public function update(Request $request, $id)
     {
-        $registro = Registro::findOrFail($id);
+        try {
+            $registro = Registro::findOrFail($id);
 
-        DB::transaction(function () use ($request, $registro) {
+            DB::transaction(function () use ($request, $registro) {
 
-            $logoPath = $registro->logo_cliente;
-            if ($request->hasFile('logo_cliente')) {
-                $logoPath = $request->file('logo_cliente')->store('logos_clientes', 'public');
-            }
+                // 1. Logo
+                $logoPath = $registro->logo_cliente;
 
-            // Mismos mapeos que en store
-            $registro->update([
-                'titulo_informe'   => $request->titulo_informe,
-                'codigo_informe'   => $request->codigo,          // form envía "codigo"
-                'fecha_emision'    => $request->fecha_emision,
-                'empresa_nombre'   => $request->cliente_nombre,  // form envía "cliente_nombre"
-                'cliente_direccion'=> $request->cliente_direccion ?? '',
-                'region'           => $request->region,
-                'comuna'           => $request->comuna,
-                'logo_cliente'     => $logoPath,
-                'nombre_proyecto'  => $request->nombre_proyecto,
-                'n_rca'            => $request->n_rca,
-            ]);
-
-            $modeloFormulario = Registro::$formularios[$registro->tipo_form_id] ?? null;
-
-            if ($modeloFormulario) {
-                $formulario = $modeloFormulario::where('registro_id', $registro->id)->firstOrFail();
-
-                $formulario->fill($request->only([
-                    'inspector_nombre', 'inspector_rut',
-                    'lugar_muestreo', 'direccion_muestreo', 'punto_muestreo',
-                    'inicio_muestreo', 'fin_muestreo',
-                    'observaciones',
-                    'r_f_inicio', 'r_h_inicio', 'r_ph_inicio', 'r_t_inicio',
-                    'r_f_fin',    'r_h_fin',    'r_ph_fin',    'r_t_fin',
-                ]));
-
-                // Equipos
-                $formulario->eq_muestreo_cod = $request->eq_muestreo_cod;
-                $formulario->eq_muestreo_chk = $request->boolean('eq_muestreo_chk');
-                $formulario->eq_ph_cod       = $request->eq_ph_cod;
-                $formulario->eq_ph_chk       = $request->boolean('eq_ph_chk');
-                $formulario->eq_temp_cod     = $request->eq_temp_cod;
-                $formulario->eq_temp_chk     = $request->boolean('eq_temp_chk');
-                $formulario->eq_cloro_cod    = $request->eq_cloro_cod;
-                $formulario->eq_cloro_chk    = $request->boolean('eq_cloro_chk');
-
-                // Anexos
-                foreach (range(1, 4) as $i) {
-                    if ($request->hasFile('an'.$i)) {
-                        $formulario->{'anexo_'.$i.'_file'} = $request->file('an'.$i)->store('anexos_form1', 'public');
+                if ($request->hasFile('logo_cliente')) {
+                    if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+                        Storage::disk('public')->delete($logoPath);
                     }
-                    if ($request->filled('an'.$i.'_titulo')) {
-                        $formulario->{'anexo_'.$i.'_titulo'} = $request->input('an'.$i.'_titulo');
-                    }
+
+                    $logoPath = $request->file('logo_cliente')
+                        ->store('logos_clientes', 'public');
                 }
 
-                $formulario->save();
-            }
-        });
+                // 2. Actualizar Registro
+                $registro->update([
+                    'titulo_informe'    => $request->titulo_informe,
+                    'codigo_informe'    => $request->codigo,
+                    'fecha_emision'     => $request->fecha_emision,
+                    'empresa_nombre'    => $request->cliente_nombre,
+                    'cliente_direccion' => $request->cliente_direccion ?? '',
+                    'region'            => $request->region,
+                    'comuna'            => $request->comuna,
+                    'logo_cliente'      => $logoPath,
+                    'nombre_proyecto'   => $request->nombre_proyecto,
+                    'n_rca'             => $request->n_rca,
+                ]);
 
-        return redirect()->route('registros.index')->with('success', 'Registro actualizado correctamente');
+                // 3. Delegar al Service
+                $service = FormularioFactory::make($registro->tipo_form_id);
+                $service->actualizar($registro, $request);
+
+            });
+
+            return redirect()->route('registros.index')
+                ->with('success', 'Registro actualizado correctamente');
+
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Error al actualizar: ' . $e->getMessage());
+        }
     }
 
     /*
@@ -226,7 +173,33 @@ class RegistroController extends Controller
     public function destroy($id)
     {
         $registro = Registro::findOrFail($id);
-        $registro->delete();
+
+        DB::transaction(function () use ($registro) {
+
+            // 1. Eliminar imágenes del formulario relacionado
+            $modeloFormulario = Registro::$formularios[$registro->tipo_form_id] ?? null;
+            if ($modeloFormulario) {
+                $formulario = $modeloFormulario::where('registro_id', $registro->id)->first();
+                if ($formulario) {
+                    // Eliminar anexos
+                    foreach (range(1, 4) as $i) {
+                        $archivo = $formulario->{'anexo_' . $i . '_file'};
+                        if ($archivo && Storage::disk('public')->exists($archivo)) {
+                            Storage::disk('public')->delete($archivo);
+                        }
+                    }
+                    $formulario->delete();
+                }
+            }
+
+            // 2. Eliminar logo del registro
+            if ($registro->logo_cliente && Storage::disk('public')->exists($registro->logo_cliente)) {
+                Storage::disk('public')->delete($registro->logo_cliente);
+            }
+
+            // 3. Eliminar el registro
+            $registro->delete();
+        });
 
         return redirect()->route('registros.index')
             ->with('success', 'Registro eliminado correctamente');
@@ -240,33 +213,16 @@ class RegistroController extends Controller
     {
         $registro = Registro::findOrFail($id);
 
-        $modeloFormulario = Registro::$formularios[$registro->tipo_form_id] ?? null;
+        $service = FormularioFactory::make($registro->tipo_form_id);
 
-        if (!$modeloFormulario) {
-            abort(404, 'Tipo de formulario no encontrado.');
-        }
+        $formulario = $service->obtenerFormulario($registro);
 
-        $formulario = $modeloFormulario::where('registro_id', $registro->id)->firstOrFail();
-
-        // Mapa de vistas PDF por tipo_form_id
-        $vistaPdf = [
-            1 => 'registros.pdf.formulario_1',
-            2 => 'registros.pdf.formulario_2',
-            // 3 => 'registros.pdf.formulario_3',
-        ];
-
-        $vista = $vistaPdf[$registro->tipo_form_id] ?? null;
-
-        if (!$vista) {
-            abort(404, 'Vista PDF no disponible para este formulario.');
-        }
+        $vista = $service->vistaPdf();
 
         $pdf = Pdf::loadView($vista, [
             'registro'   => $registro,
             'formulario' => $formulario,
         ])->setPaper('a4', 'portrait');
-
-        //$pdf->setOptions(['enable_php' => true]);
 
         return $pdf->stream('registro_'.$registro->id.'.pdf');
     }

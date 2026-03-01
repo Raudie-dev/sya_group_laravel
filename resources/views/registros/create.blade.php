@@ -156,4 +156,61 @@
         window.dispatchEvent(new CustomEvent('preview', { detail: { url, title } }));
     }
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejador genérico para todos los inputs file
+            document.addEventListener('change', function(e) {
+                if (e.target.matches('input[type="file"]')) {
+                    const fileInput = e.target;
+                    const fileName = fileInput.files[0]?.name || 'Sin archivo seleccionado';
+                    
+                    // Buscar el span más cercano que debe mostrar el nombre
+                    // Estrategia 1: Buscar por data-atributo
+                    const nameDisplay = fileInput.closest('.file-input-wrapper, .bg-gray-50, .flex-1')
+                                            ?.querySelector('.file-name-display, span[class*="truncate"]');
+                    
+                    if (nameDisplay) {
+                        nameDisplay.textContent = fileName;
+                    }
+                    
+                    // Mostrar/ocultar el contenedor del nombre del anexo
+                    const anexoContainer = fileInput.closest('.bg-gray-50');
+                    if (anexoContainer && fileInput.name.startsWith('an')) {
+                        let nombreSpan = anexoContainer.querySelector('.anexo-file-name');
+                        
+                        if (fileInput.files.length > 0) {
+                            if (!nombreSpan) {
+                                // Crear el span si no existe
+                                nombreSpan = document.createElement('p');
+                                nombreSpan.className = 'anexo-file-name text-xs text-gray-500 flex items-center gap-1 truncate mt-2';
+                                nombreSpan.innerHTML = `
+                                    <svg class="w-3 h-3 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                    </svg>
+                                    <span>${fileName}</span>
+                                `;
+                                anexoContainer.appendChild(nombreSpan);
+                            } else {
+                                nombreSpan.querySelector('span').textContent = fileName;
+                                nombreSpan.classList.remove('hidden');
+                            }
+                        } else if (nombreSpan) {
+                            nombreSpan.classList.add('hidden');
+                        }
+                    }
+                    
+                    // Para logos de cliente
+                    if (fileInput.name === 'logo_cliente') {
+                        const logoDisplay = fileInput.closest('.flex-1, .bg-gray-50, div[class*="col-span"]')
+                                                ?.querySelector('span[id^="logo_nombre"]');
+                        if (logoDisplay) {
+                            logoDisplay.textContent = fileName;
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
 </x-app-layout>
