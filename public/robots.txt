@@ -1,2 +1,14 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /storage
+Disallow: /vendor
+Disallow: /node_modules
+Disallow: /.env
+Disallow: /.git
+Disallow: /api
+
+Sitemap: https://syagroup-chile.com/

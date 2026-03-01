@@ -693,7 +693,7 @@
                 <td style="font-size:8pt">{{ $eq['label'] }}</td>
                 <td style="text-align:center">{{ $eq['cod'] }}</td>
                 <td style="text-align:center; font-weight:bold; color:{{ $eq['chk'] ? '#333' : '#333' }}">
-                    {{ $eq['chk'] ? 'SI' : '—' }}
+                    {{ $eq['chk'] ? 'Si' : 'No' }}
                 </td>
             </tr>
             @endforeach
@@ -725,9 +725,9 @@
         </div>
     </div>
 
-    <div class="page-content">
+<div class="page-content">
 
-        {{-- SECCIÓN 4: RESULTADOS MEDICIONES IN SITU --}}
+        {{-- ══ TABLA MEDICIONES IN SITU ══ --}}
         <table>
             <tr>
                 <td colspan="6" class="th-seccion">4.- RESULTADOS MEDICIONES <em>IN SITU</em></td>
@@ -740,7 +740,6 @@
                 <td class="th-col" style="width:21%">pH (Unidades pH)</td>
                 <td class="th-col" style="width:21%">Temperatura (°C)</td>
             </tr>
-
             @forelse($formulario->lecturas as $lectura)
                 <tr class="tr-resultado">
                     <td>{{ $loop->iteration }}</td>
@@ -757,7 +756,6 @@
                     </td>
                 </tr>
             @endforelse
-
             <tr>
                 <td colspan="6" class="tr-resultado">
                     Temperatura primera muestra al término del muestreo [ºC]:
@@ -766,110 +764,101 @@
             </tr>
         </table>
 
-        {{--
-    Agregar al inicio del blade PDF (o donde ya tengas el @php de estadísticas):
-    @use('App\Helpers\PdfChartGenerator')
---}}
+        {{-- ══ TABLA RESUMEN GENERAL ══ --}}
+        <table style="margin-top:10px">
+            <tr>
+                <td colspan="3" class="th-seccion">RESUMEN GENERAL</td>
+            </tr>
+            <tr>
+                <td class="th-col" style="width:34%">ÍTEM</td>
+                <td class="th-col" style="width:33%">pH (Unidades pH)</td>
+                <td class="th-col" style="width:33%">Temperatura (°C)</td>
+            </tr>
+            <tr class="tr-resultado">
+                <td>Media</td>
+                <td>{{ $stats['ph']['media']   !== null ? number_format($stats['ph']['media'],   2, ',', '.') : '—' }}</td>
+                <td>{{ $stats['temp']['media'] !== null ? number_format($stats['temp']['media'], 2, ',', '.') : '—' }}</td>
+            </tr>
+            <tr class="tr-resultado">
+                <td>Mínima</td>
+                <td>{{ $stats['ph']['minima']   !== null ? number_format($stats['ph']['minima'],   2, ',', '.') : '—' }}</td>
+                <td>{{ $stats['temp']['minima'] !== null ? number_format($stats['temp']['minima'], 2, ',', '.') : '—' }}</td>
+            </tr>
+            <tr class="tr-resultado">
+                <td>Máxima</td>
+                <td>{{ $stats['ph']['maxima']   !== null ? number_format($stats['ph']['maxima'],   2, ',', '.') : '—' }}</td>
+                <td>{{ $stats['temp']['maxima'] !== null ? number_format($stats['temp']['maxima'], 2, ',', '.') : '—' }}</td>
+            </tr>
+        </table>
 
-@php
-    use App\Helpers\PdfChartGenerator;
+    </div>{{-- fin page-content página mediciones --}}
 
-    $lecturas = $formulario->lecturas;
+    <div>
+        <div class="footer-pagina"><span class="page-number"></span></div>
+        <img src="{{ public_path('images/footer.png') }}" class="footer-img">
+    </div>
 
-    $phs   = $lecturas->pluck('valor_ph')->filter()->map(fn($v)  => (float)$v)->values()->all();
-    $temps = $lecturas->pluck('valor_temp')->filter()->map(fn($v) => (float)$v)->values()->all();
+</div>{{-- fin .pagina mediciones --}}
 
-    // Etiquetas eje X: n_muestra o número de iteración
-    $labels = $lecturas->map(fn($l, $i) => $l->n_muestra ?? ($i + 1))->values()->all();
 
-    $fmt = fn($v) => $v !== null ? number_format((float)$v, 2, ',', '.') : '—';
+{{-- ══════════════════════════════════════════════════════
+     PÁGINA GRÁFICOS
+══════════════════════════════════════════════════════ --}}
+@if($graficoPh || $graficoTemp)
+<div class="pagina">
 
-    // Estadísticas
-    $phCol   = collect($phs);
-    $tempCol = collect($temps);
-
-    $stats = [
-        'ph'   => ['media' => $phCol->avg(),   'minima' => $phCol->min(),   'maxima' => $phCol->max()],
-        'temp' => ['media' => $tempCol->avg(),  'minima' => $tempCol->min(), 'maxima' => $tempCol->max()],
-    ];
-
-    // Generar gráficos como PNG base64 (solo si hay datos)
-    $graficoPh   = count($phs)   >= 2
-        ? PdfChartGenerator::lineChart($phs,   $labels, '59,130,246',  '', 600, 200)
-        : null;
-
-    $graficoTemp = count($temps) >= 2
-        ? PdfChartGenerator::lineChart($temps, $labels, '249,115,22',  '', 600, 200)
-        : null;
-@endphp
-
-{{-- ══ TABLA RESUMEN GENERAL ══ --}}
-<table style="margin-top:10px">
-    <tr>
-        <td colspan="3" class="th-seccion">RESUMEN GENERAL</td>
-    </tr>
-    <tr>
-        <td class="th-col" style="width:34%">ÍTEM</td>
-        <td class="th-col" style="width:33%">pH (Unidades pH)</td>
-        <td class="th-col" style="width:33%">Temperatura (°C)</td>
-    </tr>
-@foreach(['media' => 'Media', 'minima' => 'Mínima', 'maxima' => 'Máxima'] as $key => $label)
-<tr class="tr-resultado">
-    <td>{{ $label }}</td>
-    <td>{{ $stats['ph'][$key] !== null ? number_format((float)$stats['ph'][$key], 2, ',', '.') : '—' }}</td>
-    <td>{{ $stats['temp'][$key] !== null ? number_format((float)$stats['temp'][$key], 2, ',', '.') : '—' }}</td>
-</tr>
-@endforeach
-</table>
-
-{{-- ══ GRÁFICO 1: pH ══ --}}
-@if($graficoPh)
-<div style="margin-top:16px; page-break-inside:avoid;">
-    <p style="font-size:9pt; font-weight:bold; text-align:center; margin-bottom:6px; color:#1e40af;">
-        Variaciones de pH durante el ciclo de monitoreo
-    </p>
-    <img src="{{ $graficoPh }}" style="width:100%; display:block;" alt="Gráfico pH"/>
-</div>
-@endif
-
-{{-- ══ GRÁFICO 2: Temperatura ══ --}}
-@if($graficoTemp)
-<div style="margin-top:14px; page-break-inside:avoid;">
-    <p style="font-size:9pt; font-weight:bold; text-align:center; margin-bottom:6px; color:#c2410c;">
-        Variaciones de temperatura durante el ciclo de monitoreo
-    </p>
-    <img src="{{ $graficoTemp }}" style="width:100%; display:block;" alt="Gráfico Temperatura"/>
-</div>
-@endif
-        {{-- SECCIÓN 5: OBSERVACIONES --}}
-        <div class="obs-titulo">5.- OBSERVACIONES.</div>
-        <div class="obs-cuerpo">{{ $formulario->observaciones ?? 'Sin observaciones registradas.' }}</div>
-
-        {{-- SECCIÓN 6: REGISTRO FOTOGRÁFICO --}}
-        <div class="foto-titulo">6.- REGISTRO FOTOGRÁFICO</div>
-        <div class="foto-box">
-            @if($formulario->anexo_1_file)
-                <img src="{{ storage_path('app/public/' . $formulario->anexo_1_file) }}"
-                     alt="{{ $formulario->anexo_1_titulo ?? 'Foto 1' }}">
+    <div class="page-header">
+        <div class="col-logo">
+            <img src="{{ public_path('images/logo.png') }}" alt="Logo Empresa">
+        </div>
+        <div class="col-titulo">INFORME DE TERRENO</div>
+        <div class="col-logo-cliente">
+            @if($registro->logo_cliente)
+                <img src="{{ storage_path('app/public/' . $registro->logo_cliente) }}" alt="Logo Cliente">
             @else
-                <p>No se adjuntó fotografía principal.</p>
+                <span>Logo empresa</span>
             @endif
         </div>
-        <div>
-            <div class="footer-pagina"><span class="page-number"></span></div>
-            <img src="{{ public_path('images/footer.png') }}" class="footer-img">
-        </div>
     </div>
+
+    <div class="page-content">
+
+        @if($graficoPh)
+        <div style="margin-bottom:30px;">
+            <p style="font-size:9pt; font-weight:bold; text-align:center; color:#1e40af; margin-bottom:6px;">
+                Variaciones de pH durante el ciclo de monitoreo
+            </p>
+            <img src="{{ $graficoPh }}" style="width:100%; display:block;" alt="Gráfico pH"/>
+        </div>
+        @endif
+
+        @if($graficoTemp)
+        <div>
+            <p style="font-size:9pt; font-weight:bold; text-align:center; color:#c2410c; margin-bottom:6px;">
+                Variaciones de temperatura durante el ciclo de monitoreo
+            </p>
+            <img src="{{ $graficoTemp }}" style="width:100%; display:block;" alt="Gráfico Temperatura"/>
+        </div>
+        @endif
+
+    </div>
+
+    <div>
+        <div class="footer-pagina"><span class="page-number"></span></div>
+        <img src="{{ public_path('images/footer.png') }}" class="footer-img">
+    </div>
+
 </div>
+@endif
 
 
 {{-- ══════════════════════════════════════════════════════
      PÁGINAS ADICIONALES — ANEXOS 2, 3 y 4
 ══════════════════════════════════════════════════════ --}}
 @foreach([
-    ['file' => $formulario->anexo_2_file ?? null, 'titulo' => $formulario->anexo_2_titulo ?? 'Documentación Técnica',  'n' => 1, 'pag' => 4],
-    ['file' => $formulario->anexo_3_file ?? null, 'titulo' => $formulario->anexo_3_titulo ?? 'Cadena de Custodia',     'n' => 2, 'pag' => 5],
-    ['file' => $formulario->anexo_4_file ?? null, 'titulo' => $formulario->anexo_4_titulo ?? 'Otros',                  'n' => 3, 'pag' => 6],
+    ['file' => $formulario->anexo_2_file ?? null, 'titulo' => $formulario->anexo_2_titulo ?? 'Documentación Técnica', 'n' => 1, 'pag' => 4],
+    ['file' => $formulario->anexo_3_file ?? null, 'titulo' => $formulario->anexo_3_titulo ?? 'Cadena de Custodia',    'n' => 2, 'pag' => 5],
+    ['file' => $formulario->anexo_4_file ?? null, 'titulo' => $formulario->anexo_4_titulo ?? 'Otros',                 'n' => 3, 'pag' => 6],
 ] as $anexo)
     @if($anexo['file'])
     <div class="pagina">
@@ -896,10 +885,12 @@
                      alt="Anexo {{ $anexo['n'] }}">
             </div>
         </div>
+
         <div>
             <div class="footer-pagina"><span class="page-number"></span></div>
             <img src="{{ public_path('images/footer.png') }}" class="footer-img">
         </div>
+
     </div>
     @endif
 @endforeach

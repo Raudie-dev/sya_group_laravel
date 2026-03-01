@@ -176,6 +176,7 @@
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center gap-1.5 flex-wrap">
 
+                                        @if(Auth::user()->isAdmin())
                                         {{-- PDF --}}
                                         <a href="{{ route('registros.pdf', $registro->id) }}" target="_blank"
                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
@@ -188,6 +189,7 @@
                                             </svg>
                                             PDF
                                         </a>
+                                        @endif
 
                                         {{-- Editar --}}
                                         <a href="{{ route('registros.edit', $registro->id) }}"

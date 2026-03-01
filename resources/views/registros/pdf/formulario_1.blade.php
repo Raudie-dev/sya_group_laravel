@@ -693,7 +693,7 @@
                 <td style="font-size:8pt">{{ $eq['label'] }}</td>
                 <td style="text-align:center">{{ $eq['cod'] }}</td>
                 <td style="text-align:center; font-weight:bold; color:{{ $eq['chk'] ? '#333' : '#333' }}">
-                    {{ $eq['chk'] ? 'SI' : '—' }}
+                    {{ $eq['chk'] ? 'Si' : 'No' }}
                 </td>
             </tr>
             @endforeach

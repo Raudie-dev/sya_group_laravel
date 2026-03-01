@@ -213,17 +213,20 @@ class RegistroController extends Controller
     {
         $registro = Registro::findOrFail($id);
 
-        $service = FormularioFactory::make($registro->tipo_form_id);
-
+        $service    = FormularioFactory::make($registro->tipo_form_id);
         $formulario = $service->obtenerFormulario($registro);
+        $vista      = $service->vistaPdf();
 
-        $vista = $service->vistaPdf();
+        // ── Datos extra según el tipo de formulario ──────────────────────────
+        $extras = method_exists($service, 'datosParaPdf')
+            ? $service->datosParaPdf($formulario)
+            : [];
 
-        $pdf = Pdf::loadView($vista, [
-            'registro'   => $registro,
-            'formulario' => $formulario,
-        ])->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView($vista, array_merge(
+            ['registro' => $registro, 'formulario' => $formulario],
+            $extras
+        ))->setPaper('a4', 'portrait');
 
-        return $pdf->stream('registro_'.$registro->id.'.pdf');
+        return $pdf->stream('registro_' . $registro->id . '.pdf');
     }
 }

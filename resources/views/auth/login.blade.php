@@ -51,11 +51,13 @@
                 <label for="password" class="block text-sm font-medium text-blue-dark transition-colors duration-200 group-focus-within:text-orange">
                     Contraseña
                 </label>
+                {{-- 
                 @if (Route::has('password.request'))
                     <a class="text-xs text-blue hover:text-orange transition-colors" href="{{ route('password.request') }}">
                         ¿Olvidaste tu contraseña?
                     </a>
-                @endif
+                @endif 
+                --}}
             </div>
             <div class="relative flex items-center rounded-xl border border-gray-200 bg-gray-50
                         transition-all duration-200
@@ -111,6 +113,7 @@
     </form>
 
     <!-- Divisor -->
+    {{-- 
     <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-gray-100"></div>
@@ -124,7 +127,7 @@
        class="w-full flex items-center justify-center px-4 py-3 border-2 border-blue-dark/20 hover:border-orange text-blue-dark hover:text-orange font-semibold rounded-xl transition-all duration-200 text-sm">
         Crear una cuenta nueva
     </a>
-
+    --}}
     <script>
         function togglePassword(fieldId, btn) {
             const input = document.getElementById(fieldId);

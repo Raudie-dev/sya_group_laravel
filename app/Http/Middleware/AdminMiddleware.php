@@ -5,18 +5,15 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-
-        if ($user instanceof \App\Models\User && $user->isAdmin()) {
-            return $next($request);
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Acceso restringido a administradores.');
         }
 
-        abort(403, 'Acceso no autorizado.');
+        return $next($request);
     }
 }

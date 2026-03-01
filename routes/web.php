@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistroController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -44,5 +45,15 @@ Route::middleware(['auth'])->group(function () {
     })->name('usuarios.index');
 
     Route::get('/registros/{id}/pdf', [RegistroController::class, 'pdf'])->name('registros.pdf');
+});
+
+// ── Rutas de Usuarios (solo admin) ──────────────────────────────────────────
+Route::middleware(['auth', 'admin'])->prefix('usuarios')->name('usuarios.')->group(function () {
+    Route::get('/',            [UserController::class, 'index'])  ->name('index');
+    Route::get('/create',      [UserController::class, 'create']) ->name('create');
+    Route::post('/',           [UserController::class, 'store'])  ->name('store');
+    Route::get('/{usuario}/edit', [UserController::class, 'edit'])   ->name('edit');
+    Route::put('/{usuario}',      [UserController::class, 'update']) ->name('update');
+    Route::delete('/{usuario}',   [UserController::class, 'destroy'])->name('destroy');
 });
 require __DIR__.'/auth.php';
