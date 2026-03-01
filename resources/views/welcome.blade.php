@@ -203,7 +203,6 @@
                 ['México', 'Sede principal'],
                 ['+200',   'Proyectos entregados'],
                 ['2003',   'Año de fundación'],
-                ['24/7',   'Soporte técnico'],
             ] as $stat)
             <div class="px-6 py-5">
                 <p class="text-2xl md:text-3xl font-bold text-white">{{ $stat[0] }}</p>
