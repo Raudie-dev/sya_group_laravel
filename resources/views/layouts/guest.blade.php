@@ -25,7 +25,7 @@
 
             <!-- Logo -->
             <div class="relative z-10">
-                <a href="/" class="flex items-center space-x-3">
+                <a href="{{ url('/') }}" class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-orange rounded-xl flex items-center justify-center shadow-lg">
                         <span class="text-white font-bold text-lg">S</span>
                     </div>
