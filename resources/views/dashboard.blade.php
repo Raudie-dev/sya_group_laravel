@@ -104,6 +104,78 @@
             </div>
         @endif
 
+        {{-- Filtros --}}
+        <div class="p-5 border-b border-gray-100 bg-white rounded-2xl">
+            <form method="GET" action="{{ route('registros.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <!-- Título -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Título</label>
+                    <input type="text" name="titulo" value="{{ request('titulo') }}" 
+                        placeholder="Buscar por título..." 
+                        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
+                </div>
+                
+                <!-- Código -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Código</label>
+                    <input type="text" name="codigo" value="{{ request('codigo') }}" 
+                        placeholder="Ej: INF-001..." 
+                        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
+                </div>
+                
+                <!-- Empresa -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Empresa</label>
+                    <input type="text" name="empresa" value="{{ request('empresa') }}" 
+                        placeholder="Nombre de empresa..." 
+                        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
+                </div>
+                
+                <!-- Proyecto -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Proyecto</label>
+                    <input type="text" name="proyecto" value="{{ request('proyecto') }}" 
+                        placeholder="Nombre del proyecto..." 
+                        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
+                </div>
+                
+                <!-- Fecha desde - hasta (en dos columnas) -->
+                <div class="sm:col-span-2 lg:col-span-1 grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Desde</label>
+                        <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}" 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Hasta</label>
+                        <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}" 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="sm:col-span-2 lg:col-span-1 flex items-end gap-2">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-dark text-white text-sm font-semibold rounded-lg hover:bg-blue transition-colors duration-150 shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Filtrar
+                    </button>
+                    
+                    @if(request()->anyFilled(['titulo', 'codigo', 'empresa', 'proyecto', 'fecha_desde', 'fecha_hasta']))
+                        <a href="{{ route('registros.index') }}" 
+                        class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-150 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Limpiar
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         {{-- Tabla de registros --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 

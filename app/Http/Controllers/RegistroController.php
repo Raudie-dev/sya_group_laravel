@@ -17,9 +17,44 @@ class RegistroController extends Controller
     | INDEX
     |--------------------------------------------------------------------------
     */
-    public function index()
+    public function index(Request $request)
     {
-        $registros = Registro::latest()->paginate(10);
+        $query = Registro::latest(); // orden por defecto
+
+        // Filtro por título (búsqueda parcial)
+        if ($request->filled('titulo')) {
+            $query->where('titulo_informe', 'like', '%' . $request->titulo . '%');
+        }
+
+        // Filtro por código (búsqueda parcial)
+        if ($request->filled('codigo')) {
+            $query->where('codigo_informe', 'like', '%' . $request->codigo . '%');
+        }
+
+        // Filtro por empresa
+        if ($request->filled('empresa')) {
+            $query->where('empresa_nombre', 'like', '%' . $request->empresa . '%');
+        }
+
+        // Filtro por proyecto
+        if ($request->filled('proyecto')) {
+            $query->where('nombre_proyecto', 'like', '%' . $request->proyecto . '%');
+        }
+
+        // Filtro por fecha de emisión (rango)
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fecha_emision', '>=', $request->fecha_desde);
+        }
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fecha_emision', '<=', $request->fecha_hasta);
+        }
+
+        // También puedes agregar filtro por tipo de formulario si existe el campo
+        // if ($request->filled('tipo_form_id')) {
+        //     $query->where('tipo_form_id', $request->tipo_form_id);
+        // }
+
+        $registros = $query->paginate(10)->appends($request->query()); // mantiene los filtros en la paginación
 
         return view('dashboard', compact('registros'));
     }

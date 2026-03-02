@@ -2,13 +2,13 @@
 
 namespace App\Services\Formularios;
 
-use App\Models\Formulario2;
+use App\Models\formulario2;
 use App\Models\Formulario2Lectura;
 use Illuminate\Support\Facades\Storage;
 
 class Formulario2Service extends BaseFormularioService
 {
-    protected $modelo = Formulario2::class;
+    protected $modelo = formulario2::class;
 
     public function vistaPdf()
     {
@@ -36,7 +36,7 @@ class Formulario2Service extends BaseFormularioService
      *       $extras
      *   ));
      */
-    public function datosParaPdf(Formulario2 $formulario): array
+    public function datosParaPdf(formulario2 $formulario): array
     {
         $lecturas = $formulario->lecturas;
 
@@ -124,7 +124,7 @@ class Formulario2Service extends BaseFormularioService
         }
     }
 
-    private function llenarCamposFormulario(Formulario2 $formulario, $request): void
+    private function llenarCamposFormulario(formulario2 $formulario, $request): void
     {
         $formulario->fill([
             'inspector_nombre'   => $request->inspector_nombre,
@@ -163,7 +163,7 @@ class Formulario2Service extends BaseFormularioService
         }
     }
 
-    private function sincronizarLecturas(Formulario2 $formulario, $request): void
+    private function sincronizarLecturas(formulario2 $formulario, $request): void
     {
         $fechas = $request->input('lectura_fecha', []);
         $horas  = $request->input('lectura_hora',  []);
@@ -210,7 +210,7 @@ class Formulario2Service extends BaseFormularioService
         }
         $registro->save();
 
-        $formulario = new Formulario2();
+        $formulario = new formulario2();
         $formulario->registro_id = $registro->id;
         $this->llenarCamposFormulario($formulario, $request);
         $formulario->save();
@@ -239,7 +239,7 @@ class Formulario2Service extends BaseFormularioService
         }
         $registro->save();
 
-        $formulario = Formulario2::where('registro_id', $registro->id)->firstOrFail();
+        $formulario = formulario2::where('registro_id', $registro->id)->firstOrFail();
         $this->llenarCamposFormulario($formulario, $request);
         $formulario->save();
 

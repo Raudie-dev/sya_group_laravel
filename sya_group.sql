@@ -11,7 +11,7 @@
  Target Server Version : 100432 (10.4.32-MariaDB)
  File Encoding         : 65001
 
- Date: 02/03/2026 08:16:07
+ Date: 02/03/2026 12:08:40
 */
 
 SET NAMES utf8mb4;
@@ -162,7 +162,7 @@ CREATE TABLE `formulario_2`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `fk_formulario2_registro`(`registro_id` ASC) USING BTREE,
   CONSTRAINT `fk_formulario2_registro` FOREIGN KEY (`registro_id`) REFERENCES `registros` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of formulario_2
@@ -186,7 +186,7 @@ CREATE TABLE `formulario_2_lecturas`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `fk_f2_lecturas_formulario`(`formulario2_id` ASC) USING BTREE,
   CONSTRAINT `fk_f2_lecturas_formulario` FOREIGN KEY (`formulario2_id`) REFERENCES `formulario_2` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of formulario_2_lecturas
@@ -209,7 +209,6 @@ DROP TABLE IF EXISTS `formulario_3`;
 CREATE TABLE `formulario_3`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `registro_id` bigint UNSIGNED NOT NULL,
-  `titulo_informe` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `inspector_nombre` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `inspector_rut` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `lugar_muestreo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
@@ -247,15 +246,18 @@ CREATE TABLE `formulario_3`  (
   `updated_at` timestamp NULL DEFAULT current_timestamp ON UPDATE CURRENT_TIMESTAMP,
   `eq_cloro_cod` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `eq_cloro_chk` tinyint(1) NULL DEFAULT NULL,
+  `equipos_detalle` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `mediciones_detalle` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `fk_formulario3_registro`(`registro_id` ASC) USING BTREE,
   CONSTRAINT `fk_formulario3_registro` FOREIGN KEY (`registro_id`) REFERENCES `registros` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of formulario_3
 -- ----------------------------
-INSERT INTO `formulario_3` VALUES (1, 32, 'Resultados de Análisis Muestreo RILes', 'René Díaz V.', '11.296.786-9', 'Postulación', 'Residencias Invica, Torre 1 Chaguaramos, Piso 2 Apt 25 Las mercedes, La Victoria, Estado Aragua', 'Descarga', 'Muestreo automático compuesto', 'Código 1', 1, 'Código 2', 1, 'Código 3', 1, 'RIL', '2026-03-01', '02:52:00', 100.00, 100.55, 100.55, 'SST', '2026-03-01', '02:52:00', 100.00, 100.55, 100.55, 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...', 'anexos_form/OvAFOTFnJKIpQI8i7joOxRlLi0cBWS6WJIi1NOcw.jpg', 'Registro Fotográfico', 'anexos_form/2I5teZawxDXSDkhKAgKfoarTk8hiZJPDmlqt7Vuy.jpg', 'Cadena de Custodia.', 'anexos_form/4xerBEHE170WgUJtTLcKk6tX6e0FrSV5MkCUUpta.jpg', 'Declaraciones de Operatividad del Inspector Ambiental.', 'anexos_form/pzddl03UmHRoFUxDLYv96xhI6EgMJJEFXzqXE5Ay.jpg', 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', '2026-03-01 06:37:23', '2026-03-01 06:52:52', NULL, 0);
+INSERT INTO `formulario_3` VALUES (1, 32, 'René Díaz V.', '11.296.786-9', 'Postulación', 'Residencias Invica, Torre 1 Chaguaramos, Piso 2 Apt 25 Las mercedes, La Victoria, Estado Aragua', 'Descarga', 'Muestreo automático compuesto', 'Código 1', 1, 'Código 2', 1, 'Código 3', 1, 'RIL', '2026-03-01', '02:52:00', 100.00, 100.55, 100.55, 'SST', '2026-03-01', '02:52:00', 100.00, 100.55, 100.55, 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...', 'anexos_form/OvAFOTFnJKIpQI8i7joOxRlLi0cBWS6WJIi1NOcw.jpg', 'Registro Fotográfico', 'anexos_form/2I5teZawxDXSDkhKAgKfoarTk8hiZJPDmlqt7Vuy.jpg', 'Cadena de Custodia.', 'anexos_form/4xerBEHE170WgUJtTLcKk6tX6e0FrSV5MkCUUpta.jpg', 'Declaraciones de Operatividad del Inspector Ambiental.', 'anexos_form/pzddl03UmHRoFUxDLYv96xhI6EgMJJEFXzqXE5Ay.jpg', 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', '2026-03-01 06:37:23', '2026-03-01 06:52:52', NULL, 0, NULL, NULL);
+INSERT INTO `formulario_3` VALUES (2, 53, 'René Díaz V.', '11.296.786-9', 'Mirta', 'Ruta F- 30 S/N, Puchuncavi, región de Valparaíso', 'Aducción', 'Muestreo automático compuesto', NULL, 0, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Los resultados de análisis y mediciones in situ corresponden al lugar en donde fueron recolectadas las muestras...', 'anexos/yF9yrqApodf2fSdLl7iBx78cvF4EvR5OIYI50433.jpg', NULL, 'anexos/bVcEWqqsxciJgpZlLhghC2jRioVQuDyQYa4MnszV.jpg', NULL, 'anexos/93FOKwfX28R4GeMMfZ8crU3kKe1fseyqQGpv7Tl3.jpg', NULL, 'anexos/sNBQW5aLF0nW5f7vRv3mdGNxjpqIxmnNB6AVEzbJ.jpg', NULL, '2026-03-02 15:49:46', '2026-03-02 16:06:34', NULL, NULL, '[{\"nombre\":\"Toma de Muestra: NCh411\\/10.Of2005.\",\"codigo\":\"codigo 1\",\"check\":\"1\"},{\"nombre\":\"pH: (NCh2313\\/1.Of95.)\",\"codigo\":\"codigo 2\",\"check\":\"1\"},{\"nombre\":\"Temperatura: (NCh2313\\/2.Of95.)\",\"codigo\":\"codigo 3\",\"check\":\"1\"},{\"nombre\":\"test 1\",\"codigo\":\"codigo 4\",\"check\":\"1\"},{\"nombre\":\"test 2\",\"codigo\":\"codigo 5\",\"check\":\"1\"},{\"nombre\":\"test 3\",\"codigo\":\"codigo 6\",\"check\":\"1\"}]', '[{\"item\":\"RIL\",\"fecha\":\"2026-03-02\",\"hora\":\"11:32\",\"ph\":\"100\",\"temp\":\"100\",\"cloro\":\"100\"},{\"item\":\"SST\",\"fecha\":\"2026-03-02\",\"hora\":\"11:32\",\"ph\":\"100\",\"temp\":\"100\",\"cloro\":\"100\"},{\"item\":\"cod3\",\"fecha\":\"2026-03-02\",\"hora\":\"11:32\",\"ph\":\"100\",\"temp\":\"100\",\"cloro\":\"100\"},{\"item\":\"cod4\",\"fecha\":\"2026-03-02\",\"hora\":\"11:32\",\"ph\":\"100\",\"temp\":\"100\",\"cloro\":\"100\"}]');
 
 -- ----------------------------
 -- Table structure for formulario_4
@@ -299,7 +301,7 @@ CREATE TABLE `formulario_4`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `fk_formulario4_registro`(`registro_id` ASC) USING BTREE,
   CONSTRAINT `fk_formulario4_registro` FOREIGN KEY (`registro_id`) REFERENCES `registros` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of formulario_4
@@ -352,7 +354,7 @@ CREATE TABLE `formulario_5`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `fk_formulario5_registro`(`registro_id` ASC) USING BTREE,
   CONSTRAINT `fk_formulario5_registro` FOREIGN KEY (`registro_id`) REFERENCES `registros` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of formulario_5
@@ -410,7 +412,7 @@ CREATE TABLE `migrations`  (
   `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of migrations
@@ -424,6 +426,8 @@ INSERT INTO `migrations` VALUES (6, '2026_02_25_063858_create_formulario_1_table
 INSERT INTO `migrations` VALUES (7, '2026_02_25_063925_create_formulario_2_table', 1);
 INSERT INTO `migrations` VALUES (8, '2026_02_26_064952_add_anexos_to_formulario1', 2);
 INSERT INTO `migrations` VALUES (9, '2026_02_27_161610_add_equipos_resultados_to_formulario_1', 3);
+INSERT INTO `migrations` VALUES (10, '2026_03_02_150026_add_json_fields_to_formulario3', 4);
+INSERT INTO `migrations` VALUES (11, '2026_03_02_150028_add_json_fields_to_formulario3', 5);
 
 -- ----------------------------
 -- Table structure for password_reset_tokens
@@ -460,7 +464,7 @@ CREATE TABLE `registros`  (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 54 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of registros
@@ -470,6 +474,7 @@ INSERT INTO `registros` VALUES (20, 2, 'Resultados de Análisis Muestreo RILes',
 INSERT INTO `registros` VALUES (32, 3, 'Resultados de Análisis Muestreo RILes', '2121 - José Félix Ribas - La Victoria', '2026-03-01', 'Quintero Energía SpA', 'Residencias Invica, Torre 1 Chaguaramos, Piso 2 Apt 25 Las mercedes, La Victoria, Estado Aragua', 'Aragua', 'Las Condes, Santiago', 'logos_clientes/I4kpEcCKG3j7wjlkiOjPW6brAjhOjbwvKRlJtApp.jpg', 'De Sousa', 'Resolución Exenta Nº 1124/ 2006', '2026-03-01 06:37:23', '2026-03-01 06:37:23');
 INSERT INTO `registros` VALUES (40, 4, 'Resultados de Análisis Muestreo RILes', '2121 - José Félix Ribas - La Victoria', '2026-03-01', 'Quintero Energía SpA', 'Residencias Invica, Torre 1 Chaguaramos, Piso 2 Apt 25 Las mercedes, La Victoria, Estado Aragua', 'Aragua', 'Las Condes, Santiago', 'logos_clientes/47SsbyZiLV6iua2gs5kMj52dp6Ai2nnirMoY37d3.jpg', 'De Sousa', 'Resolución Exenta Nº 1124/ 2006', '2026-03-01 06:59:06', '2026-03-01 06:59:06');
 INSERT INTO `registros` VALUES (42, 5, 'Resultados de Análisis Muestreo RILes', '2121 - José Félix Ribas - La Victoria', '2026-02-27', 'Quintero Energía SpA', 'Residencias Invica, Torre 1 Chaguaramos, Piso 2 Apt 25 Las mercedes, La Victoria, Estado Aragua', 'Aragua', 'Las Condes, Santiago', 'logos_clientes/X2e7tW1HnLIaGJ8u3SuBsSrYnBHDLL3Q1fDQNTgh.jpg', 'De Sousa', 'Resolución Exenta Nº 1124/ 2006', '2026-03-01 07:06:41', '2026-03-01 07:06:41');
+INSERT INTO `registros` VALUES (53, 3, 'test form 3', 'QEN_V3_D_02122025JRC_DS90', '2026-03-02', 'Quintero Energía SpA', 'Avenida Los Militares 5953, of 1606', 'Nuevo', 'Las Condes, Santiago', 'logos_clientes/adT72JNczRTX8TE3vnxzzFADNdbvsiKYw7fHNtBT.jpg', '4531', 'Resolución Exenta Nº 275/ 2010', '2026-03-02 15:49:46', '2026-03-02 15:49:46');
 
 -- ----------------------------
 -- Table structure for sessions
@@ -490,8 +495,7 @@ CREATE TABLE `sessions`  (
 -- ----------------------------
 -- Records of sessions
 -- ----------------------------
-INSERT INTO `sessions` VALUES ('4ZtqvRwyB40CCGFBKyKTqBov8ITQBYkeoTpNEopw', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiRnNoVXBXZmx6WU5WYUFHMTJKM2ZTTEdMSW9xNWcyR1J2NjRWdzB6MCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMiO3M6NToicm91dGUiO047fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1772396606);
-INSERT INTO `sessions` VALUES ('9ArbDHZ7u66xiyhtV38eJqvoHHW7K24ayLH2jY1q', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiQUVYeHl6YVk0eVhYNmtmOTJEaGh1cURoSmp4b0FDYnpPNkRPSnNKdiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMiO3M6NToicm91dGUiO047fX0=', 1772388174);
+INSERT INTO `sessions` VALUES ('ab6df6Lg1LjZ9aT8SNXniUBaB2de8CQBgggd9nzN', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMVlqbjdENU5QbEIwRnlEd0xGRkQwaDJFRmwydExxTUxYRlFFM2VPZCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NTQ6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMvcmVnaXN0cm9zLzUzL3BkZiI7czo1OiJyb3V0ZSI7czoxMzoicmVnaXN0cm9zLnBkZiI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1772467599);
 
 -- ----------------------------
 -- Table structure for users

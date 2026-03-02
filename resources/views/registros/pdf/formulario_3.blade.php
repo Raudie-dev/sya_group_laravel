@@ -669,34 +669,37 @@
 
         {{-- SECCIÓN 3: INFORMACIÓN DE LA MEDICIÓN --}}
         <table>
-            <tr><td colspan="3" class="th-seccion">3. INFORMACIÓN DE LA MEDICIÓN</td></tr>
-            <tr>
-                <td class="th-col" style="width:55%">Medición / Norma</td>
-                <td class="th-col" style="width:30%">Código Equipo</td>
-                <td class="th-col" style="width:15%">Realizada</td>
-            </tr>
-            @foreach([
-                ['label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo de aguas residuales - Recolección y manejo de las muestras. 2005. INN',
-                 'cod'   => $formulario->eq_muestreo_cod ?? '',
-                 'chk'   => $formulario->eq_muestreo_chk ?? false],
-                ['label' => 'pH: (NCh2313/1.Of95. Parte 1. Determinación de pH.1995. INN)',
-                 'cod'   => $formulario->eq_ph_cod ?? '',
-                 'chk'   => $formulario->eq_ph_chk ?? false],
-                ['label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',
-                 'cod'   => $formulario->eq_temp_cod ?? '',
-                 'chk'   => $formulario->eq_temp_chk ?? false],
-                ['label' => 'Cloro libre residual: IMCLB v.03 basado en Guía ISO 7393-2:1985',
-                 'cod'   => $formulario->eq_cloro_cod ?? '',
-                 'chk'   => $formulario->eq_cloro_chk ?? false],
-            ] as $eq)
-            <tr>
-                <td style="font-size:8pt">{{ $eq['label'] }}</td>
-                <td style="text-align:center">{{ $eq['cod'] }}</td>
-                <td style="text-align:center; font-weight:bold; color:{{ $eq['chk'] ? '#333' : '#333' }}">
-                    {{ $eq['chk'] ? 'Si' : 'No' }}
-                </td>
-            </tr>
-            @endforeach
+            <thead>
+                <tr><td colspan="3" class="th-seccion">3. INFORMACIÓN DE LA MEDICIÓN</td></tr>
+                <tr>
+                    <td class="th-col" style="width:55%">Medición / Norma</td>
+                    <td class="th-col" style="width:30%">Código Equipo</td>
+                    <td class="th-col" style="width:15%">Realizada</td>
+                </tr>
+            </thead>
+            <tbody>
+                {{-- Iteramos sobre el array dinámico del modelo --}}
+                @forelse($formulario->equipos_array as $eq)
+                <tr>
+                    <td style="font-size:8pt; text-align: left;">
+                        {{ $eq['nombre'] ?? '—' }}
+                    </td>
+                    <td style="text-align:center">
+                        {{ $eq['codigo'] ?? '—' }}
+                    </td>
+                    <td style="text-align:center; font-weight:bold;">
+                        {{-- Verificamos si el check viene como '1', 'on', true, etc --}}
+                        {{ ($eq['check'] ?? false) ? 'Si' : 'No' }}
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="3" style="text-align:center; color:#999;">
+                        No se han registrado equipos.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
         </table>
         <div>
             <div class="footer-pagina"><span class="page-number"></span></div>
@@ -728,53 +731,57 @@
     <div class="page-content">
 
         {{-- SECCIÓN 4: RESULTADOS MEDICIONES IN SITU --}}
-<table>
-    <tr>
-        <td colspan="6" class="th-seccion">
-            4.- RESULTADOS MEDICIONES <em>IN SITU</em>
-        </td>
-    </tr>
+        <table>
+            <thead>
+                <tr>
+                    <td colspan="6" class="th-seccion">
+                        4.- RESULTADOS MEDICIONES <em>IN SITU</em>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="th-col" style="width:15%">ÍTEM</td>
+                    <td class="th-col" style="width:18%">Fecha</td>
+                    <td class="th-col" style="width:15%">Hora</td>
+                    <td class="th-col" style="width:17%">pH (U)</td>
+                    <td class="th-col" style="width:17%">Temp (°C)</td>
+                    <td class="th-col" style="width:18%">Cloro (mg/l)</td>
+                </tr>
+            </thead>
+            <tbody>
+                {{-- Iteramos sobre el array dinámico de mediciones --}}
+                @forelse($formulario->mediciones_array as $med)
+                    <tr class="tr-resultado">
+                        <td style="text-align: left; padding-left: 5px;">
+                            {{ $med['item'] ?? '—' }}
+                        </td>
 
-    <tr>
-        <td class="th-col" style="width:15%">ÍTEM</td>
-        <td class="th-col" style="width:18%">Fecha</td>
-        <td class="th-col" style="width:15%">Hora</td>
-        <td class="th-col" style="width:17%">pH (U)</td>
-        <td class="th-col" style="width:17%">Temperatura (°C)</td>
-        <td class="th-col" style="width:18%">Cloro Libre (mg/l)</td>
-    </tr>
+                        <td>
+                            {{-- Formateo seguro de fecha con Carbon --}}
+                            @if(!empty($med['fecha']))
+                                {{ \Carbon\Carbon::parse($med['fecha'])->format('d/m/Y') }}
+                            @else
+                                —
+                            @endif
+                        </td>
 
-    @foreach([1,2] as $i)
-        <tr class="tr-resultado">
-            <td>
-                {{ $formulario->{'insitu_item_'.$i} ?? '—' }}
-            </td>
+                        <td>
+                            {{-- Formateo de hora (recortar segundos si es necesario) --}}
+                            {{ !empty($med['hora']) ? \Str::substr($med['hora'], 0, 5) : '—' }}
+                        </td>
 
-            <td>
-                {{ $formulario->{'insitu_fecha_'.$i}
-                    ? \Carbon\Carbon::parse($formulario->{'insitu_fecha_'.$i})->format('d/m/Y')
-                    : '—' }}
-            </td>
-
-            <td>
-                {{ $formulario->{'insitu_hora_'.$i} ?? '—' }}
-            </td>
-
-            <td>
-                {{ $formulario->{'insitu_ph_'.$i} ?? '—' }}
-            </td>
-
-            <td>
-                {{ $formulario->{'insitu_temp_'.$i} ?? '—' }}
-            </td>
-
-            <td>
-                {{ $formulario->{'insitu_cloro_'.$i} ?? '—' }}
-            </td>
-        </tr>
-    @endforeach
-
-</table>
+                        <td>{{ $med['ph'] ?? '—' }}</td>
+                        <td>{{ $med['temp'] ?? '—' }}</td>
+                        <td>{{ $med['cloro'] ?? '—' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding: 10px; color:#999;">
+                            Sin mediciones registradas.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
 
         {{-- SECCIÓN 5: OBSERVACIONES --}}
         <div class="obs-titulo">5.- OBSERVACIONES.</div>

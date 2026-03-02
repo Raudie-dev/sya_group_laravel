@@ -225,7 +225,6 @@
         </div>
         <div class="p-5 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
                 @foreach([
                     ['label'=>'Lugar de Muestreo',                  'name'=>'lugar_muestreo',       'value'=>$inst->lugar_muestreo ?? '',       'placeholder'=>'Nombre del lugar'],
                     ['label'=>'Dirección de Muestreo',              'name'=>'direccion_muestreo',   'value'=>$inst->direccion_muestreo ?? '',   'placeholder'=>'Dirección completa'],
@@ -242,51 +241,73 @@
                         </div>
                     </div>
                 @endforeach
-
-
             </div>
 
-            {{-- Tabla de equipos --}}
-            <div class="mt-2 overflow-hidden rounded-xl border border-gray-200">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="bg-gray-50 border-b border-gray-200">
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/2">Medición / Norma</th>
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/3">Código Equipo</th>
-                            <th class="text-center px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/6">Realizada</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                            @foreach([
-                                ['label'=>'Toma de Muestra: NCh411/10.Of2005.',  'name_eq'=>'eq_muestreo_cod',   'name_chk'=>'eq_muestreo_chk',   'eq_val'=>$inst->eq_muestreo_cod ?? '',  'chk_val'=>$inst->eq_muestreo_chk ?? true],
-                                ['label'=>'pH: (NCh2313/1.Of95.)',                'name_eq'=>'eq_ph_cod',         'name_chk'=>'eq_ph_chk',         'eq_val'=>$inst->eq_ph_cod ?? '',         'chk_val'=>$inst->eq_ph_chk ?? true],
-                                ['label'=>'Temperatura: (NCh2313/2.Of95.)',       'name_eq'=>'eq_temp_cod',       'name_chk'=>'eq_temp_chk',       'eq_val'=>$inst->eq_temp_cod ?? '',       'chk_val'=>$inst->eq_temp_chk ?? true],
-                            ] as $row)
+            {{-- Tabla de equipos Dinámica --}}
+            <div class="mt-4">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Equipos Utilizados</label>
+                <div class="overflow-hidden rounded-xl border border-gray-200">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/2">Medición / Norma</th>
+                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/3">Código Equipo</th>
+                                <th class="text-center px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/6">Realizada</th>
+                                <th class="w-10 bg-gray-50"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="tbody_equipos">
+                            @php
+                                // Asume que guardas esto en JSON o en una relación. Ajusta si es necesario.
+                                $equipos = $inst->equipos_array ?? [
+                                    ['nombre' => 'Toma de Muestra: NCh411/10.Of2005.', 'codigo' => '', 'check' => '1'],
+                                    ['nombre' => 'pH: (NCh2313/1.Of95.)', 'codigo' => '', 'check' => '1'],
+                                    ['nombre' => 'Temperatura: (NCh2313/2.Of95.)', 'codigo' => '', 'check' => '1'],
+                                ];
+                            @endphp
+                            
+                            @foreach($equipos as $i => $eq)
                             <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="px-4 py-2.5 text-xs text-gray-600">{{ $row['label'] }}</td>
                                 <td class="px-4 py-2.5">
-                                    <div class="group flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-all duration-150 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
-                                        <input type="text" name="{{ $row['name_eq'] }}"
-                                               value="{{ old($row['name_eq'], $row['eq_val']) }}"
+                                    <input type="text" name="equipos[{{$i}}][nombre]" value="{{ $eq['nombre'] ?? '' }}" 
+                                           class="w-full bg-transparent border-b border-transparent focus:border-orange px-2 py-1 text-xs text-gray-600 focus:outline-none" 
+                                           placeholder="Nombre del equipo o norma">
+                                </td>
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                                        <input type="text" name="equipos[{{$i}}][codigo]" value="{{ $eq['codigo'] ?? '' }}"
                                                placeholder="Código..."
                                                class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                                     </div>
                                 </td>
                                 <td class="px-4 py-2.5 text-center">
-                                    <input type="hidden" name="{{ $row['name_chk'] }}" value="0">
-                                    <input type="checkbox" name="{{ $row['name_chk'] }}" value="1"
-                                        {{ old($row['name_chk'], $row['chk_val']) ? 'checked' : '' }}
+                                    <input type="hidden" name="equipos[{{$i}}][check]" value="0">
+                                    <input type="checkbox" name="equipos[{{$i}}][check]" value="1"
+                                        {{ ($eq['check'] ?? false) ? 'checked' : '' }}
                                         class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
                                 </td>
+                                <td class="px-2 text-center">
+                                    <button type="button" onclick="eliminarFila(this)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                </td>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2 flex justify-end">
+                    <button type="button" onclick="agregarEquipo()" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-green hover:text-green hover:bg-green/5 text-xs font-semibold transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Agregar Equipo / Norma
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- ══ SECCIÓN 4 — Mediciones In Situ (tabla fija 2 filas) ══ --}}
+    {{-- ══ SECCIÓN 4 — Mediciones In Situ ══ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-blue-dark/8 bg-blue-dark/3">
             <div class="w-7 h-7 rounded-lg bg-blue flex items-center justify-center flex-shrink-0">
@@ -314,40 +335,68 @@
                         <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500">Hora</th>
                         <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500">pH (U)</th>
                         <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500">Temp (°C)</th>
-                        <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 rounded-r-xl">Cloro Libre (mg/l)</th>
+                        <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500">Cloro Libre (mg/l)</th>
+                        <th class="w-10 rounded-r-xl"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach([
-                        ['suf'=>'1', 'item_default'=>'RIL', 'item_field'=>'insitu_item_1'],
-                        ['suf'=>'2', 'item_default'=>'SST', 'item_field'=>'insitu_item_2'],
-                    ] as $row)
+                <tbody class="divide-y divide-gray-100" id="tbody_mediciones">
+                    @php
+                        // Asume que guardas esto en JSON o Relación.
+                        $mediciones = $inst->mediciones_array ?? [
+                            ['item' => 'RIL', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
+                            ['item' => 'SST', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => '']
+                        ];
+                    @endphp
+
+                    @foreach($mediciones as $i => $med)
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-3 py-2.5">
                                 <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
-                                    <input type="text" name="{{ $row['item_field'] }}" value="{{ old($row['item_field'], $inst->{$row['item_field']} ?? $row['item_default']) }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-0">
+                                    <input type="text" name="mediciones[{{$i}}][item]" value="{{ $med['item'] ?? '' }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-0">
                                 </div>
                             </td>
-                            @foreach([
-                                ['type'=>'date',   'name'=>'insitu_fecha_'.$row['suf'],  'step'=>null,  'val'=>$inst?->{'insitu_fecha_'.$row['suf']} ?? ''],
-                                ['type'=>'time',   'name'=>'insitu_hora_'.$row['suf'],   'step'=>null,  'val'=>$inst?->{'insitu_hora_'.$row['suf']} ?? ''],
-                                ['type'=>'number', 'name'=>'insitu_ph_'.$row['suf'],     'step'=>'0.01','val'=>$inst->{'insitu_ph_'.$row['suf']} ?? ''],
-                                ['type'=>'number', 'name'=>'insitu_temp_'.$row['suf'],   'step'=>'0.01', 'val'=>$inst->{'insitu_temp_'.$row['suf']} ?? ''],
-                                ['type'=>'number', 'name'=>'insitu_cloro_'.$row['suf'],  'step'=>'0.01','val'=>$inst->{'insitu_cloro_'.$row['suf']} ?? ''],
-                            ] as $cell)
-                                <td class="px-3 py-2.5">
-                                    <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
-                                        <input type="{{ $cell['type'] }}" name="{{ $cell['name'] }}"
-                                               value="{{ old($cell['name'], $cell['val']) }}"
-                                               @if($cell['step']) step="{{ $cell['step'] }}" @endif
-                                               class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
-                                    </div>
-                                </td>
-                            @endforeach
+                            <td class="px-3 py-2.5">
+                                <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                                    <input type="date" name="mediciones[{{$i}}][fecha]" value="{{ $med['fecha'] ?? '' }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+                                </div>
+                            </td>
+                            <td class="px-3 py-2.5">
+                                <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                                    <input type="time" name="mediciones[{{$i}}][hora]" value="{{ $med['hora'] ?? '' }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+                                </div>
+                            </td>
+                            <td class="px-3 py-2.5">
+                                <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                                    <input type="number" step="0.01" name="mediciones[{{$i}}][ph]" value="{{ $med['ph'] ?? '' }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+                                </div>
+                            </td>
+                            <td class="px-3 py-2.5">
+                                <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                                    <input type="number" step="0.01" name="mediciones[{{$i}}][temp]" value="{{ $med['temp'] ?? '' }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+                                </div>
+                            </td>
+                            <td class="px-3 py-2.5">
+                                <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                                    <input type="number" step="0.01" name="mediciones[{{$i}}][cloro]" value="{{ $med['cloro'] ?? '' }}" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+                                </div>
+                            </td>
+                            <td class="px-2 text-center">
+                                <button type="button" onclick="eliminarFila(this)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            
+            <div class="mt-2 flex justify-end">
+                <button type="button" onclick="agregarMedicion()" 
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-blue hover:text-blue hover:bg-blue/5 text-xs font-semibold transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Agregar Medición
+                </button>
+            </div>
         </div>
     </div>
 
@@ -383,10 +432,10 @@
             {{-- Anexos --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach([
-                    ['n'=>1, 'name'=>'an1', 'title_name'=>'an1_titulo', 'title_val'=>$inst->anexo_1_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_1_file ?? null],
-                    ['n'=>2, 'name'=>'an2', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Cadena de Custodia.', 'file'=>$inst->anexo_2_file ?? null],
-                    ['n'=>3, 'name'=>'an3', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? 'Declaraciones de Operatividad del Inspector Ambiental.', 'file'=>$inst->anexo_3_file ?? null],
-                    ['n'=>4, 'name'=>'an4', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', 'file'=>$inst->anexo_4_file ?? null],
+                    ['n'=>1, 'name'=>'anexo_1_file', 'title_name'=>'an1_titulo', 'title_val'=>$inst->anexo_1_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_1_file ?? null],
+                    ['n'=>2, 'name'=>'anexo_2_file', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Cadena de Custodia.', 'file'=>$inst->anexo_2_file ?? null],
+                    ['n'=>3, 'name'=>'anexo_3_file', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? 'Declaraciones de Operatividad del Inspector Ambiental.', 'file'=>$inst->anexo_3_file ?? null],
+                    ['n'=>4, 'name'=>'anexo_4_file', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', 'file'=>$inst->anexo_4_file ?? null],
                 ] as $anexo)
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 hover:border-blue-light/40 transition-colors">
 
@@ -474,6 +523,105 @@
         </button>
     </div>
 </form>
+{{-- TEMPLATES PARA JAVASCRIPT (No visibles) --}}
+<template id="template-equipo">
+    <tr class="hover:bg-gray-50/50 transition-colors">
+        <td class="px-4 py-2.5">
+            <input type="text" name="equipos[INDEX][nombre]" class="w-full bg-transparent border-b border-transparent focus:border-orange px-2 py-1 text-xs text-gray-600 focus:outline-none" placeholder="Nombre medición/norma">
+        </td>
+        <td class="px-4 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="text" name="equipos[INDEX][codigo]" placeholder="Código..." class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-4 py-2.5 text-center">
+            <input type="hidden" name="equipos[INDEX][check]" value="0">
+            <input type="checkbox" name="equipos[INDEX][check]" value="1" checked class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
+        </td>
+        <td class="px-2 text-center">
+            <button type="button" onclick="eliminarFila(this)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
+        </td>
+    </tr>
+</template>
+
+<template id="template-medicion">
+    <tr class="hover:bg-gray-50/50 transition-colors">
+        <td class="px-3 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="text" name="mediciones[INDEX][item]" placeholder="Ítem" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-3 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="date" name="mediciones[INDEX][fecha]" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-3 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="time" name="mediciones[INDEX][hora]" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-3 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="number" step="0.01" name="mediciones[INDEX][ph]" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-3 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="number" step="0.01" name="mediciones[INDEX][temp]" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-3 py-2.5">
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
+                <input type="number" step="0.01" name="mediciones[INDEX][cloro]" class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+            </div>
+        </td>
+        <td class="px-2 text-center">
+            <button type="button" onclick="eliminarFila(this)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
+        </td>
+    </tr>
+</template>
+
+<script>
+    function agregarEquipo() {
+        const tbody = document.getElementById('tbody_equipos');
+        const template = document.getElementById('template-equipo');
+        
+        // cloneNode(true) clona todo el contenido recursivamente
+        const clone = template.content.cloneNode(true); 
+        
+        const index = Date.now(); // Usar timestamp para ID único
+        
+        // Reemplazar el placeholder INDEX por el número
+        clone.querySelectorAll('[name*="INDEX"]').forEach(el => {
+            el.name = el.name.replace('INDEX', index);
+        });
+        
+        tbody.appendChild(clone);
+    }
+
+    function agregarMedicion() {
+        const tbody = document.getElementById('tbody_mediciones');
+        const template = document.getElementById('template-medicion');
+        const clone = template.content.cloneNode(true);
+        const index = Date.now();
+        
+        clone.querySelectorAll('[name*="INDEX"]').forEach(el => {
+            el.name = el.name.replace('INDEX', index);
+        });
+        
+        tbody.appendChild(clone);
+    }
+    
+    function eliminarFila(btn) {
+        // Eliminar la fila TR padre del botón
+        btn.closest('tr').remove();
+    }
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 

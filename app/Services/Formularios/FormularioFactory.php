@@ -17,10 +17,7 @@ class FormularioFactory
                 'registros.pdf.formulario_1'
             ),
 
-            3 => new FormularioGenericoService(
-                \App\Models\formulario3::class,
-                'registros.pdf.formulario_3'
-            ),
+            3 => new Formulario3Service(), 
 
             4 => new FormularioGenericoService(
                 \App\Models\formulario4::class,
