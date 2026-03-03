@@ -11,7 +11,7 @@
  Target Server Version : 100432 (10.4.32-MariaDB)
  File Encoding         : 65001
 
- Date: 02/03/2026 12:08:40
+ Date: 02/03/2026 17:35:56
 */
 
 SET NAMES utf8mb4;
@@ -495,7 +495,8 @@ CREATE TABLE `sessions`  (
 -- ----------------------------
 -- Records of sessions
 -- ----------------------------
-INSERT INTO `sessions` VALUES ('ab6df6Lg1LjZ9aT8SNXniUBaB2de8CQBgggd9nzN', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMVlqbjdENU5QbEIwRnlEd0xGRkQwaDJFRmwydExxTUxYRlFFM2VPZCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NTQ6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMvcmVnaXN0cm9zLzUzL3BkZiI7czo1OiJyb3V0ZSI7czoxMzoicmVnaXN0cm9zLnBkZiI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1772467599);
+INSERT INTO `sessions` VALUES ('ab6df6Lg1LjZ9aT8SNXniUBaB2de8CQBgggd9nzN', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMVlqbjdENU5QbEIwRnlEd0xGRkQwaDJFRmwydExxTUxYRlFFM2VPZCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NTQ6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMvcmVnaXN0cm9zLzUzL3BkZiI7czo1OiJyb3V0ZSI7czoxMzoicmVnaXN0cm9zLnBkZiI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1772470917);
+INSERT INTO `sessions` VALUES ('qsGyuJK6R4nlYXobRs4KC2mhMF6UPdj8qYwnsm8T', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoieExlQ0NNNkxlanBldnhSNnJub2RROEJPeGNBdFkwbDBhbENDbE9wUSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoxMTM6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMvcmVnaXN0cm9zP2NvZGlnbz0mZW1wcmVzYT0mZmVjaGFfZGVzZGU9JmZlY2hhX2hhc3RhPSZwcm95ZWN0bz0mdGl0dWxvPXJlc3VsIjt9czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly9sb2NhbGhvc3Qvc3lhX2dyb3VwX3BocC9wdWJsaWMvbG9naW4iO3M6NToicm91dGUiO3M6NToibG9naW4iO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1772475243);
 
 -- ----------------------------
 -- Table structure for users

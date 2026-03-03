@@ -323,6 +323,16 @@
                 </svg>
                 <p class="text-xs text-blue">El resumen estadístico (Mín, Máx, Media) y los gráficos se generarán automáticamente en el reporte final.</p>
             </div>
+            {{-- Área paste desde Excel --}}
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <p class="text-xs text-amber-700 font-medium">Pega aquí datos desde Excel (Fecha · Hora · Temp · pH) y se cargarán automáticamente en la tabla:</p>
+            </div>
+            <textarea id="pasteExcel" rows="3"
+                placeholder="Pega aquí (Ctrl+V) tus datos copiados desde Excel..."
+                class="w-full text-xs border border-dashed border-amber-300 rounded-xl px-3 py-2 bg-amber-50 focus:outline-none focus:border-amber-500 resize-none font-mono"></textarea>
             <div class="overflow-x-auto rounded-xl border border-gray-200">
                 <table class="w-full text-sm min-w-[650px]" id="tablaMediciones">
                     <thead>
@@ -524,24 +534,72 @@
 </form>
 
 <script>
-/* ─── Tabla dinámica de mediciones ─────────────────────────────────────── */
-function agregarFila() {
-    const tbody    = document.getElementById('medicionesBody');
-    const rowCount = tbody.rows.length + 1;
-    const inputCell = (type, name, step = null, val = '') =>
+/* ─── addMinutes: suma minutos y avanza día si cruza medianoche ─── */
+function addMinutes(timeStr, minutes, fechaStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    const total  = h * 60 + m + minutes;
+    const hh = String(Math.floor(total / 60) % 24).padStart(2, '0');
+    const mm = String(total % 60).padStart(2, '0');
+    let nuevaFecha = fechaStr || '';
+    if (total >= 1440 && fechaStr) {
+        const d = new Date(fechaStr + 'T00:00:00');
+        d.setDate(d.getDate() + 1);
+        nuevaFecha = d.toISOString().split('T')[0];
+    }
+    return { hora: `${hh}:${mm}`, fecha: nuevaFecha };
+}
+
+/* ─── Lee fecha/hora/intervalo de las dos últimas filas ─── */
+function getLastValues() {
+    const rows = Array.from(document.getElementById('medicionesBody').rows);
+    if (!rows.length) return { fecha: '', hora: '', intervalo: 60 };
+    const lastRow  = rows[rows.length - 1];
+    const prevRow  = rows.length >= 2 ? rows[rows.length - 2] : null;
+    const lastFecha = lastRow.querySelector('input[type="date"]')?.value || '';
+    const lastHora  = lastRow.querySelector('input[type="time"]')?.value || '';
+    let intervalo = 60;
+    if (prevRow) {
+        const prevHora = prevRow.querySelector('input[type="time"]')?.value || '';
+        if (prevHora && lastHora) {
+            const [ph, pm] = prevHora.split(':').map(Number);
+            const [lh, lm] = lastHora.split(':').map(Number);
+            const diff = (lh * 60 + lm) - (ph * 60 + pm);
+            if (diff > 0 && diff <= 1440) intervalo = diff;
+        }
+    }
+    return { fecha: lastFecha, hora: lastHora, intervalo };
+}
+
+/* ─── Renumera TODAS las filas secuencialmente desde 1 ─── */
+function renumber() {
+    const rows = Array.from(document.getElementById('medicionesBody').rows);
+    console.log('renumber() ejecutado — filas encontradas:', rows.length);
+    rows.forEach((row, i) => {
+        const num  = i + 1;
+        const cell = row.querySelector('td:first-child');
+        const nInput = row.querySelector('input[name="lectura_n[]"]');
+        console.log(`  fila ${i}: cell=${cell?.textContent?.trim()}, input=${nInput?.value}`);
+        if (cell)   cell.textContent = num;
+        if (nInput) nInput.value     = num;
+    });
+}
+
+/* ─── Construye una fila <tr> nueva ─── */
+function buildRow(fecha, hora, nMuestra, ph, temp) {
+    const cell = (type, name, step, val) =>
         `<div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-all duration-150 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
-            <input type="${type}" name="${name}" ${step ? `step="${step}"` : ''} value="${val}"
-                   class="w-full bg-transparent border-none px-2 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0" required>
-        </div>`;
+            <input type="${type}" name="${name}" ${step ? `step="${step}"` : ''} value="${val ?? ''}"
+                   class="w-full bg-transparent border-none px-2 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
+         </div>`;
     const row = document.createElement('tr');
     row.className = 'hover:bg-gray-50/50 transition-colors';
     row.innerHTML = `
-        <td class="px-3 py-2 text-center text-xs text-gray-400 rownum">${rowCount}</td>
-        <td class="px-3 py-2">${inputCell('date',   'lectura_fecha[]')}</td>
-        <td class="px-3 py-2">${inputCell('time',   'lectura_hora[]')}</td>
-        <td class="px-3 py-2">${inputCell('number', 'lectura_n[]',    null,   rowCount)}</td>
-        <td class="px-3 py-2">${inputCell('number', 'lectura_ph[]',   '0.01')}</td>
-        <td class="px-3 py-2">${inputCell('number', 'lectura_temp[]', '0.1')}</td>
+        <td class="px-3 py-2 text-center text-xs text-gray-400"></td>
+        <td class="px-3 py-2">${cell('date',   'lectura_fecha[]', null,   fecha)}</td>
+        <td class="px-3 py-2">${cell('time',   'lectura_hora[]',  null,   hora)}</td>
+        <td class="px-3 py-2">${cell('number', 'lectura_n[]',     null,   nMuestra)}</td>
+        <td class="px-3 py-2">${cell('number', 'lectura_ph[]',    '0.01', ph)}</td>
+        <td class="px-3 py-2">${cell('number', 'lectura_temp[]',  '0.1',  temp)}</td>
         <td class="px-3 py-2 text-center">
             <button type="button" onclick="eliminarFila(this)"
                     class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-red/10 hover:text-red transition-all mx-auto">
@@ -551,143 +609,109 @@ function agregarFila() {
                 </svg>
             </button>
         </td>`;
-    tbody.appendChild(row);
-    row.querySelector('input[type="date"]')?.focus();
+    return row;
 }
 
-function eliminarFila(btn) {
+/* ─── Agregar fila manual ─── */
+function agregarFila() {
     const tbody = document.getElementById('medicionesBody');
-    if (tbody.rows.length <= 1) {
+    const { fecha, hora, intervalo } = getLastValues();
+    let nextFecha = fecha, nextHora = hora;
+    if (hora) {
+        const r = addMinutes(hora, intervalo, fecha);
+        nextHora  = r.hora;
+        nextFecha = r.fecha;
+    }
+    tbody.appendChild(buildRow(nextFecha, nextHora, '', '', ''));
+    renumber();
+    tbody.lastElementChild.querySelector('input[type="date"]')?.focus();
+}
+
+/* ─── Eliminar fila ─── */
+function eliminarFila(btn) {
+    console.log('eliminarFila() llamado');
+    const tbody = document.getElementById('medicionesBody');
+    console.log('tbody:', tbody);
+    if (!tbody || tbody.rows.length <= 1) {
         alert('Debe haber al menos una fila de medición.');
         return;
     }
-    btn.closest('tr').remove();
-    Array.from(tbody.rows).forEach((r, i) => {
-        r.querySelector('.rownum').textContent = i + 1;
-    });
+    const tr = btn.closest('tr');
+    console.log('fila a eliminar:', tr);
+    tr.remove();
+    renumber();
 }
-/* document.addEventListener('DOMContentLoaded', () => {
-    // Variable global: true = todos los campos obligatorios, false = no obligatorios
-    const ALL_FIELDS_REQUIRED = false;
 
-    const form   = document.getElementById('Formulario');
-    const inputs = form.querySelectorAll('input, textarea, select');
-
-    // Aplicar 'required' según la variable global
-    inputs.forEach(input => {
-        if (!input.disabled && input.type !== 'file' && input.type !== 'checkbox') {
-            if (ALL_FIELDS_REQUIRED) {
-                input.setAttribute('required', 'required');
-            } else {
-                input.removeAttribute('required');
-            }
-        }
-    });
-
-    form.addEventListener('submit', function(event) {
-        if (!ALL_FIELDS_REQUIRED) return; // Si no es obligatorio, no validar
-
-        let invalidFields = [];
-
-        inputs.forEach(input => {
-            if (input.disabled) return;
-
-            if (input.type === 'file') {
-                const wrapper    = input.closest('div, label')?.closest('[class*="space-y"]') ?? input.closest('.bg-gray-50');
-                const yaGuardado = wrapper?.querySelector('.text-green') !== null;
-                if (!yaGuardado && input.files.length === 0) invalidFields.push(input);
-            } else if (input.type !== 'checkbox') {
-                if (!input.checkValidity()) invalidFields.push(input);
-            }
-        });
-
-        if (invalidFields.length > 0) {
-            event.preventDefault();
-
-            const UMBRAL     = 3;
-            const fieldNames = invalidFields.map(f => {
-                if (f.type === 'file') {
-                    const container = f.closest('.bg-gray-50');
-                    const num       = container?.querySelector('.bg-blue-dark')?.textContent?.trim();
-                    return num ? `Anexo ${num}` : (f.name || 'Archivo requerido');
-                }
-                let label = f.closest('.group')?.querySelector('label')?.textContent || f.name;
-                return label.replace(/\s+/g, ' ').trim();
-            });
-
-            const mensaje = fieldNames.length > UMBRAL
-                ? `Hay ${fieldNames.length} campos obligatorios sin completar. Por favor revisa el formulario.`
-                : `Faltan datos obligatorios: ${fieldNames.join(', ')}`;
-
-            window.dispatchEvent(new CustomEvent('notify', { detail: { message: mensaje, type: 'error' } }));
-
-            const firstNonFile = invalidFields.find(f => f.type !== 'file');
-            const firstInvalid = firstNonFile ?? invalidFields[0];
-
-            if (firstInvalid.type === 'file') {
-                firstInvalid.closest('.bg-gray-50')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                invalidFields.filter(f => f.type === 'file').forEach(f => {
-                    const box = f.closest('.bg-gray-50');
-                    if (box) {
-                        box.classList.add('!border-red-400', 'ring-2', 'ring-red-300');
-                        setTimeout(() => box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300'), 3000);
-                    }
-                });
-            } else {
-                firstInvalid.focus();
-            }
-        }
-    });
-
-    // Reset visual de file inputs
-    form.querySelectorAll('input[type="file"]').forEach(fileInput => {
-        fileInput.addEventListener('change', () => {
-            const box = fileInput.closest('.bg-gray-50');
-            if (box) box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
-        });
-    });
-
-    // Función auxiliar para mostrar nombre de anexo
-    window.onAnexoFileChange = function(input, n) {
-        const nombreContenedor = document.getElementById(`anexo_nombre_${n}`);
-        const nombreTexto      = document.getElementById(`anexo_nombre_texto_${n}`);
-        const box              = input.closest('.bg-gray-50');
-
-        if (input.files.length > 0) {
-            nombreTexto.textContent = input.files[0].name;
-            nombreContenedor.classList.remove('hidden');
-            if (box) box.classList.remove('!border-red-400', 'ring-2', 'ring-red-300');
-        } else {
-            nombreContenedor.classList.add('hidden');
-            nombreTexto.textContent = '';
-        }
-    };
-}); */
+/* ─── DOMContentLoaded ─── */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Eliminar TODOS los required por si acaso otro script los agrega
-    document.querySelectorAll('input, textarea, select').forEach(el => {
-        el.removeAttribute('required');
-    });
+    /* Quitar required de todos los inputs */
+    document.querySelectorAll('input, textarea, select').forEach(el => el.removeAttribute('required'));
+    new MutationObserver(() => {
+        document.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
+    }).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['required'] });
 
-    // Solo mantener la función auxiliar de anexos
+    /* Renumerar filas Blade al cargar (por si n_muestra viene desordenado) */
+    renumber();
+
+    /* Anexos */
     window.onAnexoFileChange = function(input, n) {
-        const nombreContenedor = document.getElementById(`anexo_nombre_${n}`);
-        const nombreTexto      = document.getElementById(`anexo_nombre_texto_${n}`);
-
+        const cont  = document.getElementById(`anexo_info_${n}`);
+        const texto = document.getElementById(`anexo_nombre_${n}`);
         if (input.files.length > 0) {
-            nombreTexto.textContent = input.files[0].name;
-            nombreContenedor.classList.remove('hidden');
+            if (texto) texto.textContent = input.files[0].name;
+            if (cont)  cont.classList.remove('hidden');
         } else {
-            nombreContenedor.classList.add('hidden');
-            nombreTexto.textContent = '';
+            if (cont)  cont.classList.add('hidden');
+            if (texto) texto.textContent = '';
         }
     };
 
-    const observer = new MutationObserver(() => {
-        document.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
-    });
-    observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['required'] });
-});
+    /* ── Paste desde Excel ── */
+    const pasteArea = document.getElementById('pasteExcel');
+    if (!pasteArea) return;
 
+    pasteArea.addEventListener('paste', e => {
+        e.preventDefault();
+        const raw   = (e.clipboardData || window.clipboardData).getData('text');
+        const lines = raw.trim().split(/\r?\n/).filter(l => l.trim());
+        if (!lines.length) return;
+
+        const tbody = document.getElementById('medicionesBody');
+
+        /* Borrar fila vacía inicial */
+        if (tbody.rows.length === 1) {
+            const inputs = tbody.rows[0].querySelectorAll('input');
+            if (tbody.rows.length === 1) {
+                const inputs = Array.from(tbody.rows[0].querySelectorAll('input'))
+                    .filter(inp => inp.name !== 'lectura_n[]');   // ← excluir el contador
+                if (inputs.every(inp => !inp.value)) tbody.rows[0].remove();
+            }
+        }
+
+        lines.forEach(line => {
+            const cols = line.split(/\t|;/);
+            if (cols.length < 4) return;
+            let [rawFecha, rawHora, rawTemp, rawPH] = cols.map(c => c.trim());
+            const num = v => (v || '').replace(',', '.');
+
+            /* dd/MM/yyyy → yyyy-MM-dd */
+            let fechaISO = '';
+            if (rawFecha) {
+                const p = rawFecha.split('/');
+                fechaISO = p.length === 3
+                    ? `${p[2].padStart(4,'0')}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`
+                    : rawFecha;
+            }
+
+            /* hora: asegurar HH:mm */
+            const horaHHmm = rawHora && rawHora.length === 4 ? `0${rawHora}` : (rawHora || '');
+
+            tbody.appendChild(buildRow(fechaISO, horaHHmm, '', num(rawPH), num(rawTemp)));
+        });
+
+        renumber();
+        pasteArea.value = '';
+    });
+});
 </script>
