@@ -194,6 +194,7 @@ class RegistroController extends Controller
 
             return redirect()->route('registros.index')
                 ->with('success', 'Registro actualizado correctamente');
+                
 
         } catch (\Throwable $e) {
             return back()->with('error', 'Error al actualizar: ' . $e->getMessage());
