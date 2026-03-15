@@ -481,9 +481,9 @@
         }
 
         .footer-interno {
-    position: relative;
-    height: 2cm; /* ajusta según la altura real de footer.png */
-}
+            position: relative;
+            height: 2cm; /* ajusta según la altura real de footer.png */
+        }
     </style>
 </head>
 <body>
@@ -506,12 +506,13 @@
             <br>
             <h1 class="grande">{{ $registro->empresa_nombre ?? '' }}</h1>
             <br>
+            <h1 class="mediano"> {{ $formulario->lugar_muestreo ?? '' }}</h1>
+            <br>
             @if($registro->fecha_emision ?? null)
                 <h1 class="mediano">{{ \Carbon\Carbon::parse($registro->fecha_emision)->locale('es')->isoFormat('MMMM YYYY') }}</h1>
                 <br>
             @endif
-            <h1 class="chico"> {{ $registro->cliente_direccion ?? '' }}</h1>
-            <h1 class="chico"> {{ $registro->region ?? '' }}</h1>
+            <h1 class="chico"> {{ $registro->region ?? 'PUCHUNCAVI - REGIÓN DE VALPARAISO' }}</h1>
         </div>
         <div class="portada-codigo">
             <span>{{ $registro->codigo_informe }}</span>
@@ -799,8 +800,10 @@
 ══════════════════════════════════════════════════════ --}}
 @foreach([
     ['file' => $formulario->anexo_2_file ?? null, 'titulo' => $formulario->anexo_2_titulo ?? 'Documentación Técnica',  'n' => 1, 'pag' => 4],
+    /*  
     ['file' => $formulario->anexo_3_file ?? null, 'titulo' => $formulario->anexo_3_titulo ?? 'Cadena de Custodia',     'n' => 2, 'pag' => 5],
     ['file' => $formulario->anexo_4_file ?? null, 'titulo' => $formulario->anexo_4_titulo ?? 'Otros',                  'n' => 3, 'pag' => 6],
+    */
 ] as $anexo)
     @if($anexo['file'])
     <div class="pagina">

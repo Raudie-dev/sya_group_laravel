@@ -145,7 +145,9 @@
         </div>
     </div>
 
-    {{-- ══ SECCIÓN 2 — Inspector y Proyecto ══ --}}
+    {{-- ══════════════════════════════════════════════
+         SECCIÓN 2 — Inspector y Proyecto
+    ══════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-orange/10 bg-orange/3">
             <div class="w-7 h-7 rounded-lg bg-orange flex items-center justify-center flex-shrink-0">
@@ -166,7 +168,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Nombre Inspector</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="inspector_nombre"
-                           value="{{ old('inspector_nombre', $inst->inspector_nombre ?? '') }}"
+                           value="{{ old('inspector_nombre', $inst->inspector_nombre ?? 'René Díaz V.') }}"
                            placeholder="Nombre completo"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -177,7 +179,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">RUT Inspector</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="inspector_rut"
-                           value="{{ old('inspector_rut', $inst->inspector_rut ?? '') }}"
+                           value="{{ old('inspector_rut', $inst->inspector_rut ?? '11.296.786-9') }}"
                            placeholder="12.345.678-9"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -188,7 +190,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Nº RCA</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="n_rca"
-                           value="{{ old('n_rca', $reg->n_rca ?? '') }}"
+                           value="{{ old('n_rca', $reg->n_rca ?? 'Resolución Exenta Nº 275/ 2010') }}"
                            placeholder="Nº"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -199,7 +201,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Nombre del Proyecto Aprobado</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="nombre_proyecto"
-                           value="{{ old('nombre_proyecto', $reg->nombre_proyecto ?? '') }}"
+                           value="{{ old('nombre_proyecto', $reg->nombre_proyecto ?? 'Monitoreo Autocontrol Central Termoeléctrica Campiche') }}"
                            placeholder="Nombre completo del proyecto aprobado"
                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
@@ -226,10 +228,10 @@
         <div class="p-5 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach([
-                    ['label'=>'Lugar de Muestreo',                  'name'=>'lugar_muestreo',       'value'=>$inst->lugar_muestreo ?? '',       'placeholder'=>'Nombre del lugar'],
-                    ['label'=>'Dirección de Muestreo',              'name'=>'direccion_muestreo',   'value'=>$inst->direccion_muestreo ?? '',   'placeholder'=>'Dirección completa'],
-                    ['label'=>'Identificación Punto de Muestreo',   'name'=>'punto_muestreo',       'value'=>$inst->punto_muestreo ?? '',       'placeholder'=>'Ej: Punto A, Aducción...'],
-                    ['label'=>'Tipo de Muestra',                    'name'=>'tipo_muestra',         'value'=>$inst->tipo_muestra ?? '',         'placeholder'=>'Muestreo automático compuesto'],
+                    ['label'=>'Lugar de Muestreo',                  'name'=>'lugar_muestreo',       'value'=>$inst->lugar_muestreo ?? 'Unidad 4',       'placeholder'=>'Nombre del lugar'],
+                    ['label'=>'Dirección de Muestreo',              'name'=>'direccion_muestreo',   'value'=>$inst->direccion_muestreo ?? 'Ruta F- 30 S/N, Puchuncavi, región de Valparaíso',   'placeholder'=>'Dirección completa'],
+                    ['label'=>'Identificación Punto de Muestreo',   'name'=>'punto_muestreo',       'value'=>$inst->punto_muestreo ?? 'Descarga',       'placeholder'=>'Ej: Punto A, Aducción...'],
+                    ['label'=>'Tipo de Muestra',                    'name'=>'tipo_muestra',         'value'=>$inst->tipo_muestra ?? 'Muestreo automático compuesto',         'placeholder'=>'Muestreo automático compuesto'],
                 ] as $field)
                     <div class="group">
                         <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">{{ $field['label'] }}</label>
@@ -243,66 +245,149 @@
                 @endforeach
             </div>
 
-            {{-- Tabla de equipos Dinámica --}}
-            <div class="mt-4">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Equipos Utilizados</label>
-                <div class="overflow-hidden rounded-xl border border-gray-200">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200">
-                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/2">Medición / Norma</th>
-                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/3">Código Equipo</th>
-                                <th class="text-center px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/6">Realizada</th>
-                                <th class="w-10 bg-gray-50"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100" id="tbody_equipos">
-                            @php
-                                // Asume que guardas esto en JSON o en una relación. Ajusta si es necesario.
-                                $equipos = $inst->equipos_array ?? [
-                                    ['nombre' => 'Toma de Muestra: NCh411/10.Of2005.', 'codigo' => '', 'check' => '1'],
-                                    ['nombre' => 'pH: (NCh2313/1.Of95.)', 'codigo' => '', 'check' => '1'],
-                                    ['nombre' => 'Temperatura: (NCh2313/2.Of95.)', 'codigo' => '', 'check' => '1'],
-                                ];
-                            @endphp
-                            
-                            @foreach($equipos as $i => $eq)
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="px-4 py-2.5">
-                                    <input type="text" name="equipos[{{$i}}][nombre]" value="{{ $eq['nombre'] ?? '' }}" 
-                                           class="w-full bg-transparent border-b border-transparent focus:border-orange px-2 py-1 text-xs text-gray-600 focus:outline-none" 
-                                           placeholder="Nombre del equipo o norma">
-                                </td>
-                                <td class="px-4 py-2.5">
-                                    <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] transition-all">
-                                        <input type="text" name="equipos[{{$i}}][codigo]" value="{{ $eq['codigo'] ?? '' }}"
-                                               placeholder="Código..."
-                                               class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                    </div>
-                                </td>
-                                <td class="px-4 py-2.5 text-center">
-                                    <input type="hidden" name="equipos[{{$i}}][check]" value="0">
-                                    <input type="checkbox" name="equipos[{{$i}}][check]" value="1"
-                                        {{ ($eq['check'] ?? false) ? 'checked' : '' }}
-                                        class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
-                                </td>
-                                <td class="px-2 text-center">
-                                    <button type="button" onclick="eliminarFila(this)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            @php
+                $equipos = [
+                    '218M03023',
+                    '222B01984',
+                    '223B01469',
+                    '223B01485',
+                    '223J00234',
+                    '6223J02104',
+                ];
+            @endphp
+
+            {{-- Tabla de equipos --}}
+            <div class="mt-2 overflow-hidden rounded-xl border border-gray-200">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/2">Medición / Norma</th>
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/3">Código Equipo</th>
+                            <th class="text-center px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/6">Realizada</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach([
+                            ['label'=>'Toma de Muestra: NCh411/10.Of2005.',  'name_eq'=>'eq_muestreo_cod',   'name_chk'=>'eq_muestreo_chk',   'eq_val'=>$inst->eq_muestreo_cod ?? '',  'chk_val'=>$inst->eq_muestreo_chk ?? true],
+                            ['label'=>'pH: (NCh2313/1.Of95.)',                'name_eq'=>'eq_ph_cod',         'name_chk'=>'eq_ph_chk',         'eq_val'=>$inst->eq_ph_cod ?? '',         'chk_val'=>$inst->eq_ph_chk ?? true],
+                            ['label'=>'Temperatura: (NCh2313/2.Of95.)',       'name_eq'=>'eq_temp_cod',       'name_chk'=>'eq_temp_chk',       'eq_val'=>$inst->eq_temp_cod ?? '',       'chk_val'=>$inst->eq_temp_chk ?? true],
+                            ['label'=>'Cloro libre residual: IMCLB v.03',     'name_eq'=>'eq_cloro_cod',      'name_chk'=>'eq_cloro_chk',      'eq_val'=>$inst->eq_cloro_cod ?? '',      'chk_val'=>$inst->eq_cloro_chk ?? true],
+                        ] as $row)
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-4 py-2.5 text-xs text-gray-600">{{ $row['label'] }}</td>
+                            <td class="px-4 py-2.5">
+
+                                {{-- Searchable select con Alpine.js --}}
+                                <div x-data="{
+                                        open: false,
+                                        search: '',
+                                        selected: '{{ old($row['name_eq'], $row['eq_val']) }}',
+                                        equipos: @js($equipos),
+                                        dropdownStyle: '',
+                                        get filtered() {
+                                            return this.equipos.filter(e =>
+                                                e.toLowerCase().includes(this.search.toLowerCase())
+                                            )
+                                        },
+                                        select(val) {
+                                            this.selected = val;
+                                            this.search = '';
+                                            this.open = false;
+                                        },
+                                        toggle() {
+                                            if (!this.open) {
+                                                const rect = this.$refs.trigger.getBoundingClientRect();
+                                                this.dropdownStyle = `position:fixed; z-index:9999; top:${rect.bottom + 4}px; left:${rect.left}px; width:${rect.width}px;`;
+                                            }
+                                            this.open = !this.open;
+                                        }
+                                    }"
+                                    @click.outside="open = false"
+                                    class="relative">
+
+                                    {{-- Input hidden para el form --}}
+                                    <input type="hidden" name="{{ $row['name_eq'] }}" :value="selected">
+
+                                    {{-- Botón trigger --}}
+                                    <button type="button"
+                                            x-ref="trigger"
+                                            @click="toggle()"
+                                            class="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs transition-all duration-150 focus:border-orange focus:bg-white focus:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] focus:outline-none"
+                                            :class="selected ? 'text-gray-800' : 'text-gray-400'">
+                                        <span x-text="selected || '— Seleccionar —'"></span>
+                                        <svg class="w-3 h-3 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
                                     </button>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-2 flex justify-end">
-                    <button type="button" onclick="agregarEquipo()" 
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-green hover:text-green hover:bg-green/5 text-xs font-semibold transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Agregar Equipo / Norma
-                    </button>
-                </div>
+
+                                    {{-- Dropdown teletransportado al body --}}
+                                    <template x-teleport="body">
+                                        <div x-show="open"
+                                            :style="dropdownStyle"
+                                            x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="opacity-0 scale-95"
+                                            x-transition:enter-end="opacity-100 scale-100"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="opacity-100 scale-100"
+                                            x-transition:leave-end="opacity-0 scale-95"
+                                            @click.outside="open = false"
+                                            style="display:none">
+
+                                            <div class="rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                {{-- Buscador --}}
+                                                <div class="p-1.5 border-b border-gray-100">
+                                                    <div class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 focus-within:border-orange focus-within:bg-white">
+                                                        <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                                                        </svg>
+                                                        <input type="text"
+                                                            x-model="search"
+                                                            @keydown.escape="open = false"
+                                                            placeholder="Buscar serie..."
+                                                            class="w-full bg-transparent border-none p-0 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Opciones --}}
+                                                <ul class="max-h-40 overflow-y-auto py-1">
+                                                    <li @click="select('')"
+                                                        class="px-3 py-1.5 text-xs text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
+                                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">
+                                                        — Ninguno —
+                                                    </li>
+                                                    <template x-for="equipo in filtered" :key="equipo">
+                                                        <li @click="select(equipo)"
+                                                            class="px-3 py-1.5 text-xs text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
+                                                            :class="selected === equipo && 'bg-orange/10 font-semibold text-orange'"
+                                                            x-text="equipo">
+                                                        </li>
+                                                    </template>
+                                                    <li x-show="filtered.length === 0" class="px-3 py-2 text-xs text-gray-400 text-center">
+                                                        Sin resultados
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                </div>
+
+                            </td>
+                            <td class="px-4 py-2.5 text-center">
+                                <input type="hidden" name="{{ $row['name_chk'] }}" value="0">
+                                <input type="checkbox" name="{{ $row['name_chk'] }}" value="1"
+                                    {{ old($row['name_chk'], $row['chk_val']) ? 'checked' : '' }}
+                                    class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -434,8 +519,10 @@
                 @foreach([
                     ['n'=>1, 'name'=>'anexo_1_file', 'title_name'=>'an1_titulo', 'title_val'=>$inst->anexo_1_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_1_file ?? null],
                     ['n'=>2, 'name'=>'anexo_2_file', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Cadena de Custodia.', 'file'=>$inst->anexo_2_file ?? null],
+                    /*
                     ['n'=>3, 'name'=>'anexo_3_file', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? 'Declaraciones de Operatividad del Inspector Ambiental.', 'file'=>$inst->anexo_3_file ?? null],
                     ['n'=>4, 'name'=>'anexo_4_file', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', 'file'=>$inst->anexo_4_file ?? null],
+                    */
                 ] as $anexo)
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 hover:border-blue-light/40 transition-colors">
 

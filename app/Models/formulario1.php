@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class formulario1 extends Model
+class Formulario1 extends Model
 {
     protected $table = 'formulario_1';
 

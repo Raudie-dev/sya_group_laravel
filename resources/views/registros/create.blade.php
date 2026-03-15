@@ -65,11 +65,12 @@
                         <select id="tipoFormularioSelector"
                                 {{ isset($instancia) ? 'disabled' : '' }}
                                 class="w-full bg-transparent border-none px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-0 cursor-pointer">
-                            <option value="1" {{ $tipoForm == 1 ? 'selected' : '' }}>Formulario 1: DBO 5 -IDE</option>
+                            <option value="1" {{ $tipoForm == 1 ? 'selected' : '' }}>Formulario 1: RLI Puntual</option>
                             <option value="2" {{ $tipoForm == 2 ? 'selected' : '' }}>Formulario 2: QEN_V4_INF</option>
                             <option value="3" {{ $tipoForm == 3 ? 'selected' : '' }}>Formulario 3: Informe de Terrero </option>
                             <option value="4" {{ $tipoForm == 4 ? 'selected' : '' }}>Formulario 4: QEN_SST</option>
                             <option value="5" {{ $tipoForm == 5 ? 'selected' : '' }}>Formulario 5: QEN DS90</option>
+                            <option value="6" {{ $tipoForm == 6 ? 'selected' : '' }}>Formulario 6: DBO 5 -IDE</option>
                         </select>
                         <div class="pr-3 flex-shrink-0">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,6 +108,9 @@
             </div>
             <div id="seccion_5" class="seccion-modulo {{ $tipoForm != 5 ? 'hidden' : '' }}">
                 @include('registros.includes.formulario_5')
+            </div>
+            <div id="seccion_6" class="seccion-modulo {{ $tipoForm != 6 ? 'hidden' : '' }}">
+                @include('registros.includes.formulario_6')
             </div>
         </div>
     </div>

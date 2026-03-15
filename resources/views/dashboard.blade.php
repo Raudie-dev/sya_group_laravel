@@ -107,65 +107,66 @@
         {{-- Filtros --}}
         <div class="p-5 border-b border-gray-100 bg-white rounded-2xl">
             <form method="GET" action="{{ route('registros.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+
                 <!-- Título -->
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Título</label>
-                    <input type="text" name="titulo" value="{{ request('titulo') }}" 
-                        placeholder="Buscar por título..." 
+                    <input type="text" name="titulo" value="{{ request('titulo') }}"
+                        placeholder="Buscar por título..."
                         class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
                 </div>
-                
+
                 <!-- Código -->
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Código</label>
-                    <input type="text" name="codigo" value="{{ request('codigo') }}" 
-                        placeholder="Ej: INF-001..." 
+                    <input type="text" name="codigo" value="{{ request('codigo') }}"
+                        placeholder="Ej: INF-001..."
                         class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
                 </div>
-                
+
                 <!-- Empresa -->
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Empresa</label>
-                    <input type="text" name="empresa" value="{{ request('empresa') }}" 
-                        placeholder="Nombre de empresa..." 
+                    <input type="text" name="empresa" value="{{ request('empresa') }}"
+                        placeholder="Nombre de empresa..."
                         class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
                 </div>
-                
+
                 <!-- Proyecto -->
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Proyecto</label>
-                    <input type="text" name="proyecto" value="{{ request('proyecto') }}" 
-                        placeholder="Nombre del proyecto..." 
+                    <input type="text" name="proyecto" value="{{ request('proyecto') }}"
+                        placeholder="Nombre del proyecto..."
                         class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
                 </div>
-                
-                <!-- Fecha desde - hasta (en dos columnas) -->
+
+                <!-- Fecha desde - hasta -->
                 <div class="sm:col-span-2 lg:col-span-1 grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Desde</label>
-                        <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}" 
+                        <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}"
                             class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Hasta</label>
-                        <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}" 
+                        <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}"
                             class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark">
                     </div>
                 </div>
-                
+
                 <!-- Botones de acción -->
-                <div class="sm:col-span-2 lg:col-span-1 flex items-end gap-2">
-                    <button type="submit" 
+                <div class="sm:col-span-2 lg:col-span-5 flex items-center gap-2">
+                    <button type="submit"
                             class="px-4 py-2 bg-blue-dark text-white text-sm font-semibold rounded-lg hover:bg-blue transition-colors duration-150 shadow-sm flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         Filtrar
                     </button>
-                    
+
                     @if(request()->anyFilled(['titulo', 'codigo', 'empresa', 'proyecto', 'fecha_desde', 'fecha_hasta']))
-                        <a href="{{ route('registros.index') }}" 
-                        class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-150 flex items-center gap-2">
+                        <a href="{{ route('registros.index') }}"
+                           class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-150 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -173,6 +174,7 @@
                         </a>
                     @endif
                 </div>
+
             </form>
         </div>
 
@@ -189,18 +191,48 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-blue-dark">Registros recientes</h3>
-                        <p class="text-xs text-gray-400">Últimos informes registrados</p>
+                        <p class="text-xs text-gray-400">
+                            {{ $registros->total() }} registro{{ $registros->total() !== 1 ? 's' : '' }} encontrado{{ $registros->total() !== 1 ? 's' : '' }}
+                        </p>
                     </div>
                 </div>
-                @if(Auth::user()->isAdmin() || Auth::user()->isTecnico())
-                    <a href="{{ route('registros.create') }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-dark text-white text-xs font-semibold rounded-lg hover:bg-blue transition-colors duration-150 shadow-sm">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Nuevo
-                    </a>
-                @endif
+
+                <div class="flex items-center gap-3">
+
+                    {{-- Selector por página --}}
+                    <form method="GET" action="{{ route('registros.index') }}">
+                        @foreach(request()->only(['titulo', 'codigo', 'empresa', 'proyecto', 'fecha_desde', 'fecha_hasta']) as $key => $value)
+                            @if($value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endif
+                        @endforeach
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-400 whitespace-nowrap">Mostrar</span>
+                            <select name="per_page"
+                                    onchange="this.form.submit()"
+                                    class="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-dark/20 focus:border-blue-dark bg-white text-gray-600 font-medium cursor-pointer">
+                                @foreach([10, 25, 50, 100] as $n)
+                                    <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>
+                                        {{ $n }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="text-xs text-gray-400 whitespace-nowrap">por página</span>
+                        </div>
+                    </form>
+
+                    {{-- Botón Nuevo --}}
+                    @if(Auth::user()->isAdmin() || Auth::user()->isTecnico())
+                        <a href="{{ route('registros.create') }}"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-dark text-white text-xs font-semibold rounded-lg hover:bg-blue transition-colors duration-150 shadow-sm">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Agregar Registro
+                        </a>
+                    @endif
+
+                </div>
             </div>
 
             {{-- Tabla --}}
@@ -277,22 +309,21 @@
                                         </a>
 
                                         {{-- Eliminar --}}
-                                        <form action="{{ route('registros.destroy', $registro->id) }}" method="POST"
-                                              onsubmit="return confirm('¿Estás seguro de eliminar este registro?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
-                                                           bg-red/10 text-red border border-red/20
-                                                           hover:bg-red hover:text-white hover:border-red
-                                                           transition-all duration-200 shadow-sm cursor-pointer">
-                                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                                Eliminar
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                                @click="$dispatch('confirmar-eliminar', { 
+                                                    action: '{{ route('registros.destroy', $registro->id) }}',
+                                                    nombre: '{{ addslashes($registro->titulo_informe) }}'
+                                                })"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
+                                                    bg-red/10 text-red border border-red/20
+                                                    hover:bg-red hover:text-white hover:border-red
+                                                    transition-all duration-200 shadow-sm cursor-pointer">
+                                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Eliminar
+                                        </button>
 
                                     </div>
                                 </td>
@@ -333,6 +364,81 @@
                     {{ $registros->links() }}
                 </div>
             @endif
+
         </div>
     </div>
+{{-- ══ MODAL CONFIRMACIÓN ELIMINAR ══ --}}
+<div x-data="{
+        show: false,
+        action: '',
+        nombre: '',
+        init() {
+            window.addEventListener('confirmar-eliminar', e => {
+                this.action = e.detail.action;
+                this.nombre = e.detail.nombre;
+                this.show = true;
+            });
+        }
+     }"
+     x-show="show"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @keydown.escape.window="show = false"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="display: none;">
+
+    {{-- Backdrop --}}
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="show = false"></div>
+
+    {{-- Panel --}}
+    <div x-show="show"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+         class="relative bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-md p-6">
+
+        {{-- Ícono --}}
+        <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-red/10 mx-auto mb-4">
+            <svg class="w-7 h-7 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        </div>
+
+        {{-- Texto --}}
+        <div class="text-center mb-6">
+            <h3 class="text-base font-bold text-blue-dark mb-1">¿Eliminar registro?</h3>
+            <p class="text-sm text-gray-500">Estás a punto de eliminar</p>
+            <p class="text-sm font-semibold text-blue-dark mt-1 px-4 truncate" x-text="nombre"></p>
+            <p class="text-xs text-gray-400 mt-2">Esta acción no se puede deshacer.</p>
+        </div>
+
+        {{-- Botones --}}
+        <div class="flex items-center gap-3">
+            <button type="button"
+                    @click="show = false"
+                    class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-colors duration-150">
+                Cancelar
+            </button>
+
+            {{-- Form oculto que hace el DELETE --}}
+            <form :action="action" method="POST" class="flex-1" id="form-eliminar">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="w-full px-4 py-2.5 rounded-xl bg-red text-white text-sm font-semibold hover:bg-red/90 transition-colors duration-150 shadow-sm">
+                    Sí, eliminar
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
 </x-app-layout>

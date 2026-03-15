@@ -26,11 +26,11 @@ class Registro extends Model
     |--------------------------------------------------------------------------
     */
     public static $formularios = [
-        1 => \App\Models\formulario1::class,
-        2 => \App\Models\formulario2::class,
-        3 => \App\Models\formulario3::class,
-        4 => \App\Models\formulario4::class,
-        5 => \App\Models\formulario5::class,
+        1 => \App\Models\Formulario1::class,
+        2 => \App\Models\Formulario2::class,
+        3 => \App\Models\Formulario3::class,
+        4 => \App\Models\Formulario4::class,
+        5 => \App\Models\Formulario5::class,
     ];
 
     /*

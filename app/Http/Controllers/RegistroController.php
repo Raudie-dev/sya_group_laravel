@@ -19,6 +19,9 @@ class RegistroController extends Controller
     */
     public function index(Request $request)
     {
+
+        $perPage = in_array($request->get('per_page'), [10, 25, 50, 100]) ? $request->get('per_page') : 10;
+
         $query = Registro::latest(); // orden por defecto
 
         // Filtro por título (búsqueda parcial)
@@ -54,7 +57,7 @@ class RegistroController extends Controller
         //     $query->where('tipo_form_id', $request->tipo_form_id);
         // }
 
-        $registros = $query->paginate(10)->appends($request->query()); // mantiene los filtros en la paginación
+        $registros = $query->paginate($perPage)->appends($request->query());
 
         return view('dashboard', compact('registros'));
     }

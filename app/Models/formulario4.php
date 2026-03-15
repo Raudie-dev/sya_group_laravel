@@ -35,6 +35,8 @@ class Formulario4 extends Model
         'eq_temp_chk',
         'eq_cloro_cod',
         'eq_cloro_chk',
+        'inicio_muestreo',
+        'fin_muestreo',
 
         // ══ SECCIÓN 4 — Resultados In Situ
         'r_f_inicio',
@@ -62,6 +64,8 @@ class Formulario4 extends Model
         'fecha_emision' => 'date',
         'r_f_inicio'    => 'date',
         'r_f_fin'       => 'date',
+        'inicio_muestreo' => 'datetime',
+        'fin_muestreo'    => 'datetime',
         'eq_muestreo_chk' => 'boolean',
         'eq_ph_chk'       => 'boolean',
         'eq_temp_chk'     => 'boolean',

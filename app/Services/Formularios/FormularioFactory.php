@@ -13,19 +13,19 @@ class FormularioFactory
             2 => new Formulario2Service(),
 
             1 => new FormularioGenericoService(
-                \App\Models\formulario1::class,
+                \App\Models\Formulario1::class,
                 'registros.pdf.formulario_1'
             ),
 
             3 => new Formulario3Service(), 
 
             4 => new FormularioGenericoService(
-                \App\Models\formulario4::class,
+                \App\Models\Formulario4::class,
                 'registros.pdf.formulario_4'
             ),
 
             5 => new FormularioGenericoService(
-                \App\Models\formulario5::class,
+                \App\Models\Formulario5::class,
                 'registros.pdf.formulario_5'
             ),
 

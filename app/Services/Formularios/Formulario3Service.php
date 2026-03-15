@@ -2,7 +2,7 @@
 
 namespace App\Services\Formularios;
 
-use App\Models\formulario3;
+use App\Models\Formulario3;
 use App\Models\Registro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -66,13 +66,13 @@ class formulario3Service
 
         // 5. UPDATE OR CREATE
         // Buscamos si ya existe el formulario para este registro
-        $formulario = formulario3::where('registro_id', $registro->id)->first();
+        $formulario = Formulario3::where('registro_id', $registro->id)->first();
 
         if ($formulario) {
             $formulario->update($data);
             return $formulario;
         } else {
-            return formulario3::create($data);
+            return Formulario3::create($data);
         }
     }
 
@@ -83,7 +83,7 @@ class formulario3Service
     public function obtenerFormulario(Registro $registro)
     {
         // Retorna la instancia del formulario 3 asociada al registro
-        return formulario3::where('registro_id', $registro->id)->first();
+        return Formulario3::where('registro_id', $registro->id)->first();
     }
 
     public function vistaPdf()
