@@ -238,12 +238,15 @@
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         window.cambiarFormulario = function(valor) {
-            // 1. Limpiar todos los formularios ocultos antes de cambiar
-            document.querySelectorAll('.seccion-modulo').forEach(seccion => {
-                if (!seccion.classList.contains('hidden')) return; // no limpiar el activo
 
-                // Limpiar inputs de texto, number, date, datetime, time, email, tel
-                seccion.querySelectorAll('input:not([type="hidden"]):not([type="file"])').forEach(el => {
+            // 1. Encontrar el formulario actualmente visible
+            const actual = document.querySelector('.seccion-modulo:not(.hidden)');
+
+            // 2. Limpiar SOLO el actual
+            if (actual) {
+
+                // Inputs
+                actual.querySelectorAll('input:not([type="hidden"]):not([type="file"])').forEach(el => {
                     if (el.type === 'checkbox' || el.type === 'radio') {
                         el.checked = false;
                     } else {
@@ -251,28 +254,28 @@
                     }
                 });
 
-                // Limpiar selects
-                seccion.querySelectorAll('select').forEach(el => {
+                // Selects
+                actual.querySelectorAll('select').forEach(el => {
                     el.selectedIndex = 0;
                 });
 
-                // Limpiar textareas
-                seccion.querySelectorAll('textarea').forEach(el => {
+                // Textareas
+                actual.querySelectorAll('textarea').forEach(el => {
                     el.value = '';
                 });
 
-                // Limpiar nombres de archivos visibles
-                seccion.querySelectorAll('span[id^="logo_nombre"], span[id^="anexo_nombre"]').forEach(el => {
+                // Archivos (visual)
+                actual.querySelectorAll('span[id^="logo_nombre"], span[id^="anexo_nombre"]').forEach(el => {
                     el.textContent = 'Sin archivo seleccionado';
                 });
-            });
+            }
 
-            // 2. Ocultar todas las secciones
+            // 3. Ocultar todos
             document.querySelectorAll('.seccion-modulo').forEach(el => el.classList.add('hidden'));
 
-            // 3. Mostrar la sección elegida
-            const seccion = document.getElementById('seccion_' + valor);
-            if (seccion) seccion.classList.remove('hidden');
+            // 4. Mostrar el nuevo
+            const nueva = document.getElementById('seccion_' + valor);
+            if (nueva) nueva.classList.remove('hidden');
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
