@@ -3,12 +3,13 @@
 namespace App\Services\Formularios;
 
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Str;
+
 
 abstract class BaseFormularioService
 {
-    /**
-     * Todas las clases hijas deben definir el modelo
-     */
     protected $modelo;
 
     protected function llenarCamposComunes($formulario, $request)
@@ -27,7 +28,7 @@ abstract class BaseFormularioService
             'tipo_muestra',
             'temperatura_inicial',
             'r_f_inicio', 'r_h_inicio', 'r_ph_inicio', 'r_t_inicio', 'r_cl_inicio',
-            'r_f_fin',    'r_h_fin',    'r_ph_fin',    'r_t_fin', 'r_cl_fin',
+            'r_f_fin',    'r_h_fin',    'r_ph_fin',    'r_t_fin',    'r_cl_fin',
             'insitu_item_1', 'insitu_fecha_1', 'insitu_hora_1', 'insitu_ph_1', 'insitu_temp_1', 'insitu_cloro_1',
             'insitu_item_2', 'insitu_fecha_2', 'insitu_hora_2', 'insitu_ph_2', 'insitu_temp_2', 'insitu_cloro_2',
         ]));
@@ -42,11 +43,14 @@ abstract class BaseFormularioService
         $formulario->eq_cloro_chk    = $request->boolean('eq_cloro_chk');
     }
 
-    protected function guardarAnexos($formulario, $request, $carpeta = 'anexos')
+    protected function guardarAnexos($formulario, $request, $carpeta = 'anexos_form')
     {
         foreach (range(1, 4) as $i) {
             if ($request->hasFile('an'.$i)) {
-                $path = $request->file('an'.$i)->store($carpeta, 'public');
+                $path = $this->guardarImagenVertical(
+                    $request->file('an'.$i),
+                    $carpeta
+                );
                 $formulario->{'anexo_'.$i.'_file'} = $path;
             }
 
@@ -54,6 +58,33 @@ abstract class BaseFormularioService
                 $formulario->{'anexo_'.$i.'_titulo'} = $request->input('an'.$i.'_titulo');
             }
         }
+    }
+
+    /**
+     * Guarda la imagen corrigiendo orientación EXIF
+     * y rotando a vertical si es horizontal (landscape).
+     */
+    protected function guardarImagenVertical($file, string $carpeta): string
+    {
+        $manager = new ImageManager(new Driver());
+        $image   = $manager->read($file->getRealPath());
+
+        $image->orient();
+
+        if ($image->width() > $image->height()) {
+            $image->rotate(90);
+        }
+
+        $filename = $carpeta . '/' . Str::random(40) . '.jpg';
+        $fullPath = storage_path('app/public/' . $filename);
+
+        if (!is_dir(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+
+        $image->toJpeg(85)->save($fullPath);
+
+        return $filename;
     }
 
     public function obtenerFormulario($registro)

@@ -331,7 +331,7 @@
                                     class="relative">
 
                                     {{-- Input hidden para el form --}}
-                                    <input type="hidden" name="{{ $row['name_eq'] }}" :value="selected">
+                                    <input type="hidden" name="{{ $row['name_eq'] }}" x-ref="field" x-effect="$refs.field.value = selected">
 
                                     {{-- Botón trigger --}}
                                     <button type="button"

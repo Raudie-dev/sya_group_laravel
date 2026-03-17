@@ -5,84 +5,56 @@ namespace App\Services\Formularios;
 use App\Models\Formulario3;
 use App\Models\Registro;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
-class formulario3Service
+class Formulario3Service extends BaseFormularioService
 {
-    /**
-     * Método llamado desde RegistroController@store
-     * Orden: Registro primero, Request segundo.
-     */
-    public function guardar(Registro $registro, Request $request)
+    protected $modelo = Formulario3::class;
+
+    public function guardar($registro, $request)
     {
         return $this->procesarGuardado($registro, $request);
     }
 
-    /**
-     * Método llamado desde RegistroController@update
-     */
-    public function actualizar(Registro $registro, Request $request)
+    public function actualizar($registro, $request)
     {
         return $this->procesarGuardado($registro, $request);
     }
 
-    /**
-     * Lógica centralizada para guardar o actualizar
-     */
     private function procesarGuardado(Registro $registro, Request $request)
     {
-        // 1. Limpiar datos básicos
-        $data = $request->except(['_token', '_method', 'equipos', 'mediciones', 'files']);
+        // Excluir todo lo que se maneja manualmente
+        $data = $request->except([
+            '_token', '_method',
+            'equipos', 'mediciones', 'files',
+            'an1', 'an2', 'an3', 'an4',
+            'an1_titulo', 'an2_titulo', 'an3_titulo', 'an4_titulo',
+            'anexo_1_file', 'anexo_2_file', 'anexo_3_file', 'anexo_4_file', // ← por si llegan
+        ]);
 
-        // 2. Asignar el ID del registro padre
         $data['registro_id'] = $registro->id;
 
-        // 3. LOGICA CAMPOS DINÁMICOS (Arrays -> JSON)
-        // Usamos array_values para reindexar y evitar JSON sucios con índices raros.
-        $data['equipos_detalle'] = $request->has('equipos') 
-            ? array_values($request->input('equipos')) 
+        // JSON — se asignan separado para que los casts del modelo los serialicen bien
+        $data['equipos_detalle'] = $request->has('equipos')
+            ? array_values($request->input('equipos'))
             : [];
 
-        $data['mediciones_detalle'] = $request->has('mediciones') 
-            ? array_values($request->input('mediciones')) 
+        $data['mediciones_detalle'] = $request->has('mediciones')
+            ? array_values($request->input('mediciones'))
             : [];
 
-        // 4. LOGICA DE ARCHIVOS (Anexos)
-        $archivos = [
-            'anexo_1_file'  => 'anexos',
-            'anexo_2_file'  => 'anexos',
-            'anexo_3_file'  => 'anexos',
-            'anexo_4_file'  => 'anexos',
-            // Nota: El logo_cliente ya lo guardas en el Controller en la tabla registros,
-            // pero si también lo necesitas en formulario_3, descomenta esto:
-            // 'logo_cliente'  => 'logos', 
-        ];
+        $formulario = Formulario3::firstOrNew(['registro_id' => $registro->id]);
+        $formulario->fill($data);
 
-        foreach ($archivos as $inputName => $folder) {
-            if ($request->hasFile($inputName)) {
-                $data[$inputName] = $request->file($inputName)->store($folder, 'public');
-            }
-        }
+        // Anexos con corrección de orientación
+        $this->guardarAnexos($formulario, $request, 'anexos/Formulario3');
 
-        // 5. UPDATE OR CREATE
-        // Buscamos si ya existe el formulario para este registro
-        $formulario = Formulario3::where('registro_id', $registro->id)->first();
+        $formulario->save();
 
-        if ($formulario) {
-            $formulario->update($data);
-            return $formulario;
-        } else {
-            return Formulario3::create($data);
-        }
+        return $formulario;
     }
 
-    /**
-     * Métodos requeridos para el PDF (según tu controlador)
-     */
-    
-    public function obtenerFormulario(Registro $registro)
+    public function obtenerFormulario($registro)
     {
-        // Retorna la instancia del formulario 3 asociada al registro
         return Formulario3::where('registro_id', $registro->id)->first();
     }
 
@@ -93,9 +65,6 @@ class formulario3Service
 
     public function datosParaPdf($formulario)
     {
-        // Si necesitas pasar variables extra a la vista del PDF, hazlo aquí
-        return [
-            // 'instancia' => $formulario (El controlador ya pasa 'formulario')
-        ];
+        return [];
     }
 }

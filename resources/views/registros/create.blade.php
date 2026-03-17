@@ -35,61 +35,156 @@
     <div class="p-4 sm:p-6 lg:p-8 space-y-5">
 
         {{-- ── SELECTOR DE FORMULARIO ── --}}
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-blue-dark/3">
-                <div class="w-8 h-8 rounded-lg bg-blue-dark/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-blue-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="group max-w-md">
+            <label class="block text-sm font-medium text-blue-dark mb-1.5">
+                Tipo de Formulario
+            </label>
+
+            @php
+            $opciones = [
+                1 => 'Formulario 1: RLI Puntual',
+                2 => 'Formulario 2: QEN_V4_INF',
+                3 => 'Formulario 3: Informe de Terreno',
+                4 => 'Formulario 4: QEN_SST',
+                5 => 'Formulario 5: QEN DS90',
+                6 => 'Formulario 6: DBO 5 - IDE',
+            ];
+            @endphp
+
+            <div x-data="{
+                    open: false,
+                    selected: {{ $tipoForm }},
+                    search: '',
+                    opciones: @js($opciones),
+                    get label() { return this.opciones[this.selected] ?? 'Seleccionar...' },
+                    get filtradas() {
+                        if (!this.search) return this.opciones;
+                        const q = this.search.toLowerCase();
+                        return Object.fromEntries(
+                            Object.entries(this.opciones).filter(([k, v]) =>
+                                v.toLowerCase().includes(q)
+                            )
+                        );
+                    },
+                    elegir(val) {
+                        if ({{ isset($instancia) ? 'true' : 'false' }}) return;
+                        this.selected = val;
+                        this.search = '';
+                        this.open = false;
+                        document.getElementById('tipo_form_id_hidden').value = val;
+                        window.cambiarFormulario(val);
+                    },
+                    abrir() {
+                        if ({{ isset($instancia) ? 'true' : 'false' }}) return;
+                        this.open = !this.open;
+                        if (this.open) this.$nextTick(() => this.$refs.busqueda.focus());
+                    }
+                }"
+                @click.outside="open = false; search = ''"
+                class="relative {{ isset($instancia) ? 'opacity-60' : '' }}"
+            >
+                <input type="hidden" name="tipo_form_id" id="tipo_form_id_hidden" value="{{ $tipoForm }}">
+
+                {{-- Trigger --}}
+                <button type="button"
+                        @click="abrir()"
+                        class="w-full flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5
+                            text-sm text-gray-800 font-medium transition-all duration-200
+                            hover:border-blue-light/60
+                            focus:outline-none focus:border-orange focus:bg-white focus:shadow-[0_0_0_3px_rgba(255,140,66,0.15)]"
+                        :class="open && 'border-orange bg-white shadow-[0_0_0_3px_rgba(255,140,66,0.15)]'"
+                >
+                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M4 6h16M4 10h16M4 14h16M4 18h7"/>
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-sm">Selección de Formulario</h3>
-            </div>
-            <div class="p-5">
-                <div class="group max-w-md">
-                    <label class="block text-sm font-medium text-blue-dark mb-1.5 transition-colors duration-200 group-focus-within:text-orange">
-                        Tipo de Formulario
-                    </label>
-                    <div class="relative flex items-center rounded-xl border border-gray-200 bg-gray-50
-                                transition-all duration-200
-                                group-focus-within:border-orange group-focus-within:bg-white
-                                group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)]
-                                {{ isset($instancia) ? 'opacity-60' : 'hover:border-blue-light/60' }}">
-                        <div class="pl-3 flex-shrink-0">
-                            <svg class="w-4 h-4 text-gray-400 transition-colors duration-200 group-focus-within:text-orange"
-                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="flex-1 text-left" x-text="label"></span>
+                    <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0"
+                        :class="open && 'rotate-180'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                {{-- Dropdown con buscador --}}
+                <div x-show="open"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute z-30 mt-1.5 w-full rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden"
+                    style="display:none"
+                >
+                    {{-- Input de búsqueda --}}
+                    <div class="p-2 border-b border-gray-100">
+                        <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5
+                                    focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]
+                                    transition-all duration-150">
+                            <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                             </svg>
-                        </div>
-                        <select id="tipoFormularioSelector"
-                                {{ isset($instancia) ? 'disabled' : '' }}
-                                class="w-full bg-transparent border-none px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-0 cursor-pointer">
-                            <option value="1" {{ $tipoForm == 1 ? 'selected' : '' }}>Formulario 1: RLI Puntual</option>
-                            <option value="2" {{ $tipoForm == 2 ? 'selected' : '' }}>Formulario 2: QEN_V4_INF</option>
-                            <option value="3" {{ $tipoForm == 3 ? 'selected' : '' }}>Formulario 3: Informe de Terrero </option>
-                            <option value="4" {{ $tipoForm == 4 ? 'selected' : '' }}>Formulario 4: QEN_SST</option>
-                            <option value="5" {{ $tipoForm == 5 ? 'selected' : '' }}>Formulario 5: QEN DS90</option>
-                            <option value="6" {{ $tipoForm == 6 ? 'selected' : '' }}>Formulario 6: DBO 5 -IDE</option>
-                        </select>
-                        <div class="pr-3 flex-shrink-0">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <input type="text"
+                                x-ref="busqueda"
+                                x-model="search"
+                                @keydown.escape="open = false; search = ''"
+                                placeholder="Buscar formulario..."
+                                class="w-full bg-transparent border-none p-0 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                            <button x-show="search"
+                                    @click="search = ''"
+                                    type="button"
+                                    class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                    @if(isset($instancia))
-                        <p class="mt-1.5 text-xs text-gray-400 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                            El tipo de formulario no puede cambiarse en modo edición.
-                        </p>
-                    @endif
+
+                    {{-- Opciones filtradas --}}
+                    <div class="max-h-52 overflow-y-auto py-1">
+                        <template x-for="(label, val) in filtradas" :key="val">
+                            <button type="button"
+                                    @click="elegir(Number(val))"
+                                    class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left transition-colors duration-100
+                                        hover:bg-orange/8 hover:text-orange"
+                                    :class="selected == val
+                                        ? 'bg-orange/10 text-orange font-semibold'
+                                        : 'text-gray-700'"
+                            >
+                                <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold flex-shrink-0"
+                                    :class="selected == val ? 'bg-orange text-white' : 'bg-gray-100 text-gray-500'"
+                                    x-text="val">
+                                </span>
+                                <span x-text="label"></span>
+                                <svg x-show="selected == val"
+                                    class="w-4 h-4 text-orange ml-auto flex-shrink-0"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                        </template>
+
+                        {{-- Sin resultados --}}
+                        <div x-show="Object.keys(filtradas).length === 0"
+                            class="px-4 py-3 text-xs text-gray-400 text-center">
+                            Sin resultados para "<span x-text="search"></span>"
+                        </div>
+                    </div>
                 </div>
-                <input type="hidden" name="tipo_form_id" id="tipo_form_id_hidden" value="{{ $tipoForm }}">
             </div>
+
+            @if(isset($instancia))
+                <p class="mt-1.5 text-xs text-gray-400 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    El tipo de formulario no puede cambiarse en modo edición.
+                </p>
+            @endif
         </div>
 
         {{-- ── CONTENEDOR DE FORMULARIOS ── --}}
@@ -142,18 +237,45 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const selector = document.getElementById('tipoFormularioSelector');
-        const hiddenInput = document.getElementById('tipo_form_id_hidden');
+        window.cambiarFormulario = function(valor) {
+            // 1. Limpiar todos los formularios ocultos antes de cambiar
+            document.querySelectorAll('.seccion-modulo').forEach(seccion => {
+                if (!seccion.classList.contains('hidden')) return; // no limpiar el activo
 
-        if (selector) {
-            selector.addEventListener('change', function () {
-                if (hiddenInput) hiddenInput.value = this.value;
-                document.querySelectorAll('.seccion-modulo').forEach(el => el.classList.add('hidden'));
-                const seccion = document.getElementById('seccion_' + this.value);
-                if (seccion) seccion.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Limpiar inputs de texto, number, date, datetime, time, email, tel
+                seccion.querySelectorAll('input:not([type="hidden"]):not([type="file"])').forEach(el => {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        el.checked = false;
+                    } else {
+                        el.value = '';
+                    }
+                });
+
+                // Limpiar selects
+                seccion.querySelectorAll('select').forEach(el => {
+                    el.selectedIndex = 0;
+                });
+
+                // Limpiar textareas
+                seccion.querySelectorAll('textarea').forEach(el => {
+                    el.value = '';
+                });
+
+                // Limpiar nombres de archivos visibles
+                seccion.querySelectorAll('span[id^="logo_nombre"], span[id^="anexo_nombre"]').forEach(el => {
+                    el.textContent = 'Sin archivo seleccionado';
+                });
             });
-        }
+
+            // 2. Ocultar todas las secciones
+            document.querySelectorAll('.seccion-modulo').forEach(el => el.classList.add('hidden'));
+
+            // 3. Mostrar la sección elegida
+            const seccion = document.getElementById('seccion_' + valor);
+            if (seccion) seccion.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
     });
 
     function viewImage(url, title = '') {

@@ -157,8 +157,10 @@ class Formulario2Service extends BaseFormularioService
                 if ($formulario->$fileField) {
                     Storage::disk('public')->delete($formulario->$fileField);
                 }
-                $formulario->$fileField = $request->file($inputName)
-                    ->store("anexos/Formulario2", 'public');
+                $formulario->$fileField = $this->guardarImagenVertical(
+                    $request->file($inputName),
+                    'anexos/Formulario2'
+                );
             }
         }
     }

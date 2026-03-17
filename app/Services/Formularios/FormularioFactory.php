@@ -10,13 +10,14 @@ class FormularioFactory
         
         return match ($tipoFormId) {
 
-            2 => new Formulario2Service(),
-
+            
             1 => new FormularioGenericoService(
                 \App\Models\Formulario1::class,
                 'registros.pdf.formulario_1'
-            ),
+                ),
 
+            2 => new Formulario2Service(),
+            
             3 => new Formulario3Service(), 
 
             4 => new FormularioGenericoService(
@@ -28,6 +29,9 @@ class FormularioFactory
                 \App\Models\Formulario5::class,
                 'registros.pdf.formulario_5'
             ),
+
+            6 => new Formulario6Service(), 
+
 
             default => throw new \Exception('Tipo de formulario no válido'),
         };

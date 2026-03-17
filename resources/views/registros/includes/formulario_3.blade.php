@@ -227,6 +227,7 @@
         </div>
         <div class="p-5 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
                 @foreach([
                     ['label'=>'Lugar de Muestreo',                  'name'=>'lugar_muestreo',       'value'=>$inst->lugar_muestreo ?? 'Unidad 4',       'placeholder'=>'Nombre del lugar'],
                     ['label'=>'Dirección de Muestreo',              'name'=>'direccion_muestreo',   'value'=>$inst->direccion_muestreo ?? 'Ruta F- 30 S/N, Puchuncavi, región de Valparaíso',   'placeholder'=>'Dirección completa'],
@@ -243,6 +244,24 @@
                         </div>
                     </div>
                 @endforeach
+
+                <div class="group">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Fecha y Hora Inicio Muestreo</label>
+                    <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                        <input type="datetime-local" name="inicio_muestreo"
+                               value="{{ old('inicio_muestreo', $inst?->inicio_muestreo?->format('Y-m-d\TH:i') ?? '') }}"
+                               class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Fecha y Hora Término Muestreo</label>
+                    <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                        <input type="datetime-local" name="fin_muestreo"
+                               value="{{ old('fin_muestreo', $inst?->fin_muestreo?->format('Y-m-d\TH:i') ?? '') }}"
+                               class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
+                    </div>
+                </div>
             </div>
 
             @php
@@ -271,7 +290,6 @@
                             ['label'=>'Toma de Muestra: NCh411/10.Of2005.',  'name_eq'=>'eq_muestreo_cod',   'name_chk'=>'eq_muestreo_chk',   'eq_val'=>$inst->eq_muestreo_cod ?? '',  'chk_val'=>$inst->eq_muestreo_chk ?? true],
                             ['label'=>'pH: (NCh2313/1.Of95.)',                'name_eq'=>'eq_ph_cod',         'name_chk'=>'eq_ph_chk',         'eq_val'=>$inst->eq_ph_cod ?? '',         'chk_val'=>$inst->eq_ph_chk ?? true],
                             ['label'=>'Temperatura: (NCh2313/2.Of95.)',       'name_eq'=>'eq_temp_cod',       'name_chk'=>'eq_temp_chk',       'eq_val'=>$inst->eq_temp_cod ?? '',       'chk_val'=>$inst->eq_temp_chk ?? true],
-                            ['label'=>'Cloro libre residual: IMCLB v.03',     'name_eq'=>'eq_cloro_cod',      'name_chk'=>'eq_cloro_chk',      'eq_val'=>$inst->eq_cloro_cod ?? '',      'chk_val'=>$inst->eq_cloro_chk ?? true],
                         ] as $row)
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-4 py-2.5 text-xs text-gray-600">{{ $row['label'] }}</td>
@@ -306,7 +324,7 @@
                                     class="relative">
 
                                     {{-- Input hidden para el form --}}
-                                    <input type="hidden" name="{{ $row['name_eq'] }}" :value="selected">
+                                    <input type="hidden" name="{{ $row['name_eq'] }}" x-ref="field" x-effect="$refs.field.value = selected">
 
                                     {{-- Botón trigger --}}
                                     <button type="button"
@@ -517,12 +535,12 @@
             {{-- Anexos --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach([
-                    ['n'=>1, 'name'=>'anexo_1_file', 'title_name'=>'an1_titulo', 'title_val'=>$inst->anexo_1_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_1_file ?? null],
-                    ['n'=>2, 'name'=>'anexo_2_file', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Cadena de Custodia.', 'file'=>$inst->anexo_2_file ?? null],
-                    /*
-                    ['n'=>3, 'name'=>'anexo_3_file', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? 'Declaraciones de Operatividad del Inspector Ambiental.', 'file'=>$inst->anexo_3_file ?? null],
-                    ['n'=>4, 'name'=>'anexo_4_file', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', 'file'=>$inst->anexo_4_file ?? null],
-                    */
+                    ['n'=>1, 'name'=>'an1', 'title_name'=>'an1_titulo', 'title_val'=>$inst->anexo_1_titulo ?? 'Registro Fotográfico', 'file'=>$inst->anexo_1_file ?? null],
+                    ['n'=>2, 'name'=>'an2', 'title_name'=>'an2_titulo', 'title_val'=>$inst->anexo_2_titulo ?? 'Cadena de Custodia.', 'file'=>$inst->anexo_2_file ?? null],
+                    /* 
+                    ['n'=>3, 'name'=>'an3', 'title_name'=>'an3_titulo', 'title_val'=>$inst->anexo_3_titulo ?? 'Declaraciones de Operatividad del Inspector Ambiental.', 'file'=>$inst->anexo_3_file ?? null],
+                    ['n'=>4, 'name'=>'an4', 'title_name'=>'an4_titulo', 'title_val'=>$inst->anexo_4_titulo ?? 'Declaraciones de Operatividad de la Entidad Técnica De Fiscalización Ambiental.', 'file'=>$inst->anexo_4_file ?? null],
+                     */
                 ] as $anexo)
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 hover:border-blue-light/40 transition-colors">
 
