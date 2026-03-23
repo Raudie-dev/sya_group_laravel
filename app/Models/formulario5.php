@@ -67,6 +67,8 @@ class Formulario5 extends Model
         'eq_ph_chk'       => 'boolean',
         'eq_temp_chk'     => 'boolean',
         'eq_cloro_chk'    => 'boolean',
+        'mostrar_dj_inspector' => 'boolean',
+        'mostrar_dj_etfa'      => 'boolean',
     ];
 
     /**

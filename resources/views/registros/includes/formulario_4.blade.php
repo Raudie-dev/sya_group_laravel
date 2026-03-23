@@ -272,17 +272,6 @@
 
             </div>
 
-            @php
-                $equipos = [
-                    '218M03023',
-                    '222B01984',
-                    '223B01469',
-                    '223B01485',
-                    '223J00234',
-                    '6223J02104',
-                ];
-            @endphp
-
             {{-- Tabla de equipos --}}
             <div class="mt-2 overflow-hidden rounded-xl border border-gray-200">
                 <table class="w-full text-sm">
@@ -329,7 +318,7 @@
                                             this.open = !this.open;
                                         }
                                     }"
-                                    @click.outside="open = false"
+                                    @click.outside="if(!$event.target.closest('.equipo-dropdown')) open = false"
                                     class="relative">
 
                                     {{-- Input hidden para el form --}}
@@ -358,7 +347,8 @@
                                             x-transition:leave-start="opacity-100 scale-100"
                                             x-transition:leave-end="opacity-0 scale-95"
                                             @click.outside="open = false"
-                                            style="display:none">
+                                            style="display:none"
+                                            class="equipo-dropdown">
 
                                             <div class="rounded-lg border border-gray-200 bg-white shadow-lg">
                                                 {{-- Buscador --}}

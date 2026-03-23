@@ -51,6 +51,8 @@ class Formulario3 extends Model
         'eq_temp_chk'        => 'boolean',
         'inicio_muestreo'      => 'datetime',
         'fin_muestreo'         => 'datetime',
+        'mostrar_dj_inspector' => 'boolean',
+        'mostrar_dj_etfa'      => 'boolean',
     ];
 
     public function getEquiposArrayAttribute()

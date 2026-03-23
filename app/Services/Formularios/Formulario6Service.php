@@ -94,6 +94,9 @@ class Formulario6Service extends BaseFormularioService
             }
         }
 
+        // Flags para mostrar/ocultar páginas de declaración jurada en el PDF 
+        $this->llenarFlagsPdf($formulario, $request);
+
         $formulario->save();
 
         // ── Actualizar campos del modelo Registro (Sección 1) ───────────────

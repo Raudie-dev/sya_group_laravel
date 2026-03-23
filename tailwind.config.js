@@ -11,6 +11,13 @@ export default {
     ],
     theme: {
         extend: {
+            keyframes: {
+                'loading-bar': {
+                    '0%':   { transform: 'translateX(-100%)', width: '40%' },
+                    '50%':  { transform: 'translateX(80px)',  width: '60%' },
+                    '100%': { transform: 'translateX(200px)', width: '40%' },
+                }
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Services\Formularios\FormularioFactory;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Equipo;
 
 class RegistroController extends Controller
 {
@@ -85,7 +86,10 @@ class RegistroController extends Controller
             'user_id' => Auth::id()
         ]);
 
-        return view('registros.create');
+        // Obtener listado de los codigos de los equipos
+        $equipos = $this->getEquiposList();
+
+        return view('registros.create', compact('equipos'));
     }
 
     /*
@@ -237,8 +241,11 @@ class RegistroController extends Controller
                 ]);
                 abort(404, 'Formulario no encontrado.');
             }
+            
+            // Obtener listado de los codigos de los equipos
+            $equipos = $this->getEquiposList();
 
-            return view('registros.create', compact('registro', 'instancia'));
+            return view('registros.create', compact('registro', 'instancia', 'equipos'));
 
         } catch (\Throwable $e) {
             Log::channel('daily')->error('[RegistroController@edit] Error al cargar edición', [
@@ -463,5 +470,18 @@ class RegistroController extends Controller
 
             return back()->with('error', 'Error al generar el PDF: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Obtiene la lista de códigos de equipos activos (para los selects).
+     *
+     * @return array
+     */
+    private function getEquiposList(): array
+    {
+        return Equipo::activos()
+            ->orderBy('codigo')
+            ->pluck('codigo')
+            ->toArray();
     }
 }

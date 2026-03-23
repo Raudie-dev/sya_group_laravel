@@ -574,147 +574,215 @@
 {{-- ══════════════════════════════════════════════════════
      ANEXO 2 — Declaración Jurada Inspector Ambiental (estática)
 ══════════════════════════════════════════════════════ --}}
+@if($formulario->mostrar_dj_inspector ?? true)
 <div class="pagina">
+
     <div class="page-header">
-        <div class="col-logo"><img src="{{ public_path('images/logo.png') }}" alt="Logo"></div>
+        <div class="col-logo">
+            <img src="{{ public_path('images/logo.png') }}" alt="Logo Empresa">
+        </div>
         <div class="col-titulo">INFORME DE TERRENO</div>
         <div class="col-logo-cliente">
             @if($registro->logo_cliente)
                 <img src="{{ storage_path('app/public/' . $registro->logo_cliente) }}" alt="Logo Cliente">
-            @else <span>Logo empresa</span>
+            @else
+                <span>Logo empresa</span>
             @endif
         </div>
     </div>
+
     <div class="page-content texto declaracion-jurada">
-        <p class="anexo-label">Anexo 2. Declaración jurada Inspector Ambiental</p>
-        <br>
+
         <p class="dj-titulo">
             DECLARACIÓN JURADA PARA LA OPERATIVIDAD DEL<br>
             INSPECTOR AMBIENTAL
         </p>
+
         <p class="dj-cuerpo">
-            Yo, {{ $formulario->inspector_nombre ?? 'René David Díaz Vásquez' }},
-            RUN N° {{ $formulario->inspector_rut ?? '11.296.786-9' }},
-            domiciliado en Los Molinos 747, Quilpué, Viña del Mar, en mi calidad de inspector ambiental
-            N° 11296786-9 y código de la ETFA N° 042-01, declaro que, en los últimos dos años:
+            Yo, René David Díaz Vásquez, RUN N° 11.296.786-9, domiciliado en Los Molinos 747, Quilpué,
+            Viña del Mar, en mi calidad de inspector ambiental N° 11296786-9 y código de la ETFA N° 042-01,
+            declaro que, en los últimos dos años:
         </p>
+
         <ul class="dj-lista">
-            <li>No he tenido una relación directa ni indirecta, mercantil o laboral con {{ $registro->empresa_nombre ?? '' }}, titular del proyecto, sistema, actividad o fuente, objeto de las actividades de fiscalización ambiental.</li>
-            <li>No he tenido una relación directa ni indirecta, mercantil o laboral con el representante legal de {{ $registro->empresa_nombre ?? '' }}, titular del proyecto, sistema, actividad o fuente, objeto de las actividades de fiscalización ambiental.</li>
-            <li>No he sido legalmente reconocido como asociado en negocios con {{ $registro->empresa_nombre ?? '' }}.</li>
-            <li>No he tenido, directa ni indirectamente, la propiedad, el control o la posesión de acciones o títulos en circulación de {{ $registro->empresa_nombre ?? '' }}.</li>
-            <li>No he controlado, directa ni indirectamente a {{ $registro->empresa_nombre ?? '' }}.</li>
+            <li>
+                No he tenido una relación directa ni indirecta, mercantil o laboral Quintero Energía SpA.,
+                RUT 96.814.370-0, titular del proyecto, sistema, actividad o fuente, objeto de las
+                actividades de fiscalización ambiental.
+            </li>
+            <li>
+                No he tenido una relación directa ni indirecta, mercantil o laboral con don Marcelo Morales
+                Trincado RUN: 12.623.205-5, representante legal de Quintero Energía SpA., RUT 96.814.370-0,
+                titular del proyecto, sistema, actividad o fuente, objeto de las actividades de
+                fiscalización ambiental.
+            </li>
+            <li>
+                No he sido legalmente reconocido como asociado en negocios con Quintero Energía SpA.,
+                RUT 96.814.370-0.
+            </li>
+            <li>
+                No he tenido, directa ni indirectamente, la propiedad, el control o la posesión de acciones
+                o títulos en circulación de Quintero Energía SpA., RUT 96.814.370-0.
+            </li>
+            <li>
+                No he controlado, directa ni indirectamente a Quintero Energía SpA., RUT 96.814.370-0.
+            </li>
         </ul>
+
         <p class="dj-cuerpo">
             Igualmente declaro que no tengo vínculo familiar de parentesco -hasta el tercer grado de
             consanguinidad y segundo de afinidad inclusive-, con los propietarios ni con los representantes
             legales del titular fiscalizado.
         </p>
+
         <p class="dj-cuerpo">
             Toda la información contenida en el informe de resultados
             <strong>{{ $registro->codigo_informe }}</strong> es veraz, auténtica
             (que no corresponde a una copia o transcripción de otros documentos) y exacta.
         </p>
+
         <p class="dj-cuerpo">
             Finalmente, ratifico que las declaraciones hechas son verídicas, según mi mejor conocimiento
             y entendimiento y declaro tener conocimiento que las infracciones a las obligaciones que impone
             el reglamento ETFA, según lo dispuesto en su artículo 19, se sancionan de conformidad a lo
             señalado en el Título III de la ley orgánica de la Superintendencia del Medio Ambiente.
         </p>
+
         <div class="dj-firma">
-            <img src="{{ public_path('images/firma-inspector.png') }}" alt="Firma inspector">
+            <img src="{{ public_path('images/firma-inspector.png') }}" alt="firma">
             <div class="dj-firma-linea">________________________________</div>
             <p>Firma del inspector ambiental</p>
-            <br>
-            <p>{{ $registro->fecha_emision ? \Carbon\Carbon::parse($registro->fecha_emision)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') : '' }}</p>
+            <p class="mt-4">{{ \Carbon\Carbon::parse($formulario->fecha_emision)->translatedFormat('d \d\e F \d\e Y') }}</p>
         </div>
+
         <div class="dj-footer-sma">
             <p>Superintendencia del Medio Ambiente</p>
             <p>Teatinos 280, pisos 7, 8 y 9, Santiago – Chile | +56 2 26171800 | registroentidades@sma.gob.cl | www.sma.gob.cl</p>
             <p>Operatividad general - ETFA-GEN-02</p>
         </div>
+
     </div>
+
     <div>
         <div class="footer-pagina"><span class="page-number"></span></div>
         <img src="{{ public_path('images/footer.png') }}" class="footer-img">
     </div>
+
 </div>
+@endif
 
 {{-- ══════════════════════════════════════════════════════
      ANEXO 3 — Declaración Jurada Operatividad ETFA (estática)
 ══════════════════════════════════════════════════════ --}}
+@if($formulario->mostrar_dj_etfa ?? true)
 <div class="pagina">
+
     <div class="page-header">
-        <div class="col-logo"><img src="{{ public_path('images/logo.png') }}" alt="Logo"></div>
+        <div class="col-logo">
+            <img src="{{ public_path('images/logo.png') }}" alt="Logo Empresa">
+        </div>
         <div class="col-titulo">INFORME DE TERRENO</div>
         <div class="col-logo-cliente">
             @if($registro->logo_cliente)
                 <img src="{{ storage_path('app/public/' . $registro->logo_cliente) }}" alt="Logo Cliente">
-            @else <span>Logo empresa</span>
+            @else
+                <span>Logo empresa</span>
             @endif
         </div>
     </div>
+
     <div class="page-content texto declaracion-jurada">
-        <p class="anexo-label">Anexo 3. Declaración jurada operatividad de la ETFA</p>
-        <br>
+
         <p class="dj-titulo">
             DECLARACIÓN JURADA PARA LA OPERATIVIDAD DE LA<br>
             ENTIDAD TÉCNICA DE FISCALIZACIÓN AMBIENTAL
         </p>
+
         <p class="dj-cuerpo">
             Yo, Sergio Iván Sangüesa Fernández, RUN N° 12.001.419-6, domiciliado en Los Molinos 747 Quilpué,
             Viña del Mar, en mi calidad de representante legal de Sangüesa y Asociados Limitada, SyA Ambiental
             Of General, código ETFA: 042-01, declaro que, la persona jurídica que represento, en los dos
             últimos años:
         </p>
+
         <ul class="dj-lista">
-            <li>No ha tenido una relación directa ni indirecta de tipo mercantil con {{ $registro->empresa_nombre ?? '' }}, titular del proyecto, sistema, actividad o fuente, objeto la actividad de fiscalización ambiental.</li>
-            <li>No ha tenido una relación directa ni indirecta, de tipo laboral con el representante legal de {{ $registro->empresa_nombre ?? '' }}, titular del proyecto, sistema, actividad o fuente, objeto de la actividad de fiscalización ambiental.</li>
-            <li>No ha sido legalmente reconocida como asociada en negocios con {{ $registro->empresa_nombre ?? '' }}.</li>
-            <li>No ha tenido, directa ni indirectamente, la propiedad, el control o la posesión de acciones o títulos en circulación de {{ $registro->empresa_nombre ?? '' }}.</li>
-            <li>No ha controlado, directa ni indirectamente a {{ $registro->empresa_nombre ?? '' }}.</li>
-            <li>No ha sido controlada, directa ni indirectamente por {{ $registro->empresa_nombre ?? '' }}.</li>
-            <li>No hemos sido controlados, directa ni indirectamente, por una misma tercera persona.</li>
+            <li>
+                No ha tenido una relación directa ni indirecta de tipo mercantil con Quintero Energía SpA.,
+                RUT 96.814.370-0, titular del proyecto, sistema, actividad o fuente, objeto la actividad de
+                fiscalización ambiental.
+            </li>
+            <li>
+                No ha tenido una relación directa ni indirecta, de tipo laboral con Marcelo Morales Trincado
+                RUN: 12.623.205-5, representante legal de Quintero Energía SpA., RUT 96.814.370-0, titular
+                del proyecto, sistema, actividad o fuente, objeto de la actividad de fiscalización ambiental.
+            </li>
+            <li>
+                No ha sido legalmente reconocida como asociada en negocios con Quintero Energía SpA.,
+                RUT 96.814.370-0.
+            </li>
+            <li>
+                No ha tenido, directa ni indirectamente, la propiedad, el control o la posesión de acciones
+                o títulos en circulación de Quintero Energía SpA., RUT 96.814.370-0.
+            </li>
+            <li>
+                No ha controlado, directa ni indirectamente a Quintero Energía SpA., RUT 96.814.370-0.
+            </li>
+            <li>
+                No ha sido controlada, directa ni indirectamente por Quintero Energía SpA., RUT 96.814.370-0.
+            </li>
+            <li>
+                No hemos sido controlados, directa ni indirectamente, por una misma tercera persona.
+            </li>
         </ul>
+
         <p class="dj-cuerpo">
             Igualmente declaro que, yo no he tenido una relación directa ni indirecta, mercantil o laboral
-            con el representante legal ni con {{ $registro->empresa_nombre ?? '' }}.
+            con Marcelo Morales Trincado RUN: 12.623.205-5, representante legal ni Quintero Energía SpA.,
+            RUT 96.814.370-0.
         </p>
+
         <p class="dj-cuerpo">
             Declaro también que, no existe vínculo familiar de parentesco -hasta el tercer grado de
             consanguinidad y segundo de afinidad inclusive-, entre los propietarios y los representantes
-            legales de {{ $registro->empresa_nombre ?? '' }} y los propietarios y representantes legales
+            legales de Quintero Energía SpA., RUT 96.814.370-0. y los propietarios y representantes legales
             de esta ETFA.
         </p>
+
         <p class="dj-cuerpo">
             Toda la información contenida en el informe de resultados
             <strong>{{ $registro->codigo_informe }}</strong> es veraz, auténtica
             (que no corresponde a una copia o transcripción de otros documentos) y exacta.
         </p>
+
         <p class="dj-cuerpo">
             Finalmente, ratifico que las declaraciones hechas son verídicas, según mi mejor conocimiento
             y entendimiento y declaro tener conocimiento que las infracciones a las obligaciones que impone
             el reglamento ETFA, según lo dispuesto en su artículo 19, se sancionan de conformidad a lo
             señalado en el Título III de la ley orgánica de la Superintendencia del Medio Ambiente.
         </p>
+
         <div class="dj-firma">
-            <img src="{{ public_path('images/firma-representante.png') }}" alt="Firma representante">
+            <img src="{{ public_path('images/firma-representante.png') }}" alt="firma">
             <div class="dj-firma-linea">________________________________</div>
             <p>Firma del Representante Legal</p>
-            <br>
-            <p>{{ $registro->fecha_emision ? \Carbon\Carbon::parse($registro->fecha_emision)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') : '' }}</p>
+            <p class="mt-4">{{ \Carbon\Carbon::parse($formulario->fecha_emision)->translatedFormat('d \d\e F \d\e Y') }}</p>
         </div>
+
         <div class="dj-footer-sma">
             <p>Superintendencia del Medio Ambiente</p>
             <p>Teatinos 280, pisos 7, 8 y 9, Santiago – Chile | +56 2 26171800 | registroentidades@sma.gob.cl | www.sma.gob.cl</p>
-            <p>Operatividad general - ETFA-GEN-02 V.02</p>
+            <p>Operatividad general - ETFA-GEN-02</p>
         </div>
+
     </div>
+
     <div>
         <div class="footer-pagina"><span class="page-number"></span></div>
         <img src="{{ public_path('images/footer.png') }}" class="footer-img">
     </div>
+
 </div>
+@endif
 
 {{-- ══════════════════════════════════════════════════════
      ANEXO 4 — Resultados de Laboratorio (anexo_5)

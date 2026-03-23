@@ -854,6 +854,7 @@
 {{-- ══════════════════════════════════════════════════════
      PÁGINA DECLARACIÓN JURADA (TEMPLATE FIJO)
 ══════════════════════════════════════════════════════ --}}
+@if($formulario->mostrar_dj_inspector ?? true)
 <div class="pagina">
 
     <div class="page-header">
@@ -948,10 +949,12 @@
     </div>
 
 </div>
+@endif
 
 {{-- ══════════════════════════════════════════════════════
      PÁGINA DECLARACIÓN JURADA ETFA (TEMPLATE FIJO)
 ══════════════════════════════════════════════════════ --}}
+@if($formulario->mostrar_dj_etfa ?? true)
 <div class="pagina">
 
     <div class="page-header">
@@ -1059,5 +1062,7 @@
     </div>
 
 </div>
+@endif
+
 </body>
 </html>

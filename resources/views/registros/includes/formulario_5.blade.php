@@ -270,17 +270,6 @@
                 </div>
             </div>
 
-            @php
-                $equipos = [
-                    '218M03023',
-                    '222B01984',
-                    '223B01469',
-                    '223B01485',
-                    '223J00234',
-                    '6223J02104',
-                ];
-            @endphp
-
             {{-- Tabla de equipos --}}
             <div class="mt-2 overflow-hidden rounded-xl border border-gray-200">
                 <table class="w-full text-sm">
@@ -327,7 +316,7 @@
                                             this.open = !this.open;
                                         }
                                     }"
-                                    @click.outside="open = false"
+                                    @click.outside="if(!$event.target.closest('.equipo-dropdown')) open = false"
                                     class="relative">
 
                                     {{-- Input hidden para el form --}}
@@ -356,7 +345,8 @@
                                             x-transition:leave-start="opacity-100 scale-100"
                                             x-transition:leave-end="opacity-0 scale-95"
                                             @click.outside="open = false"
-                                            style="display:none">
+                                            style="display:none"
+                                            class="equipo-dropdown">
 
                                             <div class="rounded-lg border border-gray-200 bg-white shadow-lg">
                                                 {{-- Buscador --}}
@@ -616,6 +606,96 @@
 
                     </div>
                 @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════
+        SECCIÓN 6 — Configuración del PDF
+    ══════════════════════════════════════════════ --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+            <div class="w-7 h-7 rounded-lg bg-gray-500 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-700 text-sm">6. Configuración del PDF</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Selecciona qué páginas estáticas se incluirán en el documento final</p>
+            </div>
+        </div>
+        <div class="p-5">
+            <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Páginas de Declaraciones Juradas</p>
+            <div class="space-y-3">
+
+                {{-- Toggle: DJ Inspector Ambiental --}}
+                <div x-data="{ on: {{ old('mostrar_dj_inspector', $inst->mostrar_dj_inspector ?? true) ? 'true' : 'false' }} }"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl border transition-colors duration-200"
+                    :class="on ? 'border-blue-dark/20 bg-blue-dark/3' : 'border-gray-200 bg-gray-50'">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200"
+                            :class="on ? 'bg-blue-dark' : 'bg-gray-200'">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Declaración Jurada — Inspector Ambiental</p>
+                            <p class="text-xs text-gray-400">Operatividad del Inspector Ambiental (ETFA-GEN-02)</p>
+                        </div>
+                    </div>
+                    <label class="relative flex-shrink-0 cursor-pointer">
+                        <input type="hidden" name="mostrar_dj_inspector" value="0">
+                        <input type="checkbox" name="mostrar_dj_inspector" value="1"
+                            x-model="on"
+                            {{ old('mostrar_dj_inspector', $inst->mostrar_dj_inspector ?? true) ? 'checked' : '' }}
+                            class="sr-only peer">
+                        <div class="w-10 h-5 rounded-full transition-colors duration-200 peer-focus:outline-none
+                                    bg-gray-200 peer-checked:bg-blue-dark"
+                            :class="on ? 'bg-blue-dark' : 'bg-gray-200'">
+                        </div>
+                        <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+                            :class="on ? 'translate-x-5' : 'translate-x-0'">
+                        </div>
+                    </label>
+                </div>
+
+                {{-- Toggle: DJ ETFA --}}
+                <div x-data="{ on: {{ old('mostrar_dj_etfa', $inst->mostrar_dj_etfa ?? true) ? 'true' : 'false' }} }"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl border transition-colors duration-200"
+                    :class="on ? 'border-blue-dark/20 bg-blue-dark/3' : 'border-gray-200 bg-gray-50'">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200"
+                            :class="on ? 'bg-blue-dark' : 'bg-gray-200'">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Declaración Jurada — ETFA</p>
+                            <p class="text-xs text-gray-400">Operatividad de la Entidad Técnica de Fiscalización Ambiental</p>
+                        </div>
+                    </div>
+                    <label class="relative flex-shrink-0 cursor-pointer">
+                        <input type="hidden" name="mostrar_dj_etfa" value="0">
+                        <input type="checkbox" name="mostrar_dj_etfa" value="1"
+                            x-model="on"
+                            {{ old('mostrar_dj_etfa', $inst->mostrar_dj_etfa ?? true) ? 'checked' : '' }}
+                            class="sr-only peer">
+                        <div class="w-10 h-5 rounded-full transition-colors duration-200 peer-focus:outline-none"
+                            :class="on ? 'bg-blue-dark' : 'bg-gray-200'">
+                        </div>
+                        <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+                            :class="on ? 'translate-x-5' : 'translate-x-0'">
+                        </div>
+                    </label>
+                </div>
+
             </div>
         </div>
     </div>

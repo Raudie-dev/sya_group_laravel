@@ -198,5 +198,45 @@
         }
     }
 </script>
+<!-- Overlay de carga — versión mejorada -->
+<div x-data="{ loading: true, hint: 'Iniciando...' }"
+     x-init="
+        const hints = ['Cargando datos...', 'Preparando la vista...', 'Casi listo...'];
+        let i = 0;
+        const interval = setInterval(() => { hint = hints[Math.min(++i, hints.length - 1)]; }, 900);
+        
+        window.addEventListener('load', () => {
+            clearInterval(interval);
+            hint = 'Listo';
+            setTimeout(() => { loading = false; }, 300);
+        });
+        setTimeout(() => { clearInterval(interval); loading = false; }, 2500);
+     "
+     class="fixed inset-0 z-[100] flex items-center justify-center transition-all duration-500"
+     :class="loading ? 'opacity-100 visible' : 'opacity-0 invisible'"
+     style="background-color: #0f2a4a;"
+>
+    <div class="flex flex-col items-center">
+        {{-- Logo animado --}}
+        <div class="w-16 h-16 bg-orange rounded-2xl flex items-center justify-center mb-5 animate-pulse shadow-lg">
+            <span class="text-white font-bold text-2xl">S</span>
+            <!-- inserta el logo aca -->
+        </div>
+
+        {{-- Nombre de la app --}}
+        <div class="flex items-baseline gap-1.5 mb-6">
+            <span class="text-white font-semibold text-lg tracking-wide">SyA</span>
+            <span class="text-white/40 font-light text-lg">Group</span>
+        </div>
+
+        {{-- Barra de progreso --}}
+        <div class="w-28 h-0.5 bg-white/10 rounded-full overflow-hidden">
+            <div class="h-full bg-orange rounded-full animate-[loading-bar_1.8s_ease-in-out_infinite]"></div>
+        </div>
+
+        {{-- Texto dinámico --}}
+        <p class="mt-3 text-xs text-white/35 transition-all duration-300" x-text="hint"></p>
+    </div>
+</div>
 </body>
 </html>

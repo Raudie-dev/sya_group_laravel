@@ -34,6 +34,8 @@ class Formulario1 extends Model
         'fin_muestreo'    => 'datetime',
         'r_f_inicio'      => 'date',
         'r_f_fin'         => 'date',
+        'mostrar_dj_inspector' => 'boolean',
+        'mostrar_dj_etfa'      => 'boolean',
     ];
 
     public function registro()

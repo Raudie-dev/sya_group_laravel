@@ -48,6 +48,9 @@ class Formulario3Service extends BaseFormularioService
         // Anexos con corrección de orientación
         $this->guardarAnexos($formulario, $request, 'anexos/Formulario3');
 
+        // Flags para mostrar/ocultar páginas de declaración jurada en el PDF
+        $this->llenarFlagsPdf($formulario, $request);
+
         $formulario->save();
 
         return $formulario;

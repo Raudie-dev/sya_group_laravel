@@ -44,6 +44,8 @@ class Formulario2 extends Model
         'eq_muestreo_chk' => 'boolean',
         'eq_ph_chk'       => 'boolean',
         'eq_temp_chk'     => 'boolean',
+        'mostrar_dj_inspector' => 'boolean',
+        'mostrar_dj_etfa'      => 'boolean',
     ];
 
     public function registro(): BelongsTo

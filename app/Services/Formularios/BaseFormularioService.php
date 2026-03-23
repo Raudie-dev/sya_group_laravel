@@ -33,14 +33,16 @@ abstract class BaseFormularioService
             'insitu_item_2', 'insitu_fecha_2', 'insitu_hora_2', 'insitu_ph_2', 'insitu_temp_2', 'insitu_cloro_2',
         ]));
 
-        $formulario->eq_muestreo_cod = $request->eq_muestreo_cod;
-        $formulario->eq_muestreo_chk = $request->boolean('eq_muestreo_chk');
-        $formulario->eq_ph_cod       = $request->eq_ph_cod;
-        $formulario->eq_ph_chk       = $request->boolean('eq_ph_chk');
-        $formulario->eq_temp_cod     = $request->eq_temp_cod;
-        $formulario->eq_temp_chk     = $request->boolean('eq_temp_chk');
-        $formulario->eq_cloro_cod    = $request->eq_cloro_cod;
-        $formulario->eq_cloro_chk    = $request->boolean('eq_cloro_chk');
+        $formulario->eq_muestreo_cod        = $request->eq_muestreo_cod;
+        $formulario->eq_muestreo_chk        = $request->boolean('eq_muestreo_chk');
+        $formulario->eq_ph_cod              = $request->eq_ph_cod;
+        $formulario->eq_ph_chk              = $request->boolean('eq_ph_chk');
+        $formulario->eq_temp_cod            = $request->eq_temp_cod;
+        $formulario->eq_temp_chk            = $request->boolean('eq_temp_chk');
+        $formulario->eq_cloro_cod           = $request->eq_cloro_cod;
+        $formulario->eq_cloro_chk           = $request->boolean('eq_cloro_chk');
+        $formulario->mostrar_dj_inspector   = $request->boolean('mostrar_dj_inspector');
+        $formulario->mostrar_dj_etfa        = $request->boolean('mostrar_dj_etfa');
     }
 
     protected function guardarAnexos($formulario, $request, $carpeta = 'anexos_form')
@@ -96,4 +98,10 @@ abstract class BaseFormularioService
     abstract public function guardar($registro, $request);
     abstract public function actualizar($registro, $request);
     abstract public function vistaPdf();
+
+    protected function llenarFlagsPdf($formulario, $request): void
+    {
+        $formulario->mostrar_dj_inspector = $request->boolean('mostrar_dj_inspector');
+        $formulario->mostrar_dj_etfa      = $request->boolean('mostrar_dj_etfa');
+    }
 }

@@ -42,9 +42,16 @@ class Formulario2Service extends BaseFormularioService
 
         $phs    = $lecturas->pluck('valor_ph')->filter()->map(fn($v)  => (float)$v)->values();
         $temps  = $lecturas->pluck('valor_temp')->filter()->map(fn($v) => (float)$v)->values();
-        $labels = $lecturas->map(fn($l, $i) => $l->n_muestra ?? ($i + 1))->values()->all();
 
-        // ── Estadísticas ─────────────────────────────────────────────────────
+        // Etiquetas del eje X: horas formateadas
+        $labels = $lecturas->map(function ($l, $idx) {
+            if (!empty($l->hora)) {
+                return \Carbon\Carbon::parse($l->hora)->format('H:i');
+            }
+            return $l->n_muestra ?? ($idx + 1);
+        })->values()->all();
+
+        // Estadísticas (mantén tu lógica)
         $stats = [
             'ph' => [
                 'media'  => $phs->count()   ? round($phs->avg(),   2) : null,
@@ -58,13 +65,12 @@ class Formulario2Service extends BaseFormularioService
             ],
         ];
 
-        // ── URLs de gráficos (QuickChart) ────────────────────────────────────
         $graficoPh = $phs->count() >= 2
-            ? $this->buildChartUrl($phs->all(), $labels, '#3b82f6', 'pH')
+            ? $this->buildChartUrl($phs->all(), $labels, '#3b82f6', 'pH', 'pH (Unidades pH)')
             : null;
 
         $graficoTemp = $temps->count() >= 2
-            ? $this->buildChartUrl($temps->all(), $labels, '#f97316', 'Temperatura °C')
+            ? $this->buildChartUrl($temps->all(), $labels, '#f97316', 'Temperatura', 'Temperatura (°C)')
             : null;
 
         return compact('stats', 'graficoPh', 'graficoTemp');
@@ -74,51 +80,70 @@ class Formulario2Service extends BaseFormularioService
     // Helpers privados
     // ────────────────────────────────────────────────────────────────────────
 
-    private function buildChartUrl(array $datos, array $labels, string $color, string $label): ?string
-    {
+    private function buildChartUrl(  array $datos, array $labels, string $color, string $label, string $yAxisTitle, string $xAxisTitle = 'Hora'): ?string {
+        $labels = array_map(function($l) {
+            return !empty($l) ? (string) $l : '-';
+        }, $labels);
+        
         $config = [
             'type' => 'line',
             'data' => [
-                'labels'   => $labels,
+                'labels' => $labels,
                 'datasets' => [[
-                    'label'                => $label,
-                    'data'                 => $datos,
-                    'borderColor'          => $color,
-                    'backgroundColor'      => $color . '33',
-                    'borderWidth'          => 2,
-                    'pointRadius'          => 4,
+                    'label' => $label,
+                    'data' => array_values($datos),
+                    'borderColor' => $color,
+                    'backgroundColor' => $color . '33',
+                    'borderWidth' => 2,
+                    'pointRadius' => 4,
                     'pointBackgroundColor' => $color,
-                    'fill'                 => true,
-                    'tension'              => 0.3,
+                    'fill' => true,
                 ]],
             ],
             'options' => [
+                'responsive' => true,
                 'plugins' => [
-                    'legend'     => ['display' => false],
-                    'datalabels' => [
-                        'display' => true,
-                        'align'   => 'top',
-                        'font'    => ['size' => 11],
-                    ],
+                    'legend' => ['position' => 'top'],
                 ],
                 'scales' => [
-                    'y' => ['ticks' => ['font' => ['size' => 11]]],
-                    'x' => ['ticks' => ['font' => ['size' => 11]]],
+                    'yAxes' => [[
+                        'scaleLabel' => [
+                            'display' => true,
+                            'labelString' => $yAxisTitle,
+                            'fontSize' => 12,
+                            'fontStyle' => 'bold',
+                        ],
+                        'ticks' => ['fontSize' => 10],
+                    ]],
+                    'xAxes' => [[
+                        'scaleLabel' => [
+                            'display' => true,
+                            'labelString' => $xAxisTitle,
+                            'fontSize' => 12,
+                            'fontStyle' => 'bold',
+                        ],
+                        'ticks' => [
+                            'fontSize' => 10,
+                            'maxRotation' => 45,
+                            'minRotation' => 45,
+                        ],
+                    ]],
                 ],
             ],
         ];
 
-        $url = 'https://quickchart.io/chart?w=700&h=250&c=' . urlencode(json_encode($config));
+        $json = json_encode($config);
+        $url = 'https://quickchart.io/chart?w=800&h=400&c=' . urlencode($json);
 
         try {
-            $imageData = \Illuminate\Support\Facades\Http::get($url)->body();
-
-            if (!$imageData) {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($url);
+            
+            if (!$response->successful()) {
                 return null;
             }
-
-            return 'data:image/png;base64,' . base64_encode($imageData);
-
+            
+            return 'data:image/png;base64,' . base64_encode($response->body());
+            
         } catch (\Exception $e) {
             return null;
         }
@@ -150,6 +175,9 @@ class Formulario2Service extends BaseFormularioService
             'anexo_3_titulo'     => $request->an3_titulo,
             'anexo_4_titulo'     => $request->an4_titulo,
         ]);
+
+        // Flags para mostrar/ocultar páginas de declaración jurada en el PDF
+        $this->llenarFlagsPdf($formulario, $request);
 
         foreach ([1 => 'an1', 2 => 'an2', 3 => 'an3', 4 => 'an4'] as $n => $inputName) {
             $fileField = "anexo_{$n}_file";
