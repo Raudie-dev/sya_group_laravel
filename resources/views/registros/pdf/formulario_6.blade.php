@@ -606,26 +606,26 @@
 
         <ul class="dj-lista">
             <li>
-                No he tenido una relación directa ni indirecta, mercantil o laboral Quintero Energía SpA.,
-                RUT 96.814.370-0, titular del proyecto, sistema, actividad o fuente, objeto de las
+                No he tenido una relación directa ni indirecta, mercantil o laboral {{ $registro->empresa_nombre }},
+                RUT {{ $registro->rut_empresa }}, titular del proyecto, sistema, actividad o fuente, objeto de las
                 actividades de fiscalización ambiental.
             </li>
             <li>
-                No he tenido una relación directa ni indirecta, mercantil o laboral con don Marcelo Morales
-                Trincado RUN: 12.623.205-5, representante legal de Quintero Energía SpA., RUT 96.814.370-0,
-                titular del proyecto, sistema, actividad o fuente, objeto de las actividades de
-                fiscalización ambiental.
+                No he tenido una relación directa ni indirecta, mercantil o laboral con don {{ $registro->representante_nombre }}
+                RUN: {{ $registro->representante_run }}, representante legal de {{ $registro->empresa_nombre }},
+                RUT {{ $registro->rut_empresa }}, titular del proyecto, sistema, actividad o fuente, objeto de las
+                actividades de fiscalización ambiental.
             </li>
             <li>
-                No he sido legalmente reconocido como asociado en negocios con Quintero Energía SpA.,
-                RUT 96.814.370-0.
+                No he sido legalmente reconocido como asociado en negocios con {{ $registro->empresa_nombre }},
+                RUT {{ $registro->rut_empresa }}.
             </li>
             <li>
                 No he tenido, directa ni indirectamente, la propiedad, el control o la posesión de acciones
-                o títulos en circulación de Quintero Energía SpA., RUT 96.814.370-0.
+                o títulos en circulación de {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}.
             </li>
             <li>
-                No he controlado, directa ni indirectamente a Quintero Energía SpA., RUT 96.814.370-0.
+                No he controlado, directa ni indirectamente a {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}.
             </li>
         </ul>
 
@@ -707,28 +707,29 @@
 
         <ul class="dj-lista">
             <li>
-                No ha tenido una relación directa ni indirecta de tipo mercantil con Quintero Energía SpA.,
-                RUT 96.814.370-0, titular del proyecto, sistema, actividad o fuente, objeto la actividad de
+                No ha tenido una relación directa ni indirecta de tipo mercantil con {{ $registro->empresa_nombre }},
+                RUT {{ $registro->rut_empresa }}, titular del proyecto, sistema, actividad o fuente, objeto la actividad de
                 fiscalización ambiental.
             </li>
             <li>
-                No ha tenido una relación directa ni indirecta, de tipo laboral con Marcelo Morales Trincado
-                RUN: 12.623.205-5, representante legal de Quintero Energía SpA., RUT 96.814.370-0, titular
-                del proyecto, sistema, actividad o fuente, objeto de la actividad de fiscalización ambiental.
+                No ha tenido una relación directa ni indirecta, de tipo laboral con {{ $registro->representante_nombre }}
+                RUN: {{ $registro->representante_run }}, representante legal de {{ $registro->empresa_nombre }},
+                RUT {{ $registro->rut_empresa }}, titular del proyecto, sistema, actividad o fuente, objeto de la
+                actividad de fiscalización ambiental.
             </li>
             <li>
-                No ha sido legalmente reconocida como asociada en negocios con Quintero Energía SpA.,
-                RUT 96.814.370-0.
+                No ha sido legalmente reconocida como asociada en negocios con {{ $registro->empresa_nombre }},
+                RUT {{ $registro->rut_empresa }}.
             </li>
             <li>
                 No ha tenido, directa ni indirectamente, la propiedad, el control o la posesión de acciones
-                o títulos en circulación de Quintero Energía SpA., RUT 96.814.370-0.
+                o títulos en circulación de {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}.
             </li>
             <li>
-                No ha controlado, directa ni indirectamente a Quintero Energía SpA., RUT 96.814.370-0.
+                No ha controlado, directa ni indirectamente a {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}.
             </li>
             <li>
-                No ha sido controlada, directa ni indirectamente por Quintero Energía SpA., RUT 96.814.370-0.
+                No ha sido controlada, directa ni indirectamente por {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}.
             </li>
             <li>
                 No hemos sido controlados, directa ni indirectamente, por una misma tercera persona.
@@ -737,15 +738,15 @@
 
         <p class="dj-cuerpo">
             Igualmente declaro que, yo no he tenido una relación directa ni indirecta, mercantil o laboral
-            con Marcelo Morales Trincado RUN: 12.623.205-5, representante legal ni Quintero Energía SpA.,
-            RUT 96.814.370-0.
+            con {{ $registro->representante_nombre }} RUN: {{ $registro->representante_run }},
+            representante legal ni {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}.
         </p>
 
         <p class="dj-cuerpo">
             Declaro también que, no existe vínculo familiar de parentesco -hasta el tercer grado de
             consanguinidad y segundo de afinidad inclusive-, entre los propietarios y los representantes
-            legales de Quintero Energía SpA., RUT 96.814.370-0. y los propietarios y representantes legales
-            de esta ETFA.
+            legales de {{ $registro->empresa_nombre }}, RUT {{ $registro->rut_empresa }}. y los propietarios
+            y representantes legales de esta ETFA.
         </p>
 
         <p class="dj-cuerpo">

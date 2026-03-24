@@ -12,12 +12,15 @@ class Registro extends Model
         'codigo_informe',
         'fecha_emision',
         'empresa_nombre',
+        'rut_empresa',           
+        'representante_nombre',  
+        'representante_run',     
         'cliente_direccion',
         'region',
         'comuna',
         'logo_cliente',
         'nombre_proyecto',
-        'n_rca'
+        'n_rca',
     ];
 
     /*

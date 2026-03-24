@@ -74,9 +74,42 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Cliente / Razón Social</label>
                 <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
                     <input type="text" name="cliente_nombre"
-                           value="{{ old('cliente_nombre', $reg->empresa_nombre ?? '') }}"
-                           placeholder="Razón social del cliente"
-                           class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                        value="{{ old('cliente_nombre', $reg->empresa_nombre ?? '') }}"
+                        placeholder="Razón social del cliente"
+                        class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- RUT Empresa (span 3) --}}  {{-- ← NUEVO --}}
+            <div class="lg:col-span-3 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">RUT Empresa</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="rut_empresa"
+                        value="{{ old('rut_empresa', $reg->rut_empresa ?? '') }}"
+                        placeholder="76.580.736-0"
+                        class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- Representante Legal (span 5) --}}  {{-- ← NUEVO --}}
+            <div class="lg:col-span-5 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Nombre Representante Legal</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="representante_nombre"
+                        value="{{ old('representante_nombre', $reg->representante_nombre ?? '') }}"
+                        placeholder="Nombre completo del representante"
+                        class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                </div>
+            </div>
+
+            {{-- RUN Representante (span 4) --}}  {{-- ← NUEVO --}}
+            <div class="lg:col-span-4 group">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">RUN Representante Legal</label>
+                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
+                    <input type="text" name="representante_run"
+                        value="{{ old('representante_run', $reg->representante_run ?? '') }}"
+                        placeholder="14.653.735-9"
+                        class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
                 </div>
             </div>
 
