@@ -174,10 +174,21 @@ class Formulario2Service extends BaseFormularioService
             'anexo_2_titulo'     => $request->an2_titulo,
             'anexo_3_titulo'     => $request->an3_titulo,
             'anexo_4_titulo'     => $request->an4_titulo,
+            
         ]);
 
         // Flags para mostrar/ocultar páginas de declaración jurada en el PDF
         $this->llenarFlagsPdf($formulario, $request);
+
+        $formulario->equipos_detalle = collect($request->input('equipos', []))
+        ->filter(fn($r) => !empty($r['label']))
+        ->map(fn($r) => [
+            'label'   => $r['label'],
+            'eq_val'  => $r['eq_val']  ?? '',
+            'chk_val' => filter_var($r['chk_val'] ?? false, FILTER_VALIDATE_BOOLEAN),
+        ])
+        ->values()
+        ->toArray();
 
         foreach ([1 => 'an1', 2 => 'an2', 3 => 'an3', 4 => 'an4'] as $n => $inputName) {
             $fileField = "anexo_{$n}_file";

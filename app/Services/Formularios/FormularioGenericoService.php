@@ -29,6 +29,7 @@ class FormularioGenericoService extends BaseFormularioService
         $formulario->registro_id = $registro->id;
 
         $this->llenarCamposComunes($formulario, $request);
+        $this->guardarTablasDinamicas($formulario, $request); 
         $this->guardarAnexos($formulario, $request, 'anexos_form');
 
         $formulario->save();
@@ -39,6 +40,7 @@ class FormularioGenericoService extends BaseFormularioService
         $formulario = $this->modelo::where('registro_id', $registro->id)->firstOrFail();
 
         $this->llenarCamposComunes($formulario, $request);
+        $this->guardarTablasDinamicas($formulario, $request);   // ← añadir
         $this->guardarAnexos($formulario, $request, 'anexos_form');
 
         $formulario->save();

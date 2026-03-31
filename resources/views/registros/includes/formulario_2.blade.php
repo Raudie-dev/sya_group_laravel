@@ -300,140 +300,176 @@
             </div>
 
             {{-- Tabla de equipos --}}
-            <div class="mt-2 overflow-hidden rounded-xl border border-gray-200">
+            <div
+                x-data="{
+                    rows: @js(
+                        collect($inst?->equipos_array ?? [
+                            ['label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo de aguas residuales - Recolección y manejo de las muestras. 2005. INN', 'eq_val' => '', 'chk_val' => true],
+                            ['label' => 'pH: (NCh2313/1.Of2021. Parte 1. Determinación de pH.1995. INN',             'eq_val' => '', 'chk_val' => true],
+                            ['label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',      'eq_val' => '', 'chk_val' => true],
+                        ])->map(fn($r, $i) => [
+                            'id'      => 'row_' . $i,
+                            'label'   => $r['label']   ?? '',
+                            'eq_val'  => $r['eq_val']  ?? '',
+                            'chk_val' => (bool)($r['chk_val'] ?? true),
+                        ])
+                    ),
+                    equipos: @js($equipos),
+                    addRow() {
+                        this.rows.push({ id: 'r_' + Date.now(), label: '', eq_val: '', chk_val: true });
+                    },
+                    removeRow(id) {
+                        this.rows = this.rows.filter(r => r.id !== id);
+                    },
+                }"
+                class="mt-2 overflow-hidden rounded-xl border border-gray-200">
+
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-gray-50 border-b border-gray-200">
                             <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/2">Medición / Norma</th>
                             <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/3">Código Equipo</th>
                             <th class="text-center px-4 py-2.5 text-xs font-semibold text-gray-500 w-1/6">Realizada</th>
+                            <th class="w-8"></th> {{-- columna acciones --}}
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @foreach([
-                            ['label'=>'Toma de Muestra: NCh411/10.Of2005.',  'name_eq'=>'eq_muestreo_cod',   'name_chk'=>'eq_muestreo_chk',   'eq_val'=>$inst->eq_muestreo_cod ?? '',  'chk_val'=>$inst->eq_muestreo_chk ?? true],
-                            ['label'=>'pH: (NCh2313/1.Of95.)',                'name_eq'=>'eq_ph_cod',         'name_chk'=>'eq_ph_chk',         'eq_val'=>$inst->eq_ph_cod ?? '',         'chk_val'=>$inst->eq_ph_chk ?? true],
-                            ['label'=>'Temperatura: (NCh2313/2.Of95.)',       'name_eq'=>'eq_temp_cod',       'name_chk'=>'eq_temp_chk',       'eq_val'=>$inst->eq_temp_cod ?? '',       'chk_val'=>$inst->eq_temp_chk ?? true],
-                        ] as $row)
-                        <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="px-4 py-2.5 text-xs text-gray-600">{{ $row['label'] }}</td>
-                            <td class="px-4 py-2.5">
+                        <template x-for="(row, rowIdx) in rows" :key="row.id">
+                            <tr class="hover:bg-gray-50/50 transition-colors"
+                                x-data="{ hovered: false }"
+                                @mouseenter="hovered = true"
+                                @mouseleave="hovered = false">
 
-                                {{-- Searchable select con Alpine.js --}}
-                                <div x-data="{
-                                        open: false,
-                                        search: '',
-                                        selected: '{{ old($row['name_eq'], $row['eq_val']) }}',
-                                        equipos: @js($equipos),
-                                        dropdownStyle: '',
-                                        get filtered() {
-                                            return this.equipos.filter(e =>
-                                                e.toLowerCase().includes(this.search.toLowerCase())
-                                            )
-                                        },
-                                        select(val) {
-                                            this.selected = val;
-                                            this.search = '';
-                                            this.open = false;
-                                        },
-                                        toggle() {
-                                            if (!this.open) {
-                                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                                this.dropdownStyle = `position:fixed; z-index:9999; top:${rect.bottom + 4}px; left:${rect.left}px; width:${rect.width}px;`;
+                                {{-- Medición / Norma --}}
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-all duration-150
+                                                focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
+                                        <input type="text"
+                                            :name="`equipos[${rowIdx}][label]`"
+                                            x-model="row.label"
+                                            placeholder="Ej: pH: NCh2313/1..."
+                                            class="w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0">
+                                    </div>
+                                </td>
+
+                                {{-- Código Equipo — searchable dropdown --}}
+                                <td class="px-4 py-2.5">
+                                    <div x-data="{
+                                            open: false,
+                                            search: '',
+                                            dropdownStyle: '',
+                                            get filtered() {
+                                                return equipos.filter(e => e.toLowerCase().includes(this.search.toLowerCase()));
+                                            },
+                                            select(val) { row.eq_val = val; this.search = ''; this.open = false; },
+                                            toggle() {
+                                                if (!this.open) {
+                                                    const rect = this.$refs.trigger.getBoundingClientRect();
+                                                    this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
+                                                }
+                                                this.open = !this.open;
                                             }
-                                            this.open = !this.open;
-                                        }
-                                    }"
-                                    @click.outside="if(!$event.target.closest('.equipo-dropdown')) open = false"
-                                    class="relative">
+                                        }"
+                                        @click.outside="open = false"
+                                        class="relative">
 
-                                    {{-- Input hidden para el form --}}
-                                    <input type="hidden" name="{{ $row['name_eq'] }}" x-ref="field" x-effect="$refs.field.value = selected">
+                                        <input type="hidden" :name="`equipos[${rowIdx}][eq_val]`" x-bind:value="row.eq_val">
 
-                                    {{-- Botón trigger --}}
+                                        <button type="button" x-ref="trigger" @click="toggle()"
+                                                class="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none"
+                                                :class="row.eq_val ? 'text-gray-800' : 'text-gray-400'">
+                                            <span x-text="row.eq_val || '— Seleccionar —'"></span>
+                                            <svg class="w-3 h-3 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        </button>
+
+                                        <template x-teleport="body">
+                                            <div x-show="open" :style="dropdownStyle"
+                                                x-transition:enter="transition ease-out duration-100"
+                                                x-transition:enter-start="opacity-0 scale-95"
+                                                x-transition:enter-end="opacity-100 scale-100"
+                                                x-transition:leave="transition ease-in duration-75"
+                                                x-transition:leave-start="opacity-100 scale-100"
+                                                x-transition:leave-end="opacity-0 scale-95"
+                                                @click.outside="open = false"
+                                                style="display:none"
+                                                class="equipo-dropdown">
+                                                <div class="rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    <div class="p-1.5 border-b border-gray-100">
+                                                        <div class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 focus-within:border-orange focus-within:bg-white">
+                                                            <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                                                            </svg>
+                                                            <input type="text" x-model="search" @keydown.escape="open = false"
+                                                                placeholder="Buscar serie..."
+                                                                class="w-full bg-transparent border-none p-0 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                                                            <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <ul class="max-h-40 overflow-y-auto py-1">
+                                                        <li @click="select('')"
+                                                            class="px-3 py-1.5 text-xs text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
+                                                            :class="row.eq_val === '' && 'bg-orange/5 font-medium text-orange'">
+                                                            — Ninguno —
+                                                        </li>
+                                                        <template x-for="equipo in filtered" :key="equipo">
+                                                            <li @click="select(equipo)"
+                                                                class="px-3 py-1.5 text-xs text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
+                                                                :class="row.eq_val === equipo && 'bg-orange/10 font-semibold text-orange'"
+                                                                x-text="equipo"></li>
+                                                        </template>
+                                                        <li x-show="filtered.length === 0" class="px-3 py-2 text-xs text-gray-400 text-center">Sin resultados</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </td>
+
+                                {{-- Checkbox Realizada --}}
+                                <td class="px-4 py-2.5 text-center">
+                                    <input type="hidden"   :name="`equipos[${rowIdx}][chk_val]`" value="0">
+                                    <input type="checkbox" :name="`equipos[${rowIdx}][chk_val]`" value="1"
+                                        x-model="row.chk_val"
+                                        class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
+                                </td>
+
+                                {{-- Botón eliminar --}}
+                                <td class="pr-3 py-2.5 text-center">
                                     <button type="button"
-                                            x-ref="trigger"
-                                            @click="toggle()"
-                                            class="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs transition-all duration-150 focus:border-orange focus:bg-white focus:shadow-[0_0_0_2px_rgba(255,140,66,0.15)] focus:outline-none"
-                                            :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                                        <span x-text="selected || '— Seleccionar —'"></span>
-                                        <svg class="w-3 h-3 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            @click="removeRow(row.id)"
+                                            :class="hovered ? 'visible opacity-100' : 'invisible opacity-0'"
+                                            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-opacity duration-100">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </button>
-
-                                    {{-- Dropdown teletransportado al body --}}
-                                    <template x-teleport="body">
-                                        <div x-show="open"
-                                            :style="dropdownStyle"
-                                            x-transition:enter="transition ease-out duration-100"
-                                            x-transition:enter-start="opacity-0 scale-95"
-                                            x-transition:enter-end="opacity-100 scale-100"
-                                            x-transition:leave="transition ease-in duration-75"
-                                            x-transition:leave-start="opacity-100 scale-100"
-                                            x-transition:leave-end="opacity-0 scale-95"
-                                            @click.outside="open = false"
-                                            style="display:none"
-                                            class="equipo-dropdown">
-
-                                            <div class="rounded-lg border border-gray-200 bg-white shadow-lg">
-                                                {{-- Buscador --}}
-                                                <div class="p-1.5 border-b border-gray-100">
-                                                    <div class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 focus-within:border-orange focus-within:bg-white">
-                                                        <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                                                        </svg>
-                                                        <input type="text"
-                                                            x-model="search"
-                                                            @keydown.escape="open = false"
-                                                            placeholder="Buscar serie..."
-                                                            class="w-full bg-transparent border-none p-0 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
-                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                {{-- Opciones --}}
-                                                <ul class="max-h-40 overflow-y-auto py-1">
-                                                    <li @click="select('')"
-                                                        class="px-3 py-1.5 text-xs text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">
-                                                        — Ninguno —
-                                                    </li>
-                                                    <template x-for="equipo in filtered" :key="equipo">
-                                                        <li @click="select(equipo)"
-                                                            class="px-3 py-1.5 text-xs text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                                            :class="selected === equipo && 'bg-orange/10 font-semibold text-orange'"
-                                                            x-text="equipo">
-                                                        </li>
-                                                    </template>
-                                                    <li x-show="filtered.length === 0" class="px-3 py-2 text-xs text-gray-400 text-center">
-                                                        Sin resultados
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </template>
-
-                                </div>
-
-                            </td>
-                            <td class="px-4 py-2.5 text-center">
-                                <input type="hidden" name="{{ $row['name_chk'] }}" value="0">
-                                <input type="checkbox" name="{{ $row['name_chk'] }}" value="1"
-                                    {{ old($row['name_chk'], $row['chk_val']) ? 'checked' : '' }}
-                                    class="w-4 h-4 rounded border-gray-300 text-orange focus:ring-orange cursor-pointer">
-                            </td>
-                        </tr>
-                        @endforeach
+                                </td>
+                            </tr>
+                        </template>
                     </tbody>
                 </table>
+
+                {{-- Footer: botón agregar fila --}}
+                <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/50">
+                    <button type="button" @click="addRow()"
+                            class="flex items-center gap-1.5 text-xs font-medium text-gray-500
+                                hover:text-orange transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Agregar Equipo
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
     {{-- ══ SECCIÓN 4 — Tabla dinámica de mediciones ══ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-blue-dark/8 bg-blue-dark/3">
@@ -537,6 +573,7 @@
             </div>
         </div>
     </div>
+    
     {{-- ══════════════════════════════════════════════
          SECCIÓN 5 — Observaciones y Anexos
     ══════════════════════════════════════════════ --}}

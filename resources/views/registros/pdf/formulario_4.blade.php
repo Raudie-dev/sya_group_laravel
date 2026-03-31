@@ -676,25 +676,12 @@
                 <td class="th-col" style="width:30%">Código Equipo</td>
                 <td class="th-col" style="width:15%">Realizada</td>
             </tr>
-            @foreach([
-                ['label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo de aguas residuales - Recolección y manejo de las muestras. 2005. INN',
-                 'cod'   => $formulario->eq_muestreo_cod ?? '',
-                 'chk'   => $formulario->eq_muestreo_chk ?? false],
-                ['label' => 'pH: (NCh2313/1.Of95. Parte 1. Determinación de pH.1995. INN)',
-                 'cod'   => $formulario->eq_ph_cod ?? '',
-                 'chk'   => $formulario->eq_ph_chk ?? false],
-                ['label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',
-                 'cod'   => $formulario->eq_temp_cod ?? '',
-                 'chk'   => $formulario->eq_temp_chk ?? false],
-                ['label' => 'Cloro libre residual: IMCLB v.03 basado en Guía ISO 7393-2:1985',
-                 'cod'   => $formulario->eq_cloro_cod ?? '',
-                 'chk'   => $formulario->eq_cloro_chk ?? false],
-            ] as $eq)
+            @foreach($formulario->equipos_detalle ?? [] as $eq)
             <tr>
-                <td style="font-size:8pt">{{ $eq['label'] }}</td>
-                <td style="text-align:center">{{ $eq['cod'] }}</td>
-                <td style="text-align:center; font-weight:bold; color:{{ $eq['chk'] ? '#333' : '#333' }}">
-                    {{ $eq['chk'] ? 'Si' : 'No' }}
+                <td style="font-size:8pt">{{ $eq['label'] ?? '' }}</td>
+                <td style="text-align:center">{{ $eq['eq_val'] ?? '' }}</td>
+                <td style="text-align:center; font-weight:bold">
+                    {{ !empty($eq['chk_val']) ? 'Si' : 'No' }}
                 </td>
             </tr>
             @endforeach
@@ -729,48 +716,47 @@
     <div class="page-content">
 
         {{-- SECCIÓN 4: RESULTADOS MEDICIONES IN SITU --}}
+        @php
+            $medCols = $formulario->mediciones_detalle['cols'] ?? [];
+            $medRows = $formulario->mediciones_detalle['rows'] ?? [];
+        @endphp
+
         <table>
-            <tr><td colspan="5" class="th-seccion">4.- RESULTADOS MEDICIONES <em>IN SITU</em></td></tr>
+            <tr>
+                <td colspan="{{ count($medCols) + 1 }}" class="th-seccion">4.- RESULTADOS MEDICIONES <em>IN SITU</em></td>
+            </tr>
             <tr>
                 <td class="th-col" style="width:15%">ÍTEM</td>
-                <td class="th-col" style="width:22%">Fecha</td>
-                <td class="th-col" style="width:18%">Hora</td>
-                <td class="th-col" style="width:22%">pH (Unidades pH)</td>
-                <td class="th-col" style="width:23%">Temperatura (ºC)</td>
+                @foreach($medCols as $col)
+                <td class="th-col">{{ $col['label'] ?? '' }}</td>
+                @endforeach
             </tr>
-            @foreach([
-                [
-                    'item'  => 'Inicio',
-                    'fecha' => $formulario->r_f_inicio
-                                ? \Carbon\Carbon::parse($formulario->r_f_inicio)->format('d/m/Y')
-                                : ($formulario->inicio_muestreo ? \Carbon\Carbon::parse($formulario->inicio_muestreo)->format('d/m/Y') : '—'),
-                    'hora'  => $formulario->r_h_inicio
-                                ?? ($formulario->inicio_muestreo ? \Carbon\Carbon::parse($formulario->inicio_muestreo)->format('H:i') : '—'),
-                    'ph'    => $formulario->r_ph_inicio ?? '—',
-                    'temp'  => $formulario->r_t_inicio  ?? '—',
-                ],
-                [
-                    'item'  => 'Fin',
-                    'fecha' => $formulario->r_f_fin
-                                ? \Carbon\Carbon::parse($formulario->r_f_fin)->format('d/m/Y')
-                                : ($formulario->fin_muestreo ? \Carbon\Carbon::parse($formulario->fin_muestreo)->format('d/m/Y') : '—'),
-                    'hora'  => $formulario->r_h_fin
-                                ?? ($formulario->fin_muestreo ? \Carbon\Carbon::parse($formulario->fin_muestreo)->format('H:i') : '—'),
-                    'ph'    => $formulario->r_ph_fin   ?? '—',
-                    'temp'  => $formulario->r_t_fin    ?? '—',
-                ],
-            ] as $fila)
+            @foreach($medRows as $row)
             <tr class="tr-resultado">
-                <td>{{ $fila['item'] }}</td>
-                <td>{{ $fila['fecha'] }}</td>
-                <td>{{ $fila['hora'] }}</td>
-                <td>{{ $fila['ph'] }}</td>
-                <td>{{ $fila['temp'] }}</td>
+                <td>{{ $row['item'] ?? '' }}</td>
+                @foreach($medCols as $col)
+                <td>
+                    @php
+                        $val = $row['values'][$col['key']] ?? '—';
+                        // Formatear fechas y horas para el PDF
+                        if ($col['type'] === 'date' && !empty($val) && $val !== '—') {
+                            $val = \Carbon\Carbon::parse($val)->format('d/m/Y');
+                        } elseif ($col['type'] === 'time' && !empty($val) && $val !== '—') {
+                            $val = \Carbon\Carbon::parse($val)->format('H:i');
+                        }
+                    @endphp
+                    {{ $val }}
+                </td>
+                @endforeach
             </tr>
             @endforeach
+            @if(!empty($formulario->temperatura_inicial))
             <tr>
-                <td colspan="5" class="tr-resultado">Temperatura primera muestra al término del muestreo [ºC]: {{ $formulario->temperatura_inicial ?? 'Sin temperatura registrada.' }}</td>
+                <td colspan="{{ count($medCols) + 1 }}" class="tr-resultado">
+                    Temperatura primera muestra al término del muestreo [ºC]: {{ $formulario->temperatura_inicial }}
+                </td>
             </tr>
+            @endif
         </table>
 
         {{-- SECCIÓN 5: OBSERVACIONES --}}

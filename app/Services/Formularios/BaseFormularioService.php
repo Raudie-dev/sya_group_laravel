@@ -7,7 +7,6 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Str;
 
-
 abstract class BaseFormularioService
 {
     protected $modelo;
@@ -63,8 +62,8 @@ abstract class BaseFormularioService
     }
 
     /**
-     * Guarda la imagen corrigiendo orientación EXIF
-     * y rotando a vertical si es horizontal (landscape).
+     * 
+     * Guarda la imagen corrigiendo orientación EXIF.
      */
     protected function guardarImagenVertical($file, string $carpeta): string
     {
@@ -73,9 +72,9 @@ abstract class BaseFormularioService
 
         $image->orient();
 
-        if ($image->width() > $image->height()) {
-            $image->rotate(90);
-        }
+        // Si es más ancho que alto = horizontal, déjalo así
+        // Si es más alto que ancho = vertical, déjalo así
+        // (sin hacer nada, mantiene la orientación natural)
 
         $filename = $carpeta . '/' . Str::random(40) . '.jpg';
         $fullPath = storage_path('app/public/' . $filename);
@@ -103,5 +102,40 @@ abstract class BaseFormularioService
     {
         $formulario->mostrar_dj_inspector = $request->boolean('mostrar_dj_inspector');
         $formulario->mostrar_dj_etfa      = $request->boolean('mostrar_dj_etfa');
+    }
+    
+    protected function guardarTablasDinamicas($formulario, $request): void
+    {
+        $formulario->equipos_detalle = collect($request->input('equipos', []))
+            ->filter(fn($r) => !empty($r['label']))
+            ->values()
+            ->toArray();
+
+        $cols = collect($request->input('mediciones_cols', []))
+            ->filter(fn($c) => !empty($c['key']))
+            ->map(fn($c) => [
+                'id'        => $c['id'],
+                'label'     => $c['label'],
+                'type'      => $c['type'],
+                'key'       => $c['key'],
+                'deletable' => filter_var($c['deletable'], FILTER_VALIDATE_BOOLEAN),
+                'editable'  => filter_var($c['editable'],  FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->values()
+            ->toArray();
+
+        $rows = collect($request->input('mediciones', []))
+            ->filter(fn($r) => !empty($r['item']))
+            ->map(fn($row) => [
+                'item'   => $row['item'],
+                'values' => collect($row)->except('item')->toArray(),
+            ])
+            ->values()
+            ->toArray();
+
+        $formulario->mediciones_detalle = [
+            'cols' => $cols,
+            'rows' => $rows,
+        ];
     }
 }

@@ -373,17 +373,17 @@
             </tr>
             @foreach([
                 [
-                    'label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo aguas residuales - Recolección y manejo de las muestras. 2005. INN)',
+                    'label' => 'Toma de Muestra: (NCh411/10.Of2005. Parte 10. Muestreo aguas residuales - Recolección y manejo de las muestras. 2005. INN)',
                     'cod'   => $formulario->eq_muestreo_cod ?? '',
                     'chk'   => $formulario->eq_muestreo_chk ?? false,
                 ],
                 [
-                    'label' => 'pH: NCh2313/1.Of95. Parte 1. Determinación de pH.1995. INN',
+                    'label' => 'pH: (NCh2313/1.Of2021. Parte 1. Determinación de pH.1995. INN)',
                     'cod'   => $formulario->eq_ph_cod ?? '',
                     'chk'   => $formulario->eq_ph_chk ?? false,
                 ],
                 [
-                    'label' => 'Temperatura: NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN',
+                    'label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',
                     'cod'   => $formulario->eq_temp_cod ?? '',
                     'chk'   => $formulario->eq_temp_chk ?? false,
                 ],
@@ -446,41 +446,48 @@
             </div>
         @endif
 
-        {{-- 5. MEDICIONES IN SITU --}}
+        {{-- SECCIÓN 5: RESULTADOS MEDICIONES IN SITU --}}
+        @php
+            $medCols = $formulario->mediciones_detalle['cols'] ?? [];
+            $medRows = $formulario->mediciones_detalle['rows'] ?? [];
+        @endphp
+
         <table>
-            <thead>
-                <tr><td colspan="5" class="th-seccion">5.- MEDICIONES IN SITU</td></tr>
-                <tr>
-                    <td class="th-col" style="width:20%">Item</td>
-                    <td class="th-col" style="width:20%">Fecha</td>
-                    <td class="th-col" style="width:15%">Hora</td>
-                    <td class="th-col" style="width:22%">pH (Unidades pH)</td>
-                    <td class="th-col" style="width:23%">Temperatura (°C)</td>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($formulario->mediciones_array as $med)
-                    <tr class="tr-resultado">
-                        <td>{{ $med['item'] ?? '—' }}</td>
-                        <td>
-                            @if(!empty($med['fecha']))
-                                {{ \Carbon\Carbon::parse($med['fecha'])->format('d-m-Y') }}
-                            @else
-                                —
-                            @endif
-                        </td>
-                        <td>{{ !empty($med['hora']) ? \Str::substr($med['hora'], 0, 5) : '—' }}</td>
-                        <td>{{ $med['ph'] ?? '—' }}</td>
-                        <td>{{ $med['temp'] ?? '—' }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding:10px; color:#999;">
-                            Sin mediciones registradas.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
+            <tr>
+                <td colspan="{{ count($medCols) + 1 }}" class="th-seccion">5.- RESULTADOS MEDICIONES <em>IN SITU</em></td>
+            </tr>
+            <tr>
+                <td class="th-col" style="width:15%">ÍTEM</td>
+                @foreach($medCols as $col)
+                <td class="th-col">{{ $col['label'] ?? '' }}</td>
+                @endforeach
+            </tr>
+            @foreach($medRows as $row)
+            <tr class="tr-resultado">
+                <td>{{ $row['item'] ?? '' }}</td>
+                @foreach($medCols as $col)
+                <td>
+                    @php
+                        $val = $row['values'][$col['key']] ?? '—';
+                        // Formatear fechas y horas para el PDF
+                        if ($col['type'] === 'date' && !empty($val) && $val !== '—') {
+                            $val = \Carbon\Carbon::parse($val)->format('d/m/Y');
+                        } elseif ($col['type'] === 'time' && !empty($val) && $val !== '—') {
+                            $val = \Carbon\Carbon::parse($val)->format('H:i');
+                        }
+                    @endphp
+                    {{ $val }}
+                </td>
+                @endforeach
+            </tr>
+            @endforeach
+            @if(!empty($formulario->temperatura_inicial))
+            <tr>
+                <td colspan="{{ count($medCols) + 1 }}" class="tr-resultado">
+                    Temperatura primera muestra al término del muestreo [ºC]: {{ $formulario->temperatura_inicial }}
+                </td>
+            </tr>
+            @endif
         </table>
 
         {{-- 6. REGISTRO FOTOGRÁFICO —  Anexo 2 y Anexo 3 lado a lado --}}

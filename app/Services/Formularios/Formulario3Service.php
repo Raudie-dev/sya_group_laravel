@@ -25,7 +25,7 @@ class Formulario3Service extends BaseFormularioService
         // Excluir todo lo que se maneja manualmente
         $data = $request->except([
             '_token', '_method',
-            'equipos', 'mediciones', 'files',
+            'equipos', 'mediciones','mediciones_cols', 'files',
             'an1', 'an2', 'an3', 'an4',
             'an1_titulo', 'an2_titulo', 'an3_titulo', 'an4_titulo',
             'anexo_1_file', 'anexo_2_file', 'anexo_3_file', 'anexo_4_file', // ← por si llegan
@@ -34,13 +34,39 @@ class Formulario3Service extends BaseFormularioService
         $data['registro_id'] = $registro->id;
 
         // JSON — se asignan separado para que los casts del modelo los serialicen bien
-        $data['equipos_detalle'] = $request->has('equipos')
-            ? array_values($request->input('equipos'))
-            : [];
+        $data['equipos_detalle'] = collect($request->input('equipos', []))
+            ->filter(fn($r) => !empty($r['label']))
+            ->values()
+            ->toArray();
 
-        $data['mediciones_detalle'] = $request->has('mediciones')
-            ? array_values($request->input('mediciones'))
-            : [];
+        // Cols: normalizar booleanos que vienen como '1'/'0'
+        $cols = collect($request->input('mediciones_cols', []))
+            ->filter(fn($c) => !empty($c['key']))
+            ->map(fn($c) => [
+                'id'        => $c['id'],
+                'label'     => $c['label'],
+                'type'      => $c['type'],
+                'key'       => $c['key'],
+                'deletable' => filter_var($c['deletable'], FILTER_VALIDATE_BOOLEAN),
+                'editable'  => filter_var($c['editable'],  FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->values()
+            ->toArray();
+
+        // Rows: aplanar a { item, values: {...} }
+        $rows = collect($request->input('mediciones', []))
+            ->filter(fn($r) => !empty($r['item']))
+            ->map(fn($row) => [
+                'item'   => $row['item'],
+                'values' => collect($row)->except('item')->toArray(),
+            ])
+            ->values()
+            ->toArray();
+
+        $data['mediciones_detalle'] = [
+            'cols' => $cols,
+            'rows' => $rows,
+        ];
 
         $formulario = Formulario3::firstOrNew(['registro_id' => $registro->id]);
         $formulario->fill($data);

@@ -55,16 +55,17 @@ class Formulario3 extends Model
         'mostrar_dj_etfa'      => 'boolean',
     ];
 
-    public function getEquiposArrayAttribute()
+    public function getEquiposArrayAttribute(): array
     {
         if (!empty($this->equipos_detalle)) {
             return $this->equipos_detalle;
         }
 
         return [
-            ['nombre' => 'Toma de Muestra: NCh411/10.Of2005.', 'codigo' => '', 'check' => '1'],
-            ['nombre' => 'pH: (NCh2313/1.Of95.)',               'codigo' => '', 'check' => '1'],
-            ['nombre' => 'Temperatura: (NCh2313/2.Of95.)',       'codigo' => '', 'check' => '1'],
+            ['label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo de aguas residuales - Recolección y manejo de las muestras. 2005. INN', 'eq_val' => '', 'chk_val' => true],
+            ['label' => 'pH: (NCh2313/1.Of2021. Parte 1. Determinación de pH.1995. INN)',             'eq_val' => '', 'chk_val' => true],
+            ['label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',      'eq_val' => '', 'chk_val' => true],
+            ['label' => 'Cloro libre residual: IMCLB',    'eq_val' => '', 'chk_val' => true],
         ];
     }
 
@@ -75,8 +76,8 @@ class Formulario3 extends Model
         }
 
         return [
-            ['item' => 'RIL', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
-            ['item' => 'SST', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
+            ['item' => 'Inicio', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
+            ['item' => 'Fin', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
         ];
     }
 }

@@ -58,25 +58,36 @@ class Formulario6 extends Model
 
     public function getEquiposArrayAttribute(): array
     {
-        return $this->equipos_detalle ?? [
-            ['nombre' => 'Toma de Muestra: NCh411/10.Of2005.', 'codigo' => '', 'check' => '1'],
-            ['nombre' => 'pH: (NCh2313/1.Of95.)',               'codigo' => '', 'check' => '1'],
-            ['nombre' => 'Temperatura: (NCh2313/2.Of95.)',       'codigo' => '', 'check' => '1'],
+        if (!empty($this->equipos_detalle)) {
+            return $this->equipos_detalle;
+        }
+
+        return [
+            ['label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo de aguas residuales - Recolección y manejo de las muestras. 2005. INN', 'eq_val' => '', 'chk_val' => true],
+            ['label' => 'pH: (NCh2313/1.Of2021. Parte 1. Determinación de pH.1995. INN)',             'eq_val' => '', 'chk_val' => true],
+            ['label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',      'eq_val' => '', 'chk_val' => true],
         ];
     }
 
-    public function getMedicionesArrayAttribute(): array
+    public function getMedicionesArrayAttribute()
     {
-        return $this->mediciones_detalle ?? [
-            ['item' => 'RIL', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => ''],
-            ['item' => 'SST', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => ''],
+        if (!empty($this->mediciones_detalle)) {
+            return $this->mediciones_detalle;
+        }
+
+        return [
+            ['item' => 'RIL', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
+            ['item' => 'SST', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
         ];
     }
 
-    // ← NUEVO: accessor para Sección 7
-    public function getResultadosArrayAttribute(): array
+    public function getResultadosArrayAttribute()
     {
-        return $this->resultados_detalle ?? [
+        if (!empty($this->resultados_detalle)) {
+            return $this->resultados_detalle;
+        }
+
+        return [
             ['item' => '', 'resultado' => ''],
         ];
     }

@@ -26,6 +26,9 @@ class Formulario1 extends Model
         'anexo_2_titulo', 'anexo_2_file',
         'anexo_3_titulo', 'anexo_3_file',
         'anexo_4_titulo', 'anexo_4_file',
+        //nuevos
+        'equipos_detalle',    
+        'mediciones_detalle', 
 
     ];
 
@@ -36,6 +39,9 @@ class Formulario1 extends Model
         'r_f_fin'         => 'date',
         'mostrar_dj_inspector' => 'boolean',
         'mostrar_dj_etfa'      => 'boolean',
+        //nuevos
+        'equipos_detalle'    => 'array',
+        'mediciones_detalle' => 'array',
     ];
 
     public function registro()
@@ -43,17 +49,29 @@ class Formulario1 extends Model
         return $this->belongsTo(Registro::class);
     }
 
-/*     public static function rules()
+    public function getEquiposArrayAttribute(): array
     {
+        if (!empty($this->equipos_detalle)) {
+            return $this->equipos_detalle;
+        }
+
         return [
-            'inspector_nombre'   => 'required|string|max:255',
-            'inspector_rut'      => 'required|string|max:20',
-            'lugar_muestreo'     => 'required|string|max:255',
-            'direccion_muestreo' => 'required|string|max:255',
-            'punto_muestreo'     => 'required|string|max:100',
-            'inicio_muestreo'    => 'required|date',
-            'fin_muestreo'       => 'required|date|after_or_equal:inicio_muestreo',
-            'observaciones'      => 'nullable|string|max:1000',
+            ['label' => 'Toma de Muestra: NCh411/10.Of2005. Parte 10. Muestreo de aguas residuales - Recolección y manejo de las muestras. 2005. INN', 'eq_val' => '', 'chk_val' => true],
+            ['label' => 'pH: (NCh2313/1.Of2021. Parte 1. Determinación de pH.1995. INN)',             'eq_val' => '', 'chk_val' => true],
+            ['label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',      'eq_val' => '', 'chk_val' => true],
+            ['label' => 'Cloro libre residual: IMCLB',    'eq_val' => '', 'chk_val' => true],
         ];
-    } */
+    }
+
+    public function getMedicionesArrayAttribute()
+    {
+        if (!empty($this->mediciones_detalle)) {
+            return $this->mediciones_detalle;
+        }
+
+        return [
+            ['item' => 'Inicio', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
+            ['item' => 'Fin', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
+        ];
+    }
 }

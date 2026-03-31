@@ -26,47 +26,58 @@ class Formulario6Service extends BaseFormularioService
         $data = $request->except([
             '_token', '_method',
             // Arrays/archivos manejados manualmente
-            'mediciones', 'resultados',
+            'mediciones', 'mediciones_cols', 'resultados',
             'anexo_1', 'anexo_2', 'anexo_3', 'anexo_4',
             'anexo_5', 'anexo_6', 'anexo_7',
             // Sección 1 → van al modelo Registro
             'titulo_informe', 'codigo', 'fecha_emision',
             'cliente_nombre', 'region', 'comuna',
             'cliente_direccion', 'logo_cliente',
-            'n_rca', 'nombre_proyecto',
+            'n_rca', 'nombre_proyecto', 'equipos', 
         ]);
 
         $data['registro_id'] = $registro->id;
 
-        // ── Checkboxes (si no vienen en POST = false) ──────────────────────
-        foreach (['eq_muestreo_chk', 'eq_ph_chk', 'eq_temp_chk'] as $chk) {
-            $data[$chk] = $request->boolean($chk);
-        }
-
-        // ── equipos_detalle: construir desde campos individuales ────────────
-        // La vista envía eq_muestreo_cod, eq_ph_cod, eq_temp_cod — no un array
-        $data['equipos_detalle'] = [
-            [
-                'nombre' => 'Toma de Muestra: NCh411/10.Of2005.',
-                'codigo' => $request->input('eq_muestreo_cod', ''),
-                'check'  => $request->boolean('eq_muestreo_chk'),
-            ],
-            [
-                'nombre' => 'pH: (NCh2313/1.Of95.)',
-                'codigo' => $request->input('eq_ph_cod', ''),
-                'check'  => $request->boolean('eq_ph_chk'),
-            ],
-            [
-                'nombre' => 'Temperatura: (NCh2313/2.Of95.)',
-                'codigo' => $request->input('eq_temp_cod', ''),
-                'check'  => $request->boolean('eq_temp_chk'),
-            ],
-        ];
+        // ── equipos_detalle ──────────────────────────────────────────────
+        $data['equipos_detalle'] = collect($request->input('equipos', []))
+            ->filter(fn($r) => !empty($r['label']))
+            ->map(fn($r) => [
+                'label'   => $r['label'],
+                'eq_val'  => $r['eq_val']  ?? '',
+                'chk_val' => filter_var($r['chk_val'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->values()
+            ->toArray();
 
         // ── mediciones_detalle ──────────────────────────────────────────────
-        $data['mediciones_detalle'] = $request->has('mediciones')
-            ? array_values($request->input('mediciones'))
-            : [];
+        // Cols: normalizar booleanos que vienen como '1'/'0'
+        $cols = collect($request->input('mediciones_cols', []))
+            ->filter(fn($c) => !empty($c['key']))
+            ->map(fn($c) => [
+                'id'        => $c['id'],
+                'label'     => $c['label'],
+                'type'      => $c['type'],
+                'key'       => $c['key'],
+                'deletable' => filter_var($c['deletable'], FILTER_VALIDATE_BOOLEAN),
+                'editable'  => filter_var($c['editable'],  FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->values()
+            ->toArray();
+
+        // Rows: aplanar a { item, values: {...} }
+        $rows = collect($request->input('mediciones', []))
+            ->filter(fn($r) => !empty($r['item']))
+            ->map(fn($row) => [
+                'item'   => $row['item'],
+                'values' => collect($row)->except('item')->toArray(),
+            ])
+            ->values()
+            ->toArray();
+
+        $data['mediciones_detalle'] = [
+            'cols' => $cols,
+            'rows' => $rows,
+        ];
 
         // ── resultados_detalle ──────────────────────────────────────────────
         $data['resultados_detalle'] = $request->has('resultados')
