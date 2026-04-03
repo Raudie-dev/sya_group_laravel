@@ -37,6 +37,7 @@ class Registro extends Model
         6 => \App\Models\Formulario6::class,
         7 => \App\Models\Formulario7::class,
         8 => \App\Models\Formulario8::class,
+        9 => \App\Models\Formulario9::class,
     ];
 
     /*

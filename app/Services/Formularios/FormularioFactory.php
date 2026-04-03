@@ -35,7 +35,8 @@ class FormularioFactory
             7 => new Formulario7Service(),
 
             8 => new Formulario8Service(),
-
+            
+            9 => new Formulario9Service(),
 
             default => throw new \Exception('Tipo de formulario no válido'),
         };

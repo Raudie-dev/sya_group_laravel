@@ -50,6 +50,7 @@
                 6 => 'Formulario 6: DBO 5 - IDE',
                 7 => 'Formulario 7: Lista de Chequeo Pre-Campaña',
                 8 => 'Formulario 8: Lista de Chequeo Post-Campaña',
+                9 => 'Formulario 9: CMCL - Control Medidor Cloro Libre',
             ];
             @endphp
 
@@ -214,6 +215,9 @@
             </div>
             <div id="seccion_8" class="seccion-modulo {{ $tipoForm != 8 ? 'hidden' : '' }}">
                 @include('registros.includes.formulario_8')
+            </div>
+            <div id="seccion_9" class="seccion-modulo {{ $tipoForm != 9 ? 'hidden' : '' }}">
+                @include('registros.includes.formulario_9')
             </div>
         </div>
     </div>
