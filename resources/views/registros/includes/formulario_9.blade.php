@@ -180,17 +180,83 @@
 
             <div class="group">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Equipo (código)</label>
-                <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
-                    <select name="equipo_codigo"
-                            class="w-full bg-transparent border-none px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-0">
-                        <option value="">— Seleccionar código —</option>
-                        @foreach($equipos as $cod)
-                            <option value="{{ $cod }}"
-                                {{ old('equipo_codigo', $inst->equipo_codigo ?? '') === $cod ? 'selected' : '' }}>
-                                {{ $cod }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div x-data="{
+                        equiposList: @js($equipos ?? []),
+                        open: false,
+                        search: '',
+                        selected: '{{ old('equipo_codigo', $inst->equipo_codigo ?? '') }}',
+                        dropdownStyle: '',
+                        get filtered() {
+                            return this.equiposList.filter(e => e.toLowerCase().includes(this.search.toLowerCase()));
+                        },
+                        select(val) {
+                            this.selected = val;
+                            this.search = '';
+                            this.open = false;
+                        },
+                        toggle() {
+                            if (!this.open) {
+                                const rect = this.$refs.trigger.getBoundingClientRect();
+                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
+                            }
+                            this.open = !this.open;
+                        }
+                    }" @click.outside="open = false" class="relative">
+
+                    <input type="hidden" name="equipo_codigo" x-model="selected">
+
+                    <button type="button" x-ref="trigger" @click="toggle()"
+                            class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none"
+                            :class="selected ? 'text-gray-800' : 'text-gray-400'">
+                        <span x-text="selected || '— Seleccionar código —'"></span>
+                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <template x-teleport="body">
+                        <div x-show="open" :style="dropdownStyle"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            style="display:none"
+                            class="z-50">
+                            <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
+                                <div class="p-2 border-b border-gray-100">
+                                    <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
+                                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                                        </svg>
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Buscar código..."
+                                            class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
+                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul class="max-h-48 overflow-y-auto py-1">
+                                    <li @click="select('')"
+                                        class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
+                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">
+                                        — Ninguno —
+                                    </li>
+                                    <template x-for="codigo in filtered" :key="codigo">
+                                        <li @click="select(codigo)"
+                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
+                                            :class="selected === codigo && 'bg-orange/10 font-semibold text-orange'"
+                                            x-text="codigo"></li>
+                                    </template>
+                                    <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
 
