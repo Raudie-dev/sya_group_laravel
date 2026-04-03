@@ -3,23 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipo;
+use App\Models\ModeloEquipo;
 use Illuminate\Http\Request;
 
 class ConfiguracionController extends Controller
 {
     // ──────────────────────────────────────────────
-    //  INDEX — Listado de equipos
+    //  INDEX
     // ──────────────────────────────────────────────
     public function index()
     {
         $equipos = Equipo::orderBy('codigo')->get();
+        $modelos = ModeloEquipo::orderBy('nombre')->get();
 
-        return view('configuracion.index', compact('equipos'));
+        return view('configuracion.index', compact('equipos', 'modelos'));
     }
 
-    // ──────────────────────────────────────────────
-    //  STORE — Guardar nuevo equipo
-    // ──────────────────────────────────────────────
+    // ══════════════════════════════════════════════
+    //  EQUIPOS — STORE / UPDATE / DESTROY
+    // ══════════════════════════════════════════════
+
     public function store(Request $request)
     {
         $request->validate([
@@ -42,9 +45,6 @@ class ConfiguracionController extends Controller
             ->with('success', 'Equipo «' . strtoupper($request->codigo) . '» agregado correctamente.');
     }
 
-    // ──────────────────────────────────────────────
-    //  UPDATE — Editar equipo existente
-    // ──────────────────────────────────────────────
     public function update(Request $request, Equipo $equipo)
     {
         $request->validate([
@@ -67,9 +67,6 @@ class ConfiguracionController extends Controller
             ->with('success', 'Equipo «' . $equipo->codigo . '» actualizado correctamente.');
     }
 
-    // ──────────────────────────────────────────────
-    //  DESTROY — Eliminar equipo
-    // ──────────────────────────────────────────────
     public function destroy(Equipo $equipo)
     {
         $codigo = $equipo->codigo;
@@ -80,13 +77,77 @@ class ConfiguracionController extends Controller
             ->with('success', 'Equipo «' . $codigo . '» eliminado.');
     }
 
+    // ══════════════════════════════════════════════
+    //  MODELOS — STORE / UPDATE / DESTROY
+    // ══════════════════════════════════════════════
+
+    public function storeModelo(Request $request)
+    {
+        $request->validate([
+            'nombre'      => ['required', 'string', 'max:100', 'unique:modelos_equipo,nombre'],
+            'descripcion' => ['nullable', 'string', 'max:255'],
+        ], [
+            'nombre.required' => 'El nombre del modelo es obligatorio.',
+            'nombre.unique'   => 'Ya existe un modelo con ese nombre.',
+        ]);
+
+        ModeloEquipo::create([
+            'nombre'      => trim($request->nombre),
+            'descripcion' => $request->descripcion,
+            'activo'      => true,
+        ]);
+
+        return redirect()
+            ->route('configuracion.index')
+            ->with('success', 'Modelo «' . $request->nombre . '» agregado correctamente.');
+    }
+
+    public function updateModelo(Request $request, ModeloEquipo $modelo)
+    {
+        $request->validate([
+            'nombre'      => ['required', 'string', 'max:100', 'unique:modelos_equipo,nombre,' . $modelo->id],
+            'descripcion' => ['nullable', 'string', 'max:255'],
+            'activo'      => ['nullable', 'boolean'],
+        ], [
+            'nombre.required' => 'El nombre del modelo es obligatorio.',
+            'nombre.unique'   => 'Ya existe otro modelo con ese nombre.',
+        ]);
+
+        $modelo->update([
+            'nombre'      => trim($request->nombre),
+            'descripcion' => $request->descripcion,
+            'activo'      => $request->boolean('activo', true),
+        ]);
+
+        return redirect()
+            ->route('configuracion.index')
+            ->with('success', 'Modelo «' . $modelo->nombre . '» actualizado correctamente.');
+    }
+
+    public function destroyModelo(ModeloEquipo $modelo)
+    {
+        $nombre = $modelo->nombre;
+        $modelo->delete();
+
+        return redirect()
+            ->route('configuracion.index')
+            ->with('success', 'Modelo «' . $nombre . '» eliminado.');
+    }
+
     // ──────────────────────────────────────────────
-    //  API — Devuelve códigos activos (para los selects de los formularios)
+    //  API — Códigos activos para selects de formularios
     // ──────────────────────────────────────────────
     public function apiEquipos()
     {
-        $codigos = Equipo::activos()->orderBy('codigo')->pluck('codigo');
+        return response()->json(
+            Equipo::activos()->orderBy('codigo')->pluck('codigo')
+        );
+    }
 
-        return response()->json($codigos);
+    public function apiModelos()
+    {
+        return response()->json(
+            ModeloEquipo::activos()->orderBy('nombre')->pluck('nombre')
+        );
     }
 }

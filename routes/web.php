@@ -107,7 +107,13 @@ Route::middleware(['auth', 'admin'])->prefix('configuracion')->name('configuraci
 
     // API interna para obtener lista de equipos (selects dinámicos)
     Route::get('/equipos/api', [ConfiguracionController::class, 'apiEquipos'])->name('equipos.api');
+
+    // CRUD de modelos - CORREGIDO
+    Route::post('/modelos', [ConfiguracionController::class, 'storeModelo'])->name('modelos.store');
+    Route::put('/modelos/{modelo}', [ConfiguracionController::class, 'updateModelo'])->name('modelos.update');
+    Route::delete('/modelos/{modelo}', [ConfiguracionController::class, 'destroyModelo'])->name('modelos.destroy');
 });
+
 
 // Carga de rutas de autenticación (login, register, password, etc.)
 require __DIR__.'/auth.php';

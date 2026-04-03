@@ -48,6 +48,8 @@
                 4 => 'Formulario 4: QEN_SST',
                 5 => 'Formulario 5: QEN DS90',
                 6 => 'Formulario 6: DBO 5 - IDE',
+                7 => 'Formulario 7: Lista de Chequeo Pre-Campaña',
+                8 => 'Formulario 8: Lista de Chequeo Post-Campaña',
             ];
             @endphp
 
@@ -206,6 +208,12 @@
             </div>
             <div id="seccion_6" class="seccion-modulo {{ $tipoForm != 6 ? 'hidden' : '' }}">
                 @include('registros.includes.formulario_6')
+            </div>
+            <div id="seccion_7" class="seccion-modulo {{ $tipoForm != 7 ? 'hidden' : '' }}">
+                @include('registros.includes.formulario_7')
+            </div>
+            <div id="seccion_8" class="seccion-modulo {{ $tipoForm != 8 ? 'hidden' : '' }}">
+                @include('registros.includes.formulario_8')
             </div>
         </div>
     </div>

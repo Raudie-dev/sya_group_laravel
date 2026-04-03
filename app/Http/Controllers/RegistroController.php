@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Services\Formularios\FormularioFactory;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Equipo;
+use App\Models\ModeloEquipo;
 
 class RegistroController extends Controller
 {
@@ -86,10 +87,11 @@ class RegistroController extends Controller
             'user_id' => Auth::id()
         ]);
 
-        // Obtener listado de los codigos de los equipos
+        // Obtener listado de los codigos de los equipos y modelos para los selects dinámicos
         $equipos = $this->getEquiposList();
+        $modelos = $this->getModelosList();
 
-        return view('registros.create', compact('equipos'));
+        return view('registros.create', compact('equipos', 'modelos'));
     }
 
     /*
@@ -245,10 +247,11 @@ class RegistroController extends Controller
                 abort(404, 'Formulario no encontrado.');
             }
             
-            // Obtener listado de los codigos de los equipos
+            // Obtener listado de los codigos de los equipos y modelos para los selects dinámicos
             $equipos = $this->getEquiposList();
+            $modelos = $this->getModelosList();
 
-            return view('registros.create', compact('registro', 'instancia', 'equipos'));
+            return view('registros.create', compact('registro', 'instancia', 'equipos', 'modelos'));
 
         } catch (\Throwable $e) {
             Log::channel('daily')->error('[RegistroController@edit] Error al cargar edición', [
@@ -488,6 +491,19 @@ class RegistroController extends Controller
         return Equipo::activos()
             ->orderBy('codigo')
             ->pluck('codigo')
+            ->toArray();
+    }
+
+    /**
+     * Obtiene la lista de códigos de modelos activos (para los selects).
+     *
+     * @return array
+     */
+    private function getModelosList(): array
+    {
+        return ModeloEquipo::activos()
+            ->orderBy('nombre')
+            ->pluck('nombre')
             ->toArray();
     }
 }
