@@ -367,32 +367,16 @@
         <table>
             <tr><td colspan="3" class="th-seccion">3. INFORMACIÓN DE LA MEDICIÓN</td></tr>
             <tr>
-                <td class="th-col" style="width:55%">Medición</td>
-                <td class="th-col" style="width:30%">Código equipo</td>
-                <td class="th-col" style="width:15%">Actividad Realizada</td>
+                <td class="th-col" style="width:55%">Medición / Norma</td>
+                <td class="th-col" style="width:30%">Código Equipo</td>
+                <td class="th-col" style="width:15%">Realizada</td>
             </tr>
-            @foreach([
-                [
-                    'label' => 'Toma de Muestra: (NCh411/10.Of2005. Parte 10. Muestreo aguas residuales - Recolección y manejo de las muestras. 2005. INN)',
-                    'cod'   => $formulario->eq_muestreo_cod ?? '',
-                    'chk'   => $formulario->eq_muestreo_chk ?? false,
-                ],
-                [
-                    'label' => 'pH: (NCh2313/1.Of2021. Parte 1. Determinación de pH.1995. INN)',
-                    'cod'   => $formulario->eq_ph_cod ?? '',
-                    'chk'   => $formulario->eq_ph_chk ?? false,
-                ],
-                [
-                    'label' => 'Temperatura: (NCh2313/2.Of95. Parte 2. Determinación de la temperatura.1995. INN)',
-                    'cod'   => $formulario->eq_temp_cod ?? '',
-                    'chk'   => $formulario->eq_temp_chk ?? false,
-                ],
-            ] as $eq)
+            @foreach($formulario->equipos_detalle ?? [] as $eq)
             <tr>
-                <td style="font-size:8pt">{{ $eq['label'] }}</td>
-                <td style="text-align:center">{{ $eq['cod'] ?: 'No Aplica' }}</td>
+                <td style="font-size:8pt">{{ $eq['label'] ?? '' }}</td>
+                <td style="text-align:center">{{ $eq['eq_val'] ?? '' }}</td>
                 <td style="text-align:center; font-weight:bold">
-                    {{ $eq['chk'] ? 'SI' : 'NO' }}
+                    {{ !empty($eq['chk_val']) ? 'Si' : 'No' }}
                 </td>
             </tr>
             @endforeach
