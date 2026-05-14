@@ -97,7 +97,8 @@ class Formulario2Service extends BaseFormularioService
                     'borderWidth' => 2,
                     'pointRadius' => 4,
                     'pointBackgroundColor' => $color,
-                    'fill' => true,
+                    'fill' => false,
+                    'lineTension' => 0.4,
                 ]],
             ],
             'options' => [
@@ -113,7 +114,12 @@ class Formulario2Service extends BaseFormularioService
                             'fontSize' => 12,
                             'fontStyle' => 'bold',
                         ],
-                        'ticks' => ['fontSize' => 10],
+                        'ticks' => [
+                            'fontSize' => 10,
+                            'suggestedMin' => round(min($datos) - (max($datos) - min($datos)) * 0.3, 2),
+                            'suggestedMax' => round(max($datos) + (max($datos) - min($datos)) * 0.3, 2),
+                            'callback' => '##CALLBACK##',
+                        ],
                     ]],
                     'xAxes' => [[
                         'scaleLabel' => [
@@ -133,6 +139,11 @@ class Formulario2Service extends BaseFormularioService
         ];
 
         $json = json_encode($config);
+        $json = str_replace(
+            '"##CALLBACK##"',
+            'function(value){return value.toString().replace(".",",")}',
+            $json
+        );
         $url = 'https://quickchart.io/chart?w=800&h=400&c=' . urlencode($json);
 
         try {

@@ -364,7 +364,7 @@
         <div class="col-meta">
             <table>
                 <tr><td class="m-label">Identificación</td><td class="m-val">FLCP</td></tr>
-                <tr><td class="m-label">Fecha Validez</td><td class="m-val">10/06/2024</td></tr>
+                <tr><td class="m-label">Fecha de Vigencia</td><td class="m-val">10/06/2024</td></tr>
                 <tr><td class="m-label">Versión</td><td class="m-val">04</td></tr>
             </table>
         </div>
@@ -470,7 +470,7 @@
         <div class="col-meta">
             <table>
                 <tr><td class="m-label">Identificación</td><td class="m-val">FLCP</td></tr>
-                <tr><td class="m-label">Fecha Validez</td><td class="m-val">10/06/2024</td></tr>
+                <tr><td class="m-label">Fecha de Vigencia</td><td class="m-val">10/06/2024</td></tr>
                 <tr><td class="m-label">Versión</td><td class="m-val">04</td></tr>
             </table>
         </div>

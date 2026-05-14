@@ -302,6 +302,12 @@
                         ])
                     ),
                     equipos: @js($equipos),
+                    getLabel(eq) {
+                        let label = eq.codigo;
+                        if (eq.descripcion) label += ' — ' + eq.descripcion;
+                        if (eq.modelos && eq.modelos.length) label += ' (' + eq.modelos.join(', ') + ')';
+                        return label;
+                    },
                     addRow() {
                         this.rows.push({ id: 'r_' + Date.now(), label: '', eq_val: '', chk_val: true });
                     },
@@ -345,19 +351,36 @@
                                             open: false,
                                             search: '',
                                             dropdownStyle: '',
+                                            _scrollHandler: null,
                                             get filtered() {
-                                                return equipos.filter(e => e.toLowerCase().includes(this.search.toLowerCase()));
+                                                const q = this.search.toLowerCase();
+                                                return equipos.filter(e =>
+                                                    e.codigo.toLowerCase().includes(q) ||
+                                                    (e.descripcion && e.descripcion.toLowerCase().includes(q)) ||
+                                                    (e.modelos && e.modelos.some(m => m.toLowerCase().includes(q)))
+                                                );
                                             },
-                                            select(val) { row.eq_val = val; this.search = ''; this.open = false; },
-                                            toggle() {
-                                                if (!this.open) {
-                                                    const rect = this.$refs.trigger.getBoundingClientRect();
-                                                    this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
+                                            select(val) { row.eq_val = val; this.search = ''; this.close(); },
+                                            calcPos() {
+                                                const rect = this.$refs.trigger.getBoundingClientRect();
+                                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 220)}px;`;
+                                            },
+                                            open_dd() {
+                                                this.calcPos();
+                                                this.open = true;
+                                                this._scrollHandler = () => { if (this.open) this.calcPos(); };
+                                                window.addEventListener('scroll', this._scrollHandler, true);
+                                                this.$nextTick(() => this.$refs.searchInput?.focus());
+                                            },
+                                            close() {
+                                                this.open = false;
+                                                if (this._scrollHandler) {
+                                                    window.removeEventListener('scroll', this._scrollHandler, true);
+                                                    this._scrollHandler = null;
                                                 }
-                                                this.open = !this.open;
-                                            }
+                                            },
+                                            toggle() { this.open ? this.close() : this.open_dd(); }
                                         }"
-                                        @click.outside="open = false"
                                         class="relative">
 
                                         <input type="hidden" :name="`equipos[${rowIdx}][eq_val]`" x-bind:value="row.eq_val">
@@ -365,7 +388,7 @@
                                         <button type="button" x-ref="trigger" @click="toggle()"
                                                 class="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none"
                                                 :class="row.eq_val ? 'text-gray-800' : 'text-gray-400'">
-                                            <span x-text="row.eq_val || '— Seleccionar —'"></span>
+                                            <span x-text="row.eq_val ? (equipos.find(e => e.codigo === row.eq_val)?.descripcion ? row.eq_val + ' — ' + equipos.find(e => e.codigo === row.eq_val).descripcion : row.eq_val) : '— Seleccionar —'"></span>
                                             <svg class="w-3 h-3 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                             </svg>
@@ -379,7 +402,8 @@
                                                 x-transition:leave="transition ease-in duration-75"
                                                 x-transition:leave-start="opacity-100 scale-100"
                                                 x-transition:leave-end="opacity-0 scale-95"
-                                                @click.outside="open = false"
+                                                @click.outside="close()"
+                                                @keydown.escape.window="close()"
                                                 style="display:none"
                                                 class="equipo-dropdown">
                                                 <div class="rounded-lg border border-gray-200 bg-white shadow-lg">
@@ -388,27 +412,41 @@
                                                             <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                                             </svg>
-                                                            <input type="text" x-model="search" @keydown.escape="open = false"
-                                                                placeholder="Buscar serie..."
+                                                            <input type="text" x-model="search"
+                                                                x-ref="searchInput"
+                                                                @click.stop
+                                                                @keydown.escape="close()"
+                                                                placeholder="Buscar serie o descripción..."
                                                                 class="w-full bg-transparent border-none p-0 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                                            <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                                            <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                                 </svg>
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    <ul class="max-h-40 overflow-y-auto py-1">
-                                                        <li @click="select('')"
+                                                    <ul class="max-h-48 overflow-y-auto py-1">
+                                                        <li @click.stop="select('')"
                                                             class="px-3 py-1.5 text-xs text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
                                                             :class="row.eq_val === '' && 'bg-orange/5 font-medium text-orange'">
                                                             — Ninguno —
                                                         </li>
-                                                        <template x-for="equipo in filtered" :key="equipo">
-                                                            <li @click="select(equipo)"
-                                                                class="px-3 py-1.5 text-xs text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                                                :class="row.eq_val === equipo && 'bg-orange/10 font-semibold text-orange'"
-                                                                x-text="equipo"></li>
+                                                        <template x-for="equipo in filtered" :key="equipo.codigo">
+                                                            <li @click.stop="select(equipo.codigo)"
+                                                                class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                                                :class="row.eq_val === equipo.codigo && 'bg-orange/10'">
+                                                                <p class="text-xs font-semibold"
+                                                                   :class="row.eq_val === equipo.codigo ? 'text-orange' : 'text-blue-dark'"
+                                                                   x-text="equipo.codigo"></p>
+                                                                <p x-show="equipo.descripcion"
+                                                                   class="text-[10px] text-gray-400 mt-0.5 truncate"
+                                                                   x-text="equipo.descripcion"></p>
+                                                                <div x-show="equipo.modelos && equipo.modelos.length" class="flex flex-wrap gap-1 mt-1">
+                                                                    <template x-for="mod in equipo.modelos" :key="mod">
+                                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-blue/10 text-blue text-[9px] font-medium" x-text="mod"></span>
+                                                                    </template>
+                                                                </div>
+                                                            </li>
                                                         </template>
                                                         <li x-show="filtered.length === 0" class="px-3 py-2 text-xs text-gray-400 text-center">Sin resultados</li>
                                                     </ul>

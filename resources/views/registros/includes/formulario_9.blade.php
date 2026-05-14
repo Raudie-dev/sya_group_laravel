@@ -186,29 +186,43 @@
                         search: '',
                         selected: '{{ old('equipo_codigo', $inst->equipo_codigo ?? '') }}',
                         dropdownStyle: '',
+                        _sh: null,
                         get filtered() {
-                            return this.equiposList.filter(e => e.toLowerCase().includes(this.search.toLowerCase()));
+                            const q = this.search.toLowerCase();
+                            return this.equiposList.filter(e =>
+                                e.codigo.toLowerCase().includes(q) ||
+                                (e.descripcion && e.descripcion.toLowerCase().includes(q)) ||
+                                (e.modelos && e.modelos.some(m => m.toLowerCase().includes(q)))
+                            );
                         },
-                        select(val) {
-                            this.selected = val;
-                            this.search = '';
+                        select(val) { this.selected = val; this.search = ''; this.close(); },
+                        calcPos() {
+                            const rect = this.$refs.trigger.getBoundingClientRect();
+                            this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 240)}px;`;
+                        },
+                        open_dd() {
+                            this.calcPos(); this.open = true;
+                            this._sh = () => { if (this.open) this.calcPos(); };
+                            window.addEventListener('scroll', this._sh, true);
+                            this.$nextTick(() => this.$refs.equipoSearch?.focus());
+                        },
+                        close() {
                             this.open = false;
+                            if (this._sh) { window.removeEventListener('scroll', this._sh, true); this._sh = null; }
                         },
-                        toggle() {
-                            if (!this.open) {
-                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
-                            }
-                            this.open = !this.open;
-                        }
-                    }" @click.outside="open = false" class="relative">
+                        toggle() { this.open ? this.close() : this.open_dd(); }
+                    }" class="relative">
 
                     <input type="hidden" name="equipo_codigo" x-model="selected">
 
                     <button type="button" x-ref="trigger" @click="toggle()"
                             class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none"
                             :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                        <span x-text="selected || '— Seleccionar código —'"></span>
+                        <span x-text="selected
+                            ? (equiposList.find(e => e.codigo === selected)?.descripcion
+                                ? selected + ' — ' + equiposList.find(e => e.codigo === selected).descripcion
+                                : selected)
+                            : '— Seleccionar código —'"></span>
                         <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
@@ -222,18 +236,22 @@
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="opacity-100 scale-100"
                             x-transition:leave-end="opacity-0 scale-95"
-                            style="display:none"
-                            class="z-50">
+                            @click.outside="close()"
+                            @keydown.escape.window="close()"
+                            style="display:none" class="z-50">
                             <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
                                 <div class="p-2 border-b border-gray-100">
                                     <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                         </svg>
-                                        <input type="text" x-model="search" @keydown.escape="open = false"
-                                            placeholder="Buscar código..."
+                                        <input type="text" x-model="search"
+                                            x-ref="equipoSearch"
+                                            @click.stop
+                                            @keydown.escape="close()"
+                                            placeholder="Buscar código o descripción..."
                                             class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -241,16 +259,25 @@
                                     </div>
                                 </div>
                                 <ul class="max-h-48 overflow-y-auto py-1">
-                                    <li @click="select('')"
+                                    <li @click.stop="select('')"
                                         class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
                                         :class="selected === '' && 'bg-orange/5 font-medium text-orange'">
                                         — Ninguno —
                                     </li>
-                                    <template x-for="codigo in filtered" :key="codigo">
-                                        <li @click="select(codigo)"
-                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                            :class="selected === codigo && 'bg-orange/10 font-semibold text-orange'"
-                                            x-text="codigo"></li>
+                                    <template x-for="equipo in filtered" :key="equipo.codigo">
+                                        <li @click.stop="select(equipo.codigo)"
+                                            class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                            :class="selected === equipo.codigo && 'bg-orange/10'">
+                                            <p class="text-sm font-semibold"
+                                               :class="selected === equipo.codigo ? 'text-orange' : 'text-blue-dark'"
+                                               x-text="equipo.codigo"></p>
+                                            <p x-show="equipo.descripcion" class="text-xs text-gray-400 mt-0.5 truncate" x-text="equipo.descripcion"></p>
+                                            <div x-show="equipo.modelos && equipo.modelos.length" class="flex flex-wrap gap-1 mt-1">
+                                                <template x-for="mod in equipo.modelos" :key="mod">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-blue/10 text-blue text-[10px] font-medium" x-text="mod"></span>
+                                                </template>
+                                            </div>
+                                        </li>
                                     </template>
                                     <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
                                 </ul>

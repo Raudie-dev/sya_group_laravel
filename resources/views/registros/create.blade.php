@@ -48,8 +48,8 @@
                 4 => 'Formulario 4: QEN_SST',
                 5 => 'Formulario 5: QEN DS90',
                 6 => 'Formulario 6: DBO 5 - IDE',
-                7 => 'Formulario 7: Lista de Chequeo Pre-Campaña',
-                8 => 'Formulario 8: Lista de Chequeo Post-Campaña',
+                7 => 'Formulario 7: Lista de Chequeo',
+                8 => 'Formulario 8: Verificación de Equipos',
                 9 => 'Formulario 9: CMCL - Control Medidor Cloro Libre',
             ];
             @endphp

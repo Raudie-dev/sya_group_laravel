@@ -18,7 +18,7 @@ use App\Http\Controllers\ConfiguracionController;
 
 // Ruta pública de bienvenida
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Dashboard: requiere usuario autenticado y verificado

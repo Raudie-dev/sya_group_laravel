@@ -16,11 +16,13 @@ class Equipo extends Model
         'activo' => 'boolean',
     ];
 
-    /**
-     * Scope: sólo equipos activos
-     */
     public function scopeActivos($query)
     {
         return $query->where('activo', true);
+    }
+
+    public function modelos()
+    {
+        return $this->belongsToMany(ModeloEquipo::class, 'equipo_modelo', 'equipo_id', 'modelo_equipo_id');
     }
 }

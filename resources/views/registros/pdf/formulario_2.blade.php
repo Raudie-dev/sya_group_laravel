@@ -747,8 +747,17 @@
                     <td>{{ $lectura->n_muestra ?? '—' }}</td>
                     <td>{{ $lectura->fecha ? \Carbon\Carbon::parse($lectura->fecha)->format('d/m/Y') : '—' }}</td>
                     <td>{{ $lectura->hora  ? \Carbon\Carbon::parse($lectura->hora)->format('H:i')    : '—' }}</td>
-                    <td>{{ $lectura->valor_ph  ?? '—' }}</td>
-                    <td>{{ $lectura->valor_temp ?? '—' }}</td>
+                    <td>
+                        {{ $lectura->valor_ph !== null 
+                            ? number_format($lectura->valor_ph, 2, ',', '.') 
+                            : '—' }}
+                    </td>
+
+                    <td>
+                        {{ $lectura->valor_temp !== null 
+                            ? number_format($lectura->valor_temp, 2, ',', '.') 
+                            : '—' }}
+                    </td>
                 </tr>
             @empty
                 <tr>

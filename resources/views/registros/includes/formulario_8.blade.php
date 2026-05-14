@@ -21,7 +21,11 @@
       x-data="{
           equiposList: @js($equipos ?? []),
           modelosList: @js($modelos ?? []),
-      }">
+      }"
+      x-init="
+          window._f8Equipos = equiposList;
+          window._f8Modelos = modelosList;
+      ">
     @csrf
     @if($inst) @method('PUT') @endif
     <input type="hidden" name="tipo_form_id" value="8">
@@ -321,8 +325,9 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════
-         SECCIÓN 4 — Sonda Multiparámetros (con dropdowns Alpine) --}}
+{{-- ══════════════════════════════════════════════
+         SECCIÓN 4 — Sonda Multiparámetros
+    ══════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" id="section-4">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-blue-dark/8 bg-blue-dark/3">
             <div class="w-7 h-7 rounded-lg bg-blue flex items-center justify-center flex-shrink-0">
@@ -336,12 +341,11 @@
                     </svg>
                     <h3 class="font-semibold text-blue text-sm">4. Sondas Multiparámetros</h3>
                 </div>
-                {{-- Toggle Aplica --}}
                 <div class="flex items-center gap-2">
                     <span class="text-xs text-gray-500">Aplica</span>
                     <label class="relative cursor-pointer">
                         <input type="hidden"   name="sonda_aplica" value="0">
-                        <input type="checkbox" id="sonda_aplica_checkbox" name="sonda_aplica" value="1" 
+                        <input type="checkbox" id="sonda_aplica_checkbox" name="sonda_aplica" value="1"
                                {{ old('sonda_aplica', $inst->sonda_aplica ?? false) ? 'checked' : '' }}
                                @change="toggleSection4()"
                                class="sr-only peer">
@@ -352,8 +356,9 @@
             </div>
         </div>
         <div class="p-5 space-y-4" id="section-4-content">
-            {{-- Marca / Modelo / Serie con Alpine --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                {{-- Marca --}}
                 <div class="group">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Marca</label>
                     <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
@@ -363,35 +368,48 @@
                     </div>
                 </div>
 
-                {{-- Modelo dropdown searchable --}}
+                {{-- Modelo dropdown --}}
                 <div class="group" x-data="{
                         open: false,
                         search: '',
                         selected: '{{ old('sonda_modelo', $inst->sonda_modelo ?? '') }}',
                         dropdownStyle: '',
+                        _sh: null,
                         get filtered() {
-                            return modelosList.filter(m => m.toLowerCase().includes(this.search.toLowerCase()));
+                            const q = this.search.toLowerCase();
+                            return modelosList.filter(m =>
+                                m.nombre.toLowerCase().includes(q) ||
+                                (m.descripcion && m.descripcion.toLowerCase().includes(q))
+                            );
                         },
-                        select(val) {
-                            this.selected = val;
-                            this.search = '';
+                        select(val) { this.selected = val; this.search = ''; this.close(); },
+                        calcPos() {
+                            const rect = this.$refs.trigger.getBoundingClientRect();
+                            this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 240)}px;`;
+                        },
+                        open_dd() {
+                            this.calcPos(); this.open = true;
+                            this._sh = () => { if (this.open) this.calcPos(); };
+                            window.addEventListener('scroll', this._sh, true);
+                            this.$nextTick(() => this.$refs.searchInput?.focus());
+                        },
+                        close() {
                             this.open = false;
+                            if (this._sh) { window.removeEventListener('scroll', this._sh, true); this._sh = null; }
                         },
-                        toggle() {
-                            if (!this.open) {
-                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
-                            }
-                            this.open = !this.open;
-                        }
-                    }" @click.outside="open = false">
+                        toggle() { this.open ? this.close() : this.open_dd(); }
+                    }">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Modelo</label>
                     <input type="hidden" name="sonda_modelo" class="sonda-field" x-model="selected">
                     <button type="button" x-ref="trigger" @click="toggle()"
                             class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none sonda-field"
                             :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                        <span x-text="selected || '— Seleccionar Modelo —'"></span>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span class="truncate" x-text="selected
+                            ? (modelosList.find(m => m.nombre === selected)?.descripcion
+                                ? selected + ' — ' + modelosList.find(m => m.nombre === selected).descripcion
+                                : selected)
+                            : '— Seleccionar Modelo —'"></span>
+                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -403,18 +421,22 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
-                             style="display:none"
-                             class="z-50">
+                             @click.outside="close()"
+                             @keydown.escape.window="close()"
+                             style="display:none" class="z-50">
                             <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
                                 <div class="p-2 border-b border-gray-100">
                                     <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                         </svg>
-                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                        <input type="text" x-model="search"
+                                               x-ref="searchInput"
+                                               @click.stop
+                                               @keydown.escape="close()"
                                                placeholder="Buscar modelo..."
                                                class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -422,16 +444,18 @@
                                     </div>
                                 </div>
                                 <ul class="max-h-48 overflow-y-auto py-1">
-                                    <li @click="select('')"
+                                    <li @click.stop="select('')"
                                         class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">
-                                        — Ninguno —
-                                    </li>
-                                    <template x-for="modelo in filtered" :key="modelo">
-                                        <li @click="select(modelo)"
-                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                            :class="selected === modelo && 'bg-orange/10 font-semibold text-orange'"
-                                            x-text="modelo"></li>
+                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">— Ninguno —</li>
+                                    <template x-for="modelo in filtered" :key="modelo.nombre">
+                                        <li @click.stop="select(modelo.nombre)"
+                                            class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                            :class="selected === modelo.nombre && 'bg-orange/10'">
+                                            <p class="text-sm font-semibold"
+                                               :class="selected === modelo.nombre ? 'text-orange' : 'text-blue-dark'"
+                                               x-text="modelo.nombre"></p>
+                                            <p x-show="modelo.descripcion" class="text-xs text-gray-400 mt-0.5 truncate" x-text="modelo.descripcion"></p>
+                                        </li>
                                     </template>
                                     <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
                                 </ul>
@@ -440,35 +464,49 @@
                     </template>
                 </div>
 
-                {{-- N° Serie dropdown searchable --}}
+                {{-- N° Serie dropdown --}}
                 <div class="group" x-data="{
                         open: false,
                         search: '',
                         selected: '{{ old('sonda_serie', $inst->sonda_serie ?? '') }}',
                         dropdownStyle: '',
+                        _sh: null,
                         get filtered() {
-                            return equiposList.filter(e => e.toLowerCase().includes(this.search.toLowerCase()));
+                            const q = this.search.toLowerCase();
+                            return equiposList.filter(e =>
+                                e.codigo.toLowerCase().includes(q) ||
+                                (e.descripcion && e.descripcion.toLowerCase().includes(q)) ||
+                                (e.modelos && e.modelos.some(m => m.toLowerCase().includes(q)))
+                            );
                         },
-                        select(val) {
-                            this.selected = val;
-                            this.search = '';
+                        select(val) { this.selected = val; this.search = ''; this.close(); },
+                        calcPos() {
+                            const rect = this.$refs.trigger.getBoundingClientRect();
+                            this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 240)}px;`;
+                        },
+                        open_dd() {
+                            this.calcPos(); this.open = true;
+                            this._sh = () => { if (this.open) this.calcPos(); };
+                            window.addEventListener('scroll', this._sh, true);
+                            this.$nextTick(() => this.$refs.searchInput?.focus());
+                        },
+                        close() {
                             this.open = false;
+                            if (this._sh) { window.removeEventListener('scroll', this._sh, true); this._sh = null; }
                         },
-                        toggle() {
-                            if (!this.open) {
-                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
-                            }
-                            this.open = !this.open;
-                        }
-                    }" @click.outside="open = false">
+                        toggle() { this.open ? this.close() : this.open_dd(); }
+                    }">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">N° Serie</label>
                     <input type="hidden" name="sonda_serie" class="sonda-field" x-model="selected">
                     <button type="button" x-ref="trigger" @click="toggle()"
                             class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none sonda-field"
                             :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                        <span x-text="selected || '— Seleccionar Serie —'"></span>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span class="truncate" x-text="selected
+                            ? (equiposList.find(e => e.codigo === selected)?.descripcion
+                                ? selected + ' — ' + equiposList.find(e => e.codigo === selected).descripcion
+                                : selected)
+                            : '— Seleccionar Serie —'"></span>
+                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -480,18 +518,22 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
-                             style="display:none"
-                             class="z-50">
+                             @click.outside="close()"
+                             @keydown.escape.window="close()"
+                             style="display:none" class="z-50">
                             <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
                                 <div class="p-2 border-b border-gray-100">
                                     <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                         </svg>
-                                        <input type="text" x-model="search" @keydown.escape="open = false"
-                                               placeholder="Buscar serie..."
+                                        <input type="text" x-model="search"
+                                               x-ref="searchInput"
+                                               @click.stop
+                                               @keydown.escape="close()"
+                                               placeholder="Buscar serie o descripción..."
                                                class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -499,16 +541,23 @@
                                     </div>
                                 </div>
                                 <ul class="max-h-48 overflow-y-auto py-1">
-                                    <li @click="select('')"
+                                    <li @click.stop="select('')"
                                         class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">
-                                        — Ninguno —
-                                    </li>
-                                    <template x-for="equipo in filtered" :key="equipo">
-                                        <li @click="select(equipo)"
-                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                            :class="selected === equipo && 'bg-orange/10 font-semibold text-orange'"
-                                            x-text="equipo"></li>
+                                        :class="selected === '' && 'bg-orange/5 font-medium text-orange'">— Ninguno —</li>
+                                    <template x-for="equipo in filtered" :key="equipo.codigo">
+                                        <li @click.stop="select(equipo.codigo)"
+                                            class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                            :class="selected === equipo.codigo && 'bg-orange/10'">
+                                            <p class="text-sm font-semibold"
+                                               :class="selected === equipo.codigo ? 'text-orange' : 'text-blue-dark'"
+                                               x-text="equipo.codigo"></p>
+                                            <p x-show="equipo.descripcion" class="text-xs text-gray-400 mt-0.5 truncate" x-text="equipo.descripcion"></p>
+                                            <div x-show="equipo.modelos && equipo.modelos.length" class="flex flex-wrap gap-1 mt-1">
+                                                <template x-for="mod in equipo.modelos" :key="mod">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-blue/10 text-blue text-[10px] font-medium" x-text="mod"></span>
+                                                </template>
+                                            </div>
+                                        </li>
                                     </template>
                                     <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
                                 </ul>
@@ -518,7 +567,7 @@
                 </div>
             </div>
 
-            {{-- Operatividad (sin cambios) --}}
+            {{-- Operatividad Sonda --}}
             @php
                 $sondaOpCols = [
                     'envase_exterior'    => 'Envase exterior',
@@ -567,7 +616,7 @@
                 </table>
             </div>
 
-            {{-- Verificación Rápida (sin cambios) --}}
+            {{-- Verificación Rápida Sonda --}}
             @php
                 $sondaVrCols = ['ph' => 'pH', 'temperatura' => 'Temperatura', 'od' => 'OD', 'ce_salinidad' => 'CE/Salinidad'];
             @endphp
@@ -617,7 +666,8 @@
     </div>
 
     {{-- ══════════════════════════════════════════════
-         SECCIÓN 5 — Muestreador Automático (dropdowns Alpine) --}}
+         SECCIÓN 5 — Muestreador Automático
+    ══════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" id="section-5">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
             <div class="w-7 h-7 rounded-lg bg-gray-600 flex items-center justify-center flex-shrink-0">
@@ -647,6 +697,8 @@
         </div>
         <div class="p-5 space-y-4" id="section-5-content">
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+
+                {{-- Marca --}}
                 <div class="group">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">Marca</label>
                     <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
@@ -662,29 +714,42 @@
                         search: '',
                         selected: '{{ old('muestreador_modelo', $inst->muestreador_modelo ?? '') }}',
                         dropdownStyle: '',
+                        _sh: null,
                         get filtered() {
-                            return modelosList.filter(m => m.toLowerCase().includes(this.search.toLowerCase()));
+                            const q = this.search.toLowerCase();
+                            return modelosList.filter(m =>
+                                m.nombre.toLowerCase().includes(q) ||
+                                (m.descripcion && m.descripcion.toLowerCase().includes(q))
+                            );
                         },
-                        select(val) {
-                            this.selected = val;
-                            this.search = '';
+                        select(val) { this.selected = val; this.search = ''; this.close(); },
+                        calcPos() {
+                            const rect = this.$refs.trigger.getBoundingClientRect();
+                            this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 240)}px;`;
+                        },
+                        open_dd() {
+                            this.calcPos(); this.open = true;
+                            this._sh = () => { if (this.open) this.calcPos(); };
+                            window.addEventListener('scroll', this._sh, true);
+                            this.$nextTick(() => this.$refs.searchInput?.focus());
+                        },
+                        close() {
                             this.open = false;
+                            if (this._sh) { window.removeEventListener('scroll', this._sh, true); this._sh = null; }
                         },
-                        toggle() {
-                            if (!this.open) {
-                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
-                            }
-                            this.open = !this.open;
-                        }
-                    }" @click.outside="open = false">
+                        toggle() { this.open ? this.close() : this.open_dd(); }
+                    }">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Modelo</label>
                     <input type="hidden" name="muestreador_modelo" class="muestreador-field" x-model="selected">
                     <button type="button" x-ref="trigger" @click="toggle()"
                             class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none muestreador-field"
                             :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                        <span x-text="selected || '— Seleccionar Modelo —'"></span>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span class="truncate" x-text="selected
+                            ? (modelosList.find(m => m.nombre === selected)?.descripcion
+                                ? selected + ' — ' + modelosList.find(m => m.nombre === selected).descripcion
+                                : selected)
+                            : '— Seleccionar Modelo —'"></span>
+                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -696,18 +761,22 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
-                             style="display:none"
-                             class="z-50">
+                             @click.outside="close()"
+                             @keydown.escape.window="close()"
+                             style="display:none" class="z-50">
                             <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
                                 <div class="p-2 border-b border-gray-100">
                                     <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                         </svg>
-                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                        <input type="text" x-model="search"
+                                               x-ref="searchInput"
+                                               @click.stop
+                                               @keydown.escape="close()"
                                                placeholder="Buscar modelo..."
                                                class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -715,14 +784,18 @@
                                     </div>
                                 </div>
                                 <ul class="max-h-48 overflow-y-auto py-1">
-                                    <li @click="select('')"
+                                    <li @click.stop="select('')"
                                         class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
                                         :class="selected === '' && 'bg-orange/5 font-medium text-orange'">— Ninguno —</li>
-                                    <template x-for="modelo in filtered" :key="modelo">
-                                        <li @click="select(modelo)"
-                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                            :class="selected === modelo && 'bg-orange/10 font-semibold text-orange'"
-                                            x-text="modelo"></li>
+                                    <template x-for="modelo in filtered" :key="modelo.nombre">
+                                        <li @click.stop="select(modelo.nombre)"
+                                            class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                            :class="selected === modelo.nombre && 'bg-orange/10'">
+                                            <p class="text-sm font-semibold"
+                                               :class="selected === modelo.nombre ? 'text-orange' : 'text-blue-dark'"
+                                               x-text="modelo.nombre"></p>
+                                            <p x-show="modelo.descripcion" class="text-xs text-gray-400 mt-0.5 truncate" x-text="modelo.descripcion"></p>
+                                        </li>
                                     </template>
                                     <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
                                 </ul>
@@ -731,7 +804,7 @@
                     </template>
                 </div>
 
-                {{-- N° Serie (input de texto porque puede ser múltiple) --}}
+                {{-- N° Serie (input texto — puede ser múltiple, no dropdown) --}}
                 <div class="sm:col-span-2 group">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 group-focus-within:text-orange transition-colors">N° Serie (puede ser múltiple)</label>
                     <div class="flex items-center rounded-xl border border-gray-200 bg-gray-50 transition-all duration-200 group-focus-within:border-orange group-focus-within:bg-white group-focus-within:shadow-[0_0_0_3px_rgba(255,140,66,0.15)] hover:border-blue-light/60">
@@ -742,7 +815,7 @@
                 </div>
             </div>
 
-            {{-- Operatividad --}}
+            {{-- Operatividad Muestreador --}}
             @php
                 $muestOpCols = [
                     'estado_envases'     => 'Estado adecuado envases',
@@ -862,7 +935,8 @@
     </div>
 
     {{-- ══════════════════════════════════════════════
-         SECCIÓN 6 — pH Portátil (con dropdowns Alpine) --}}
+         SECCIÓN 6 — pH Portátil
+    ══════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" id="section-6">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-orange/10 bg-orange/3">
             <div class="w-7 h-7 rounded-lg bg-orange flex items-center justify-center flex-shrink-0">
@@ -892,35 +966,49 @@
         </div>
         <div class="p-5 space-y-4" id="section-6-content">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
                 {{-- Modelo dropdown --}}
                 <div class="group" x-data="{
                         open: false,
                         search: '',
                         selected: '{{ old('ph_modelo', $inst->ph_modelo ?? '') }}',
                         dropdownStyle: '',
+                        _sh: null,
                         get filtered() {
-                            return modelosList.filter(m => m.toLowerCase().includes(this.search.toLowerCase()));
+                            const q = this.search.toLowerCase();
+                            return modelosList.filter(m =>
+                                m.nombre.toLowerCase().includes(q) ||
+                                (m.descripcion && m.descripcion.toLowerCase().includes(q))
+                            );
                         },
-                        select(val) {
-                            this.selected = val;
-                            this.search = '';
+                        select(val) { this.selected = val; this.search = ''; this.close(); },
+                        calcPos() {
+                            const rect = this.$refs.trigger.getBoundingClientRect();
+                            this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 240)}px;`;
+                        },
+                        open_dd() {
+                            this.calcPos(); this.open = true;
+                            this._sh = () => { if (this.open) this.calcPos(); };
+                            window.addEventListener('scroll', this._sh, true);
+                            this.$nextTick(() => this.$refs.searchInput?.focus());
+                        },
+                        close() {
                             this.open = false;
+                            if (this._sh) { window.removeEventListener('scroll', this._sh, true); this._sh = null; }
                         },
-                        toggle() {
-                            if (!this.open) {
-                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
-                            }
-                            this.open = !this.open;
-                        }
-                    }" @click.outside="open = false">
+                        toggle() { this.open ? this.close() : this.open_dd(); }
+                    }">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">Modelo</label>
                     <input type="hidden" name="ph_modelo" class="ph-field" x-model="selected">
                     <button type="button" x-ref="trigger" @click="toggle()"
                             class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none ph-field"
                             :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                        <span x-text="selected || '— Seleccionar Modelo —'"></span>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span class="truncate" x-text="selected
+                            ? (modelosList.find(m => m.nombre === selected)?.descripcion
+                                ? selected + ' — ' + modelosList.find(m => m.nombre === selected).descripcion
+                                : selected)
+                            : '— Seleccionar Modelo —'"></span>
+                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -932,18 +1020,22 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
-                             style="display:none"
-                             class="z-50">
+                             @click.outside="close()"
+                             @keydown.escape.window="close()"
+                             style="display:none" class="z-50">
                             <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
                                 <div class="p-2 border-b border-gray-100">
                                     <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                         </svg>
-                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                        <input type="text" x-model="search"
+                                               x-ref="searchInput"
+                                               @click.stop
+                                               @keydown.escape="close()"
                                                placeholder="Buscar modelo..."
                                                class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -951,14 +1043,18 @@
                                     </div>
                                 </div>
                                 <ul class="max-h-48 overflow-y-auto py-1">
-                                    <li @click="select('')"
+                                    <li @click.stop="select('')"
                                         class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
                                         :class="selected === '' && 'bg-orange/5 font-medium text-orange'">— Ninguno —</li>
-                                    <template x-for="modelo in filtered" :key="modelo">
-                                        <li @click="select(modelo)"
-                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                            :class="selected === modelo && 'bg-orange/10 font-semibold text-orange'"
-                                            x-text="modelo"></li>
+                                    <template x-for="modelo in filtered" :key="modelo.nombre">
+                                        <li @click.stop="select(modelo.nombre)"
+                                            class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                            :class="selected === modelo.nombre && 'bg-orange/10'">
+                                            <p class="text-sm font-semibold"
+                                               :class="selected === modelo.nombre ? 'text-orange' : 'text-blue-dark'"
+                                               x-text="modelo.nombre"></p>
+                                            <p x-show="modelo.descripcion" class="text-xs text-gray-400 mt-0.5 truncate" x-text="modelo.descripcion"></p>
+                                        </li>
                                     </template>
                                     <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
                                 </ul>
@@ -973,29 +1069,43 @@
                         search: '',
                         selected: '{{ old('ph_serie', $inst->ph_serie ?? '') }}',
                         dropdownStyle: '',
+                        _sh: null,
                         get filtered() {
-                            return equiposList.filter(e => e.toLowerCase().includes(this.search.toLowerCase()));
+                            const q = this.search.toLowerCase();
+                            return equiposList.filter(e =>
+                                e.codigo.toLowerCase().includes(q) ||
+                                (e.descripcion && e.descripcion.toLowerCase().includes(q)) ||
+                                (e.modelos && e.modelos.some(m => m.toLowerCase().includes(q)))
+                            );
                         },
-                        select(val) {
-                            this.selected = val;
-                            this.search = '';
+                        select(val) { this.selected = val; this.search = ''; this.close(); },
+                        calcPos() {
+                            const rect = this.$refs.trigger.getBoundingClientRect();
+                            this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${Math.max(rect.width, 240)}px;`;
+                        },
+                        open_dd() {
+                            this.calcPos(); this.open = true;
+                            this._sh = () => { if (this.open) this.calcPos(); };
+                            window.addEventListener('scroll', this._sh, true);
+                            this.$nextTick(() => this.$refs.searchInput?.focus());
+                        },
+                        close() {
                             this.open = false;
+                            if (this._sh) { window.removeEventListener('scroll', this._sh, true); this._sh = null; }
                         },
-                        toggle() {
-                            if (!this.open) {
-                                const rect = this.$refs.trigger.getBoundingClientRect();
-                                this.dropdownStyle = `position:fixed;z-index:9999;top:${rect.bottom+4}px;left:${rect.left}px;width:${rect.width}px;`;
-                            }
-                            this.open = !this.open;
-                        }
-                    }" @click.outside="open = false">
+                        toggle() { this.open ? this.close() : this.open_dd(); }
+                    }">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5 transition-colors group-focus-within:text-orange">N° Serie</label>
                     <input type="hidden" name="ph_serie" class="ph-field" x-model="selected">
                     <button type="button" x-ref="trigger" @click="toggle()"
                             class="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-150 focus:border-orange focus:bg-white focus:outline-none ph-field"
                             :class="selected ? 'text-gray-800' : 'text-gray-400'">
-                        <span x-text="selected || '— Seleccionar Serie —'"></span>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span class="truncate" x-text="selected
+                            ? (equiposList.find(e => e.codigo === selected)?.descripcion
+                                ? selected + ' — ' + equiposList.find(e => e.codigo === selected).descripcion
+                                : selected)
+                            : '— Seleccionar Serie —'"></span>
+                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 transition-transform duration-150" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -1007,18 +1117,22 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
-                             style="display:none"
-                             class="z-50">
+                             @click.outside="close()"
+                             @keydown.escape.window="close()"
+                             style="display:none" class="z-50">
                             <div class="rounded-xl border border-gray-200 bg-white shadow-lg w-full">
                                 <div class="p-2 border-b border-gray-100">
                                     <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus-within:border-orange focus-within:bg-white">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                                         </svg>
-                                        <input type="text" x-model="search" @keydown.escape="open = false"
-                                               placeholder="Buscar serie..."
+                                        <input type="text" x-model="search"
+                                               x-ref="searchInput"
+                                               @click.stop
+                                               @keydown.escape="close()"
+                                               placeholder="Buscar serie o descripción..."
                                                class="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0">
-                                        <button x-show="search" @click="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <button x-show="search" @click.stop="search = ''" type="button" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -1026,14 +1140,23 @@
                                     </div>
                                 </div>
                                 <ul class="max-h-48 overflow-y-auto py-1">
-                                    <li @click="select('')"
+                                    <li @click.stop="select('')"
                                         class="px-3 py-2 text-sm text-gray-400 cursor-pointer hover:bg-orange/10 hover:text-orange"
                                         :class="selected === '' && 'bg-orange/5 font-medium text-orange'">— Ninguno —</li>
-                                    <template x-for="equipo in filtered" :key="equipo">
-                                        <li @click="select(equipo)"
-                                            class="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-orange/10 hover:text-orange"
-                                            :class="selected === equipo && 'bg-orange/10 font-semibold text-orange'"
-                                            x-text="equipo"></li>
+                                    <template x-for="equipo in filtered" :key="equipo.codigo">
+                                        <li @click.stop="select(equipo.codigo)"
+                                            class="px-3 py-2 cursor-pointer hover:bg-orange/10 transition-colors"
+                                            :class="selected === equipo.codigo && 'bg-orange/10'">
+                                            <p class="text-sm font-semibold"
+                                               :class="selected === equipo.codigo ? 'text-orange' : 'text-blue-dark'"
+                                               x-text="equipo.codigo"></p>
+                                            <p x-show="equipo.descripcion" class="text-xs text-gray-400 mt-0.5 truncate" x-text="equipo.descripcion"></p>
+                                            <div x-show="equipo.modelos && equipo.modelos.length" class="flex flex-wrap gap-1 mt-1">
+                                                <template x-for="mod in equipo.modelos" :key="mod">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-blue/10 text-blue text-[10px] font-medium" x-text="mod"></span>
+                                                </template>
+                                            </div>
+                                        </li>
                                     </template>
                                     <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Sin resultados</li>
                                 </ul>
@@ -1043,7 +1166,7 @@
                 </div>
             </div>
 
-            {{-- Operatividad --}}
+            {{-- Operatividad pH --}}
             @php
                 $phOpCols = [
                     'estado_envase_exterior' => 'Estado adecuado envase exterior',
@@ -1095,10 +1218,10 @@
             {{-- Verificación pH --}}
             @php
                 $phVrCols = [
-                    'ph4'         => ['label' => 'pH 4',         'val_key' => 'ph4_val'],
-                    'ph7'         => ['label' => 'pH 7',         'val_key' => 'ph7_val'],
-                    'ph10'        => ['label' => 'pH 10',        'val_key' => 'ph10_val'],
-                    'temperatura' => ['label' => 'Temperatura',  'val_key' => 'temp_val'],
+                    'ph4'         => ['label' => 'pH 4',        'val_key' => 'ph4_val'],
+                    'ph7'         => ['label' => 'pH 7',        'val_key' => 'ph7_val'],
+                    'ph10'        => ['label' => 'pH 10',       'val_key' => 'ph10_val'],
+                    'temperatura' => ['label' => 'Temperatura', 'val_key' => 'temp_val'],
                 ];
             @endphp
             <div class="overflow-hidden rounded-xl border border-gray-200">
@@ -1158,7 +1281,7 @@
                                                placeholder="{{ $label }}"
                                                class="ph-field w-full bg-transparent border-none px-2.5 py-1.5 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0 text-center">
                                     </div>
-                                 </td>
+                                </td>
                             @endforeach
                             <td class="px-4 py-2.5 text-xs text-gray-400 italic">Criterio aceptación Buffer ± 0,1 pH</td>
                             <td></td>

@@ -13,7 +13,7 @@ class ConfiguracionController extends Controller
     // ──────────────────────────────────────────────
     public function index()
     {
-        $equipos = Equipo::orderBy('codigo')->get();
+        $equipos = Equipo::with('modelos')->orderBy('codigo')->get();
         $modelos = ModeloEquipo::orderBy('nombre')->get();
 
         return view('configuracion.index', compact('equipos', 'modelos'));
@@ -34,11 +34,15 @@ class ConfiguracionController extends Controller
             'codigo.max'      => 'El código no puede superar los 50 caracteres.',
         ]);
 
-        Equipo::create([
+        $equipo = Equipo::create([
             'codigo'      => strtoupper(trim($request->codigo)),
             'descripcion' => $request->descripcion,
             'activo'      => true,
         ]);
+
+        if ($request->filled('modelos_ids')) {
+            $equipo->modelos()->sync($request->input('modelos_ids'));
+        }
 
         return redirect()
             ->route('configuracion.index')
@@ -61,6 +65,8 @@ class ConfiguracionController extends Controller
             'descripcion' => $request->descripcion,
             'activo'      => $request->boolean('activo', true),
         ]);
+
+        $equipo->modelos()->sync($request->input('modelos_ids', []));
 
         return redirect()
             ->route('configuracion.index')
@@ -140,14 +146,23 @@ class ConfiguracionController extends Controller
     public function apiEquipos()
     {
         return response()->json(
-            Equipo::activos()->orderBy('codigo')->pluck('codigo')
+            Equipo::activos()->with('modelos')->orderBy('codigo')->get()
+                ->map(fn($e) => [
+                    'codigo'      => $e->codigo,
+                    'descripcion' => $e->descripcion ?? '',
+                    'modelos'     => $e->modelos->pluck('nombre')->toArray(),
+                ])
         );
     }
 
     public function apiModelos()
     {
         return response()->json(
-            ModeloEquipo::activos()->orderBy('nombre')->pluck('nombre')
+            ModeloEquipo::activos()->orderBy('nombre')->get()
+                ->map(fn($m) => [
+                    'nombre'      => $m->nombre,
+                    'descripcion' => $m->descripcion ?? '',
+                ])
         );
     }
 }

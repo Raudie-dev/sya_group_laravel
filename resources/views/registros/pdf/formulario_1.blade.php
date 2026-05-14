@@ -751,11 +751,13 @@
                 <td>
                     @php
                         $val = $row['values'][$col['key']] ?? '—';
-                        // Formatear fechas y horas para el PDF
+
                         if ($col['type'] === 'date' && !empty($val) && $val !== '—') {
                             $val = \Carbon\Carbon::parse($val)->format('d/m/Y');
                         } elseif ($col['type'] === 'time' && !empty($val) && $val !== '—') {
                             $val = \Carbon\Carbon::parse($val)->format('H:i');
+                        } elseif (is_numeric($val) && $val !== '—') {
+                            $val = str_replace('.', ',', $val);
                         }
                     @endphp
                     {{ $val }}

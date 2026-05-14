@@ -489,8 +489,14 @@ class RegistroController extends Controller
     private function getEquiposList(): array
     {
         return Equipo::activos()
+            ->with('modelos')
             ->orderBy('codigo')
-            ->pluck('codigo')
+            ->get()
+            ->map(fn($e) => [
+                'codigo'      => $e->codigo,
+                'descripcion' => $e->descripcion ?? '',
+                'modelos'     => $e->modelos->pluck('nombre')->toArray(),
+            ])
             ->toArray();
     }
 
@@ -503,7 +509,11 @@ class RegistroController extends Controller
     {
         return ModeloEquipo::activos()
             ->orderBy('nombre')
-            ->pluck('nombre')
+            ->get()
+            ->map(fn($m) => [
+                'nombre'      => $m->nombre,
+                'descripcion' => $m->descripcion ?? '',
+            ])
             ->toArray();
     }
 }
