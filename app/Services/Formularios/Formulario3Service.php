@@ -94,6 +94,9 @@ class Formulario3Service extends BaseFormularioService
 
     public function datosParaPdf($formulario)
     {
-        return [];
+        return [
+            'formulario' => $formulario,
+            'registro'   => $formulario->registro,
+        ];
     }
 }

@@ -22,8 +22,11 @@ class Formulario3 extends Model
         'tipo_muestra',
         'inicio_muestreo',
         'fin_muestreo',
+        'temperatura_inicial',
+        'mostrar_dj_inspector',
+        'mostrar_dj_etfa',
 
-        // Equipos (selects + checkboxes) ← FALTABAN ESTOS
+        // Equipos
         'eq_muestreo_cod',
         'eq_muestreo_chk',
         'eq_ph_cod',
@@ -79,5 +82,10 @@ class Formulario3 extends Model
             ['item' => 'Inicio', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
             ['item' => 'Fin', 'fecha' => '', 'hora' => '', 'ph' => '', 'temp' => '', 'cloro' => ''],
         ];
+    }
+    
+    public function registro()
+    {
+        return $this->belongsTo(Registro::class);
     }
 }

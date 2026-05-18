@@ -919,7 +919,7 @@
             <img src="{{ public_path('images/firma-inspector.png') }}" alt="firma">
             <div class="dj-firma-linea">________________________________</div>
             <p>Firma del inspector ambiental</p>
-            <p class="mt-4">{{ \Carbon\Carbon::parse($formulario->fecha_emision)->translatedFormat('d \d\e F \d\e Y') }}</p>
+            <p class="mt-4">{{ \Carbon\Carbon::parse($registro->fecha_emision)->translatedFormat('d \d\e F \d\e Y') }}</p>
         </div>
 
         <div class="dj-footer-sma">
@@ -1033,7 +1033,7 @@
             <img src="{{ public_path('images/firma-representante.png') }}" alt="firma">
             <div class="dj-firma-linea">________________________________</div>
             <p>Firma del Representante Legal</p>
-            <p class="mt-4">{{ \Carbon\Carbon::parse($formulario->fecha_emision)->translatedFormat('d \d\e F \d\e Y') }}</p>
+            <p class="mt-4">{{ \Carbon\Carbon::parse($registro->fecha_emision)->translatedFormat('d \d\e F \d\e Y') }}</p>
         </div>
 
         <div class="dj-footer-sma">
