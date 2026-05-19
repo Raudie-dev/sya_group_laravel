@@ -154,6 +154,8 @@ class Formulario6Service extends BaseFormularioService
 
     public function datosParaPdf($formulario): array
     {
-        return [];
+        return [
+            'fechaMuestra' => $this->resolverFechaMuestra($formulario),
+        ];
     }
 }

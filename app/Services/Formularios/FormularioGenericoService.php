@@ -45,4 +45,11 @@ class FormularioGenericoService extends BaseFormularioService
 
         $formulario->save();
     }
+
+    public function datosParaPdf($formulario): array
+    {
+        return [
+            'fechaMuestra' => $this->resolverFechaMuestra($formulario),
+        ];
+    }
 }

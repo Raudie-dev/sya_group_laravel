@@ -138,4 +138,17 @@ abstract class BaseFormularioService
             'rows' => $rows,
         ];
     }
+
+    protected function resolverFechaMuestra($formulario): ?\Carbon\Carbon
+{
+    if ($formulario->inicio_muestreo) {
+        return $formulario->inicio_muestreo;
+    }
+
+    if ($formulario->registro?->fecha_emision) {
+        return \Carbon\Carbon::parse($formulario->registro->fecha_emision);
+    }
+
+    return null;
+}
 }

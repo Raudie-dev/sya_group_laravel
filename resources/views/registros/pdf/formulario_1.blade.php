@@ -521,8 +521,8 @@
             <br>
             <h1 class="mediano"> {{ $formulario->lugar_muestreo ?? '' }}</h1>
             <br>
-            @if($registro->fecha_emision ?? null)
-                <h1 class="mediano">{{ \Carbon\Carbon::parse($registro->fecha_emision)->locale('es')->isoFormat('MMMM YYYY') }}</h1>
+            @if($fechaMuestra ?? null)
+                <h1 class="mediano">{{ $fechaMuestra->locale('es')->isoFormat('MMMM YYYY') }}</h1>
                 <br>
             @endif
             <h1 class="chico"> {{ $registro->region ?? 'PUCHUNCAVI - REGIÓN DE VALPARAISO' }}</h1>

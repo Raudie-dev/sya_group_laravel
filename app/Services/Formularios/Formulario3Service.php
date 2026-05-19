@@ -97,6 +97,7 @@ class Formulario3Service extends BaseFormularioService
         return [
             'formulario' => $formulario,
             'registro'   => $formulario->registro,
+            'fechaMuestra' => $this->resolverFechaMuestra($formulario),
         ];
     }
 }

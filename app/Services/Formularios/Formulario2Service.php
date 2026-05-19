@@ -73,7 +73,9 @@ class Formulario2Service extends BaseFormularioService
             ? $this->buildChartUrl($temps->all(), $labels, '#f97316', 'Temperatura', 'Temperatura (°C)')
             : null;
 
-        return compact('stats', 'graficoPh', 'graficoTemp');
+        return compact('stats', 'graficoPh', 'graficoTemp') + [
+            'fechaMuestra' => $this->resolverFechaMuestra($formulario),
+        ];
     }
 
     // ────────────────────────────────────────────────────────────────────────
