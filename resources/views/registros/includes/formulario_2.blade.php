@@ -725,7 +725,7 @@
 
         {{-- ══════════════════════════════════════════════
         SECCIÓN 6 — Configuración del PDF
-    ══════════════════════════════════════════════ --}}
+        ══════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
             <div class="w-7 h-7 rounded-lg bg-gray-500 flex items-center justify-center flex-shrink-0">
@@ -833,7 +833,7 @@
 </form>
 
 <script>
-/* ─── addMinutes: suma minutos y avanza día si cruza medianoche ─── */
+/* ─── Suma minutos avanzando día si cruza medianoche ─── */
 function addMinutes(timeStr, minutes, fechaStr) {
     const [h, m] = timeStr.split(':').map(Number);
     const total  = h * 60 + m + minutes;
@@ -847,8 +847,8 @@ function addMinutes(timeStr, minutes, fechaStr) {
     }
     return { hora: `${hh}:${mm}`, fecha: nuevaFecha };
 }
-
-/* ─── Lee fecha/hora/intervalo de las dos últimas filas ─── */
+ 
+/* ─── Lee fecha/hora/intervalo de las últimas dos filas ─── */
 function getLastValues() {
     const rows = Array.from(document.getElementById('medicionesBody').rows);
     if (!rows.length) return { fecha: '', hora: '', intervalo: 60 };
@@ -868,49 +868,48 @@ function getLastValues() {
     }
     return { fecha: lastFecha, hora: lastHora, intervalo };
 }
-
-/* ─── Renumera TODAS las filas secuencialmente desde 1 ─── */
+ 
+/* ─── Renumera todas las filas desde 1 ─── */
 function renumber() {
-    const rows = Array.from(document.getElementById('medicionesBody').rows);
-    console.log('renumber() ejecutado — filas encontradas:', rows.length);
-    rows.forEach((row, i) => {
-        const num  = i + 1;
-        const cell = row.querySelector('td:first-child');
+    Array.from(document.getElementById('medicionesBody').rows).forEach((row, i) => {
+        const cell   = row.querySelector('td:first-child');
         const nInput = row.querySelector('input[name="lectura_n[]"]');
-        console.log(`  fila ${i}: cell=${cell?.textContent?.trim()}, input=${nInput?.value}`);
-        if (cell)   cell.textContent = num;
-        if (nInput) nInput.value     = num;
+        if (cell)   cell.textContent = i + 1;
+        if (nInput) nInput.value     = i + 1;
     });
 }
-
-/* ─── Construye una fila <tr> nueva ─── */
+ 
+/* ─── Construye una fila <tr> ─── */
 function buildRow(fecha, hora, nMuestra, ph, temp) {
     const cell = (type, name, step, val) =>
-        `<div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-all duration-150 focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
+        `<div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-all duration-150
+                     focus-within:border-orange focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(255,140,66,0.15)]">
             <input type="${type}" name="${name}" ${step ? `step="${step}"` : ''} value="${val ?? ''}"
                    class="w-full bg-transparent border-none px-2 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-0">
          </div>`;
     const row = document.createElement('tr');
     row.className = 'hover:bg-gray-50/50 transition-colors';
     row.innerHTML = `
-        <td class="px-3 py-2 text-center text-xs text-gray-400"></td>
+        <td class="px-3 py-2 text-center text-xs text-gray-400 rownum"></td>
         <td class="px-3 py-2">${cell('date',   'lectura_fecha[]', null,   fecha)}</td>
         <td class="px-3 py-2">${cell('time',   'lectura_hora[]',  null,   hora)}</td>
-        <td class="px-3 py-2">${cell('number', 'lectura_n[]',     null,   nMuestra)}</td>
+        <td class="px-3 py-2">${cell('number', 'lectura_n[]',     null,   nMuestra ?? '')}</td>
         <td class="px-3 py-2">${cell('number', 'lectura_ph[]',    '0.01', ph)}</td>
         <td class="px-3 py-2">${cell('number', 'lectura_temp[]',  '0.1',  temp)}</td>
         <td class="px-3 py-2 text-center">
             <button type="button" onclick="eliminarFila(this)"
-                    class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-red/10 hover:text-red transition-all mx-auto">
+                    class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400
+                           hover:bg-red/10 hover:text-red transition-all mx-auto">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7
+                             m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
             </button>
         </td>`;
     return row;
 }
-
+ 
 /* ─── Agregar fila manual ─── */
 function agregarFila() {
     const tbody = document.getElementById('medicionesBody');
@@ -925,34 +924,208 @@ function agregarFila() {
     renumber();
     tbody.lastElementChild.querySelector('input[type="date"]')?.focus();
 }
-
+ 
 /* ─── Eliminar fila ─── */
 function eliminarFila(btn) {
-    console.log('eliminarFila() llamado');
     const tbody = document.getElementById('medicionesBody');
-    console.log('tbody:', tbody);
-    if (!tbody || tbody.rows.length <= 1) {
+    if (tbody.rows.length <= 1) {
         alert('Debe haber al menos una fila de medición.');
         return;
     }
-    const tr = btn.closest('tr');
-    console.log('fila a eliminar:', tr);
-    tr.remove();
+    btn.closest('tr').remove();
     renumber();
 }
-
-/* ─── DOMContentLoaded ─── */
+ 
+/* ══════════════════════════════════════════════════════
+   PARSER EXCEL
+   ─────────────────────────────────────────────────────
+   Formato esperado (copia desde Excel chileno):
+     Date       Time   Temp,[°C]  pH
+     4/2/2026   12:58  12,5       7,81
+     4/2/2026   13:58  12,1       7,94
+     ...
+ 
+   También soporta doble tabla en paralelo:
+     ADUCCIÓN              DESCARGA
+     Date  Time  Temp  pH  Date  Time  Temp  pH
+     ...                   ...
+ 
+   Reglas de parsing:
+   - Fecha dd/MM/yyyy  → yyyy-MM-dd  (formato Chile)
+   - Fecha d/M/yyyy    → yyyy-MM-dd  (mismo, sin ceros)
+   - Hora H:mm         → HH:mm       (0:58 → 00:58)
+   - Decimal con coma  → decimal con punto
+   - Columnas: [0]=fecha [1]=hora [2]=temp [3]=pH
+   - Filas ignoradas: encabezados, PROMEDIO, MIN, MAX, vacías
+══════════════════════════════════════════════════════ */
+ 
+/**
+ * Convierte fecha chilena "d/M/yyyy" → "yyyy-MM-dd"
+ * Si ya está en formato ISO la retorna igual.
+ */
+function parseFecha(raw) {
+    const s = (raw || '').trim();
+    if (!s) return '';
+ 
+    // Ya es ISO yyyy-MM-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+ 
+    // Formato con separador / o -
+    const sep = s.includes('/') ? '/' : (s.includes('-') ? '-' : null);
+    if (!sep) return '';
+ 
+    const parts = s.split(sep).map(p => p.trim());
+    if (parts.length !== 3) return '';
+ 
+    let [a, b, c] = parts;
+ 
+    // c tiene 4 dígitos → es el año (formato d/M/yyyy o dd/MM/yyyy)
+    if (c.length === 4) {
+        const yyyy = c;
+        const mm   = b.padStart(2, '0');  // mes
+        const dd   = a.padStart(2, '0');  // día
+        return `${yyyy}-${mm}-${dd}`;
+    }
+ 
+    // a tiene 4 dígitos → es el año (formato yyyy/MM/dd)
+    if (a.length === 4) {
+        return `${a}-${b.padStart(2,'0')}-${c.padStart(2,'0')}`;
+    }
+ 
+    // Año de 2 dígitos en c (ej: 4/2/26) → asumir 2000+
+    if (c.length === 2) {
+        const yyyy = '20' + c;
+        return `${yyyy}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`;
+    }
+ 
+    return '';
+}
+ 
+/** Normaliza hora → HH:mm */
+function parseHora(raw) {
+    const s = (raw || '').trim();
+    if (!s) return '';
+    const parts = s.split(':');
+    if (parts.length >= 2) {
+        return parts[0].padStart(2, '0') + ':' + parts[1].padStart(2, '0');
+    }
+    return s;
+}
+ 
+/** Coma decimal → punto */
+function parseNum(raw) {
+    return (raw || '').toString().trim().replace(',', '.');
+}
+ 
+/** Palabras que indican fila NO es dato (encabezado o estadística) */
+const SKIP_TOKENS = [
+    'date', 'time', 'temp', 'ph', 'fecha', 'hora', 'temperatura',
+    'promedio', 'min', 'max', 'average', 'mean', 'media',
+    'aduccion', 'aducción', 'descarga', 'muestra', 'n°', 'nº'
+];
+ 
+function isSkipRow(cols) {
+    // Fila completamente vacía
+    if (cols.every(c => !c.trim())) return true;
+    const first = (cols[0] || '').toLowerCase().trim();
+    if (!first) return true;
+    // Primera celda es una palabra reservada
+    return SKIP_TOKENS.some(t => first === t || first.startsWith(t + ',') || first.startsWith(t + ' '));
+}
+ 
+/**
+ * Detecta si hay una segunda tabla pegada en paralelo.
+ * Busca el primer "bloque vacío" de columnas en la zona central.
+ * Retorna el índice de la primera columna de la segunda tabla, o -1.
+ */
+function detectSplitCol(lines) {
+    const maxCols = Math.max(...lines.map(l => l.split('\t').length));
+    if (maxCols < 8) return -1;          // No hay suficientes columnas
+ 
+    const dataLines = lines.filter(l => !isSkipRow(l.split('\t')));
+    if (!dataLines.length) return -1;
+ 
+    // Contar cuántas filas tienen vacía cada columna
+    const emptyCount = Array(maxCols).fill(0);
+    dataLines.forEach(line => {
+        line.split('\t').forEach((c, i) => {
+            if (!c.trim()) emptyCount[i]++;
+        });
+    });
+ 
+    const threshold = Math.ceil(dataLines.length * 0.5);
+    // Buscar entre la col 3 y maxCols-4 una columna mayoritariamente vacía
+    for (let i = 3; i < maxCols - 3; i++) {
+        if (emptyCount[i] >= threshold) {
+            // La segunda tabla empieza después de este bloque vacío
+            // Verificar que después haya columnas con datos
+            let nextDataCol = i + 1;
+            while (nextDataCol < maxCols && emptyCount[nextDataCol] >= threshold) nextDataCol++;
+            if (nextDataCol < maxCols) return nextDataCol;
+        }
+    }
+    return -1;
+}
+ 
+/**
+ * Extrae una fila de datos desde un array de celdas.
+ * startIdx: índice de la primera columna del bloque (fecha).
+ * Orden esperado: [fecha, hora, temp, pH]
+ */
+function extractDataRow(cols, startIdx) {
+    const fecha = parseFecha(cols[startIdx]     || '');
+    const hora  = parseHora( cols[startIdx + 1] || '');
+    const temp  = parseNum(  cols[startIdx + 2] || '');
+    const ph    = parseNum(  cols[startIdx + 3] || '');
+ 
+    // La fecha debe ser válida para considerar la fila como dato
+    if (!fecha || !fecha.match(/^\d{4}-\d{2}-\d{2}$/)) return null;
+ 
+    return { fecha, hora, temp, ph };
+}
+ 
+/**
+ * Parsea el texto pegado y retorna las filas de datos.
+ * Si hay dos tablas en paralelo, retorna la primera (índice 0).
+ * tableIndex permite seleccionar cuál tabla usar (0 o 1).
+ */
+function parseExcelPaste(raw, tableIndex) {
+    const lines = raw.trim().split(/\r?\n/);
+    const splitCol = detectSplitCol(lines);
+ 
+    const tables = [[], []];
+ 
+    lines.forEach(line => {
+        const cols = line.split('\t');
+        if (isSkipRow(cols)) return;
+ 
+        const r0 = extractDataRow(cols, 0);
+        if (r0) tables[0].push(r0);
+ 
+        if (splitCol > 0) {
+            const r1 = extractDataRow(cols, splitCol);
+            if (r1) tables[1].push(r1);
+        }
+    });
+ 
+    const idx = (tableIndex || 0);
+    return tables[idx].length ? tables[idx] : tables[0];
+}
+ 
+/* ════════════════════════════════════════════════════
+   DOM READY
+════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-
+ 
     /* Quitar required de todos los inputs */
     document.querySelectorAll('input, textarea, select').forEach(el => el.removeAttribute('required'));
     new MutationObserver(() => {
         document.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
     }).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['required'] });
-
-    /* Renumerar filas Blade al cargar (por si n_muestra viene desordenado) */
+ 
+    /* Renumerar filas iniciales (cargadas desde Blade) */
     renumber();
-
+ 
     /* Anexos */
     window.onAnexoFileChange = function(input, n) {
         const cont  = document.getElementById(`anexo_info_${n}`);
@@ -965,50 +1138,37 @@ document.addEventListener('DOMContentLoaded', () => {
             if (texto) texto.textContent = '';
         }
     };
-
+ 
     /* ── Paste desde Excel ── */
     const pasteArea = document.getElementById('pasteExcel');
     if (!pasteArea) return;
-
+ 
     pasteArea.addEventListener('paste', e => {
         e.preventDefault();
-        const raw   = (e.clipboardData || window.clipboardData).getData('text');
-        const lines = raw.trim().split(/\r?\n/).filter(l => l.trim());
-        if (!lines.length) return;
-
-        const tbody = document.getElementById('medicionesBody');
-
-        /* Borrar fila vacía inicial */
-        if (tbody.rows.length === 1) {
-            const inputs = tbody.rows[0].querySelectorAll('input');
-            if (tbody.rows.length === 1) {
-                const inputs = Array.from(tbody.rows[0].querySelectorAll('input'))
-                    .filter(inp => inp.name !== 'lectura_n[]');   // ← excluir el contador
-                if (inputs.every(inp => !inp.value)) tbody.rows[0].remove();
-            }
+        const raw = (e.clipboardData || window.clipboardData).getData('text');
+        if (!raw.trim()) return;
+ 
+        const rows = parseExcelPaste(raw, 0);
+ 
+        if (!rows.length) {
+            pasteArea.value = 'No se encontraron datos válidos. Verifica que el formato sea: Fecha | Hora | Temp | pH';
+            setTimeout(() => { pasteArea.value = ''; }, 4000);
+            return;
         }
-
-        lines.forEach(line => {
-            const cols = line.split(/\t|;/);
-            if (cols.length < 4) return;
-            let [rawFecha, rawHora, rawTemp, rawPH] = cols.map(c => c.trim());
-            const num = v => (v || '').replace(',', '.');
-
-            /* dd/MM/yyyy → yyyy-MM-dd */
-            let fechaISO = '';
-            if (rawFecha) {
-                const p = rawFecha.split('/');
-                fechaISO = p.length === 3
-                    ? `${p[2].padStart(4,'0')}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`
-                    : rawFecha;
-            }
-
-            /* hora: asegurar HH:mm */
-            const horaHHmm = rawHora && rawHora.length === 4 ? `0${rawHora}` : (rawHora || '');
-
-            tbody.appendChild(buildRow(fechaISO, horaHHmm, '', num(rawPH), num(rawTemp)));
+ 
+        const tbody = document.getElementById('medicionesBody');
+ 
+        // Limpiar fila vacía inicial si es la única fila y está sin datos
+        if (tbody.rows.length === 1) {
+            const inputs = Array.from(tbody.rows[0].querySelectorAll('input'))
+                .filter(inp => inp.name !== 'lectura_n[]');
+            if (inputs.every(inp => !inp.value)) tbody.rows[0].remove();
+        }
+ 
+        rows.forEach(r => {
+            tbody.appendChild(buildRow(r.fecha, r.hora, '', r.ph, r.temp));
         });
-
+ 
         renumber();
         pasteArea.value = '';
     });
